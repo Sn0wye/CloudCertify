@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: cloudcertify
+      POSTGRES_PASSWORD: cloudcertify
+      POSTGRES_DB: cloudcertify
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - postgres_network
+
+  api:
+    build: ./API
+    container_name: cloud-certify-api
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+    networks:
+      - postgres_network
+
+volumes:
+  postgres_data:
+
+networks:
+  postgres_network:
+    driver: bridge
