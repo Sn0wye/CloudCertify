@@ -1,9 +1,9 @@
-using API.Models;
 using API.Repositories;
 
 namespace API.External;
 
 using Newtonsoft.Json;
+using Entities;
 
 public class Question
 {
@@ -46,17 +46,17 @@ public class QuestionService
             Description = "",
         };
 
-        var questions = new List<API.Models.Question>();
+        var questions = new List<API.Entities.Question>();
 
         if (jsonQuestions != null)
         {
             foreach (var question in jsonQuestions)
             {
-                var q = new API.Models.Question
+                var q = new API.Entities.Question
                 {
                     Text = question.Text,
                     Type = QuestionType.MultipleChoice,
-                    Answers = question.Answers.Select(a => new API.Models.Answer
+                    Answers = question.Answers.Select(a => new API.Entities.Answer
                     {
                         Text = a.Text,
                         IsCorrect = a.IsCorrect,

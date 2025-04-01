@@ -1,6 +1,5 @@
-using API.Models;
+using API.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace API;
 

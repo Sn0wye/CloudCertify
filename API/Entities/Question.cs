@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
-namespace API.Models;
+namespace API.Entities;
 
 [Table("Question")]
 public class Question
@@ -17,6 +18,8 @@ public class Question
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     
     public virtual ICollection<Answer> Answers { get; set; }
+    
+    [JsonIgnore]
     public virtual Quiz Quiz { get; set; }
 }
 

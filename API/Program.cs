@@ -23,10 +23,10 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddScoped<QuizRepository>();
+builder.Services.AddScoped<QuestionRepository>();
 
 builder.Services.AddScoped<QuestionService>();
 builder.Services.AddScoped<QuizService>();
-
 
 var app = builder.Build();
 

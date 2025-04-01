@@ -1,4 +1,4 @@
-using API.Models;
+using API.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories;
@@ -15,6 +15,7 @@ public class QuizRepository(ApplicationDbContext context)
     {
         return await context.Quiz
             .Include(q => q.Questions)
+            .ThenInclude(q => q.Answers)
             .FirstOrDefaultAsync(q => q.Id == quizId);
     }
     
