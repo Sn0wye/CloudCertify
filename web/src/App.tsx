@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import LandingPage from './pages/landing';
-import { Switch, Route } from 'wouter';
+import { Route, Router } from 'wouter';
 import QuizPage from './pages/quiz';
 
 export function App() {
@@ -23,9 +23,9 @@ export function App() {
   }, []);
 
   return (
-    <Switch>
+    <Router>
       <Route path='/' component={LandingPage} />
       <Route path='/quiz' component={QuizPage} />
-    </Switch>
+    </Router>
   );
 }
