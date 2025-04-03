@@ -14,6 +14,12 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'wouter';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion';
 
 // Define types based on the provided data structure
 type Answer = {
@@ -162,6 +168,9 @@ const quizData: Quiz = {
   ]
 };
 
+// Pass threshold percentage
+const PASS_THRESHOLD = 70;
+
 export default function QuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
@@ -217,6 +226,8 @@ export default function QuizPage() {
 
   if (quizCompleted) {
     const score = calculateScore();
+    const passed = score.percentage >= PASS_THRESHOLD;
+
     return (
       <div className='container max-w-4xl mx-auto py-12 px-4'>
         <Card className='w-full'>
@@ -229,6 +240,17 @@ export default function QuizPage() {
               <div className='text-6xl font-bold text-sky-600'>
                 {score.percentage}%
               </div>
+
+              <Badge
+                className={`px-3 py-1 text-sm ${
+                  passed
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}
+              >
+                {passed ? 'PASS' : 'FAIL'} (Passing score: {PASS_THRESHOLD}%)
+              </Badge>
+
               <p className='text-xl'>
                 You got <span className='font-bold'>{score.correct}</span> out
                 of <span className='font-bold'>{score.total}</span> questions
@@ -236,60 +258,141 @@ export default function QuizPage() {
               </p>
 
               <div className='w-full max-w-md mt-4'>
-                <Progress value={score.percentage} className='h-3' />
+                <Progress
+                  value={score.percentage}
+                  className={`h-3 ${passed ? 'bg-green-100' : 'bg-red-100'}`}
+                  indicatorClassName={passed ? 'bg-green-500' : 'bg-red-500'}
+                />
               </div>
             </div>
 
             <div className='space-y-6'>
               <h3 className='text-xl font-bold'>Question Summary</h3>
-              {quizData.questions.map((question, index) => {
-                const userAnswerId = userAnswers[question.id];
-                const userAnswer = question.answers.find(
-                  a => a.id === userAnswerId
-                );
-                const correctAnswer = question.answers.find(a => a.isCorrect);
-                const isCorrect =
-                  userAnswerId &&
-                  correctAnswer &&
-                  userAnswerId === correctAnswer.id;
+              <Accordion type='single' collapsible className='w-full'>
+                {quizData.questions.map((question, index) => {
+                  const userAnswerId = userAnswers[question.id];
+                  const userAnswer = question.answers.find(
+                    a => a.id === userAnswerId
+                  );
+                  const correctAnswer = question.answers.find(a => a.isCorrect);
+                  const isCorrect =
+                    userAnswerId &&
+                    correctAnswer &&
+                    userAnswerId === correctAnswer.id;
 
-                return (
-                  <div key={question.id} className='border rounded-lg p-4'>
-                    <div className='flex items-start gap-3'>
-                      {isCorrect ? (
-                        <CheckCircle className='h-6 w-6 text-green-500 mt-1 flex-shrink-0' />
-                      ) : (
-                        <XCircle className='h-6 w-6 text-red-500 mt-1 flex-shrink-0' />
-                      )}
-                      <div className='space-y-2'>
-                        <p className='font-medium'>
-                          Question {index + 1}: {question.text}
-                        </p>
-                        <p className='text-sm text-muted-foreground'>
-                          Your answer:{' '}
-                          <span
-                            className={
-                              isCorrect
-                                ? 'text-green-600 font-medium'
-                                : 'text-red-600 font-medium'
+                  return (
+                    <AccordionItem
+                      key={question.id}
+                      value={`question-${question.id}`}
+                    >
+                      <AccordionTrigger className='hover:no-underline'>
+                        <div className='flex items-start gap-3 text-left'>
+                          {isCorrect ? (
+                            <CheckCircle className='h-6 w-6 text-green-500 mt-1 flex-shrink-0' />
+                          ) : (
+                            <XCircle className='h-6 w-6 text-red-500 mt-1 flex-shrink-0' />
+                          )}
+                          <div>
+                            <p className='font-medium'>
+                              Question {index + 1}: {question.text}
+                            </p>
+                            <p className='text-sm text-muted-foreground mt-1'>
+                              {isCorrect ? 'Correct' : 'Incorrect'} - Click to
+                              view details
+                            </p>
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className='space-y-3 pt-2 pl-9'>
+                          {question.answers.map(answer => {
+                            const isUserAnswer = userAnswerId === answer.id;
+                            const isCorrectAnswer = answer.isCorrect;
+
+                            let className =
+                              'p-3 rounded-md border flex items-start gap-2';
+
+                            if (isUserAnswer && isCorrectAnswer) {
+                              className += ' border-green-500 bg-green-50';
+                            } else if (isUserAnswer && !isCorrectAnswer) {
+                              className += ' border-red-500 bg-red-50';
+                            } else if (!isUserAnswer && isCorrectAnswer) {
+                              className += ' border-green-500 bg-green-50';
                             }
-                          >
-                            {userAnswer ? userAnswer.text : 'Not answered'}
-                          </span>
-                        </p>
-                        {!isCorrect && (
-                          <p className='text-sm text-muted-foreground'>
-                            Correct answer:{' '}
-                            <span className='text-green-600 font-medium'>
-                              {correctAnswer?.text}
-                            </span>
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+
+                            return (
+                              <div key={answer.id} className={className}>
+                                <div
+                                  className={`w-5 h-5 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0 ${
+                                    isCorrectAnswer
+                                      ? 'bg-green-500 text-white'
+                                      : isUserAnswer
+                                      ? 'bg-red-500 text-white'
+                                      : 'border border-input'
+                                  }`}
+                                >
+                                  {isCorrectAnswer && (
+                                    <CheckCircle className='h-3 w-3' />
+                                  )}
+                                  {isUserAnswer && !isCorrectAnswer && (
+                                    <XCircle className='h-3 w-3' />
+                                  )}
+                                </div>
+                                <div className='flex-1'>
+                                  <span>{answer.text}</span>
+                                  {isUserAnswer && (
+                                    <span className='ml-2 text-sm font-medium text-muted-foreground'>
+                                      (Your answer)
+                                    </span>
+                                  )}
+                                  {isCorrectAnswer && (
+                                    <span className='ml-2 text-sm font-medium text-green-600'>
+                                      (Correct answer)
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                          {/* {question.id === 136 && (
+                            <div className='mt-4 p-3 bg-sky-50 rounded-lg border border-sky-100'>
+                              <h4 className='font-medium'>Explanation</h4>
+                              <p className='mt-1 text-muted-foreground'>
+                                AWS Lambda cannot be called directly from a
+                                mobile app without using an API Gateway or other
+                                AWS service as an intermediary. The other
+                                options are all valid benefits of AWS Lambda.
+                              </p>
+                            </div>
+                          )}
+                          {question.id === 137 && (
+                            <div className='mt-4 p-3 bg-sky-50 rounded-lg border border-sky-100'>
+                              <h4 className='font-medium'>Explanation</h4>
+                              <p className='mt-1 text-muted-foreground'>
+                                Amazon S3 (Simple Storage Service) is designed
+                                specifically for object storage and is known for
+                                its 99.999999999% (11 nines) durability.
+                              </p>
+                            </div>
+                          )}
+                          {question.id === 138 && (
+                            <div className='mt-4 p-3 bg-sky-50 rounded-lg border border-sky-100'>
+                              <h4 className='font-medium'>Explanation</h4>
+                              <p className='mt-1 text-muted-foreground'>
+                                Amazon VPC (Virtual Private Cloud) provides a
+                                logically isolated section of the AWS Cloud
+                                where you can launch AWS resources in a virtual
+                                network that you define.
+                              </p>
+                            </div>
+                          )} */}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
             </div>
           </CardContent>
           <CardFooter className='flex flex-col sm:flex-row gap-4 justify-between'>

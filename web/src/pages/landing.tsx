@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { ReactNode } from 'react';
+import { Link } from 'wouter';
 
 export default function LandingPage() {
   return (
@@ -100,13 +101,28 @@ export default function LandingPage() {
             </div>
             <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8'>
               <CertificationCard
+                title='AWS Certified Cloud Practitioner (CLF-C02)'
+                icon={<Code className='h-12 w-12 text-sky-500' />}
+                difficulty='Foundational'
+                questions={1185}
+                available={true}
+              />
+              <CertificationCard
+                title='AWS Certified Solutions Architect (SAA-C03)'
+                icon={<Server className='h-12 w-12 text-sky-500' />}
+                difficulty='Associate'
+                questions={450}
+                available={false}
+                href='/certifications/aws-solutions-architect-associate'
+              />
+              {/* <CertificationCard
                 title='AWS Solutions Architect'
                 description='Learn to design distributed systems and implement AWS solutions.'
                 icon={<Server className='h-12 w-12 text-sky-500' />}
                 difficulty='Associate'
                 questions={450}
-              />
-              <CertificationCard
+              /> */}
+              {/* <CertificationCard
                 title='AWS Developer'
                 description='Master developing, deploying, and debugging cloud-based applications.'
                 icon={<Code className='h-12 w-12 text-sky-500' />}
@@ -140,7 +156,7 @@ export default function LandingPage() {
                 icon={<BookOpen className='h-12 w-12 text-sky-500' />}
                 difficulty='Specialty'
                 questions={480}
-              />
+              /> */}
             </div>
           </div>
         </section>
@@ -400,40 +416,64 @@ export default function LandingPage() {
 
 type CertificationCardProps = {
   title: string;
-  description: string;
+  // description: string;
   icon: ReactNode;
   difficulty: string;
   questions: number;
+  available?: boolean;
+  href?: string;
 };
 
 function CertificationCard({
   title,
-  description,
+  // description,
   icon,
   difficulty,
-  questions
+  questions,
+  available = false,
+  href
 }: CertificationCardProps) {
   return (
-    <Card className='flex flex-col overflow-hidden transition-all hover:shadow-lg'>
+    <Card className='flex flex-col overflow-hidden transition-all hover:shadow-lg relative'>
+      {!available && (
+        <div className='absolute top-0 right-0 m-3'>
+          <Badge className='bg-amber-100 text-amber-800 hover:bg-amber-100'>
+            Coming Soon
+          </Badge>
+        </div>
+      )}
       <CardHeader className='pb-0'>
         <div className='flex justify-center mb-4'>{icon}</div>
         <CardTitle className='text-xl'>{title}</CardTitle>
-        <CardDescription className='mt-2'>{description}</CardDescription>
+        {/* <CardDescription className='mt-2'>{description}</CardDescription> */}
       </CardHeader>
       <CardContent className='flex-1'>
         <div className='flex justify-between text-sm text-muted-foreground mt-4'>
           <div className='flex items-center gap-1'>
             <Badge variant='outline'>{difficulty}</Badge>
           </div>
-          <div className='flex items-center gap-1'>
-            <BookOpen className='h-4 w-4' />
-            <span>{questions} Questions</span>
-          </div>
+          {available ? (
+            <div className='flex items-center gap-1'>
+              <span>{questions} Questions</span>
+              <BookOpen className='h-4 w-4' />
+            </div>
+          ) : null}
         </div>
       </CardContent>
       <CardFooter>
-        <Button className='w-full'>Start Learning</Button>
+        {available && href ? (
+          <Button className='w-full' asChild>
+            <Link href={href}>Start Learning</Link>
+          </Button>
+        ) : (
+          <Button className='w-full' disabled={!available}>
+            {available ? 'Start Learning' : 'Coming Soon'}
+          </Button>
+        )}
       </CardFooter>
+      {!available && (
+        <div className='absolute inset-0 bg-gradient-to-b from-transparent to-background/80 pointer-events-none' />
+      )}
     </Card>
   );
 }
