@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import LandingPage from './pages/landing';
+import { HomePage } from './pages/home';
 import { Route, Router } from 'wouter';
-import QuizPage from './pages/quiz';
+import { QuizPage } from './pages/quiz';
+import { DashboardPage } from './pages/dashboard';
 
 export function App() {
   useEffect(() => {
@@ -24,8 +25,9 @@ export function App() {
 
   return (
     <Router>
-      <Route path='/' component={LandingPage} />
+      <Route path='/' component={HomePage} />
       <Route path='/quiz' component={QuizPage} />
+      <Route path='/dashboard' component={DashboardPage} />
     </Router>
   );
 }

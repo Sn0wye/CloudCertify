@@ -1,40 +1,32 @@
-import {
-  ArrowRight,
-  Award,
-  BookOpen,
-  CheckCircle,
-  Cloud,
-  Code,
-  Database,
-  Server
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, CheckCircle, Cloud } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import type { ReactNode } from 'react';
+import { certifications } from '@/data/certifications';
+import { Footer } from '@/components/footer';
+import { CertificationCard } from '@/components/certification-card';
 import { Link } from 'wouter';
 
-export default function LandingPage() {
+export function HomePage() {
   return (
     <div className='flex min-h-screen flex-col'>
       <header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60'>
         <div className='container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0'>
-          <div className='flex gap-2 items-center text-xl font-bold'>
+          <Link href='/' className='flex gap-2 items-center text-xl font-bold'>
             <Cloud className='h-6 w-6 text-sky-500' />
             <span>CloudCertify</span>
-          </div>
+          </Link>
           <div className='flex flex-1 items-center justify-end'>
             <nav className='flex items-center space-x-6'>
               <a
-                href='#'
+                href='#features'
                 className='text-sm font-medium text-muted-foreground transition-colors hover:text-foreground'
               >
                 Features
@@ -45,26 +37,23 @@ export default function LandingPage() {
               >
                 Pricing
               </a>
-              <a
-                href='#'
-                className='text-sm font-medium text-muted-foreground transition-colors hover:text-foreground'
-              >
-                About
-              </a>
               <Button asChild size='sm'>
-                <a href='#certifications'>Learn Now</a>
+                <a href='/dashboard'>Dashboard</a>
               </Button>
             </nav>
           </div>
         </div>
       </header>
       <main className='flex-1'>
-        <section className='w-full py-12 md:py-24 lg:py-32 bg-linear-to-b from-sky-50 to-white'>
+        <section
+          className='w-full py-12 md:py-24 lg:py-32 bg-linear-to-b from-sky-50 to-white'
+          id='hero'
+        >
           <div className='container px-4 md:px-6'>
             <div className='flex flex-col items-center space-y-4 text-center'>
               <div className='space-y-2'>
                 <Badge className='px-3 py-1 text-sm bg-sky-100 text-sky-800 hover:bg-sky-100'>
-                  100% Free Forever - No Credit Card Required
+                  100% Free - No Credit Card Required
                 </Badge>
                 <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-black'>
                   Master AWS Certifications with Confidence
@@ -75,8 +64,14 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className='flex flex-col gap-2 min-[400px]:flex-row'>
-                <Button size='lg' className='bg-sky-600 hover:bg-sky-700'>
-                  Start Learning <ArrowRight className='ml-2 h-4 w-4' />
+                <Button
+                  asChild
+                  size='lg'
+                  className='bg-sky-600 hover:bg-sky-700'
+                >
+                  <Link href='/dashboard'>
+                    Start Learning <ArrowRight className='ml-2 h-4 w-4' />
+                  </Link>
                 </Button>
                 <Button size='lg' variant='outline' asChild>
                   <a href='#certifications'>View Certifications</a>
@@ -100,63 +95,18 @@ export default function LandingPage() {
               </div>
             </div>
             <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8'>
-              <CertificationCard
-                title='AWS Certified Cloud Practitioner (CLF-C02)'
-                icon={<Code className='h-12 w-12 text-sky-500' />}
-                difficulty='Foundational'
-                questions={1185}
-                available={true}
-              />
-              <CertificationCard
-                title='AWS Certified Solutions Architect (SAA-C03)'
-                icon={<Server className='h-12 w-12 text-sky-500' />}
-                difficulty='Associate'
-                questions={450}
-                available={false}
-                href='/certifications/aws-solutions-architect-associate'
-              />
-              {/* <CertificationCard
-                title='AWS Solutions Architect'
-                description='Learn to design distributed systems and implement AWS solutions.'
-                icon={<Server className='h-12 w-12 text-sky-500' />}
-                difficulty='Associate'
-                questions={450}
-              /> */}
-              {/* <CertificationCard
-                title='AWS Developer'
-                description='Master developing, deploying, and debugging cloud-based applications.'
-                icon={<Code className='h-12 w-12 text-sky-500' />}
-                difficulty='Associate'
-                questions={380}
-              />
-              <CertificationCard
-                title='AWS SysOps Administrator'
-                description='Learn to deploy, manage, and operate systems on AWS.'
-                icon={<Database className='h-12 w-12 text-sky-500' />}
-                difficulty='Associate'
-                questions={420}
-              />
-              <CertificationCard
-                title='AWS Cloud Practitioner'
-                description='Build your foundational understanding of AWS Cloud concepts.'
-                icon={<Cloud className='h-12 w-12 text-sky-500' />}
-                difficulty='Foundational'
-                questions={300}
-              />
-              <CertificationCard
-                title='AWS Security Specialty'
-                description='Specialize in AWS security, identity, and compliance.'
-                icon={<CheckCircle className='h-12 w-12 text-sky-500' />}
-                difficulty='Specialty'
-                questions={520}
-              />
-              <CertificationCard
-                title='AWS Machine Learning'
-                description='Master machine learning solutions on the AWS platform.'
-                icon={<BookOpen className='h-12 w-12 text-sky-500' />}
-                difficulty='Specialty'
-                questions={480}
-              /> */}
+              {certifications.map(c => (
+                <CertificationCard
+                  key={c.id}
+                  title={c.title}
+                  icon={c.icon}
+                  difficulty={c.difficulty}
+                  questions={c.questions}
+                  available={c.available}
+                  description={c.description}
+                  href={c.href}
+                />
+              ))}
             </div>
           </div>
         </section>
@@ -245,7 +195,7 @@ export default function LandingPage() {
                 <CardHeader className='bg-sky-50 pb-8'>
                   <div className='flex justify-center'>
                     <Badge className='px-3 py-1 text-lg font-bold bg-sky-100 text-sky-800'>
-                      100% Free Forever
+                      100% Free
                     </Badge>
                   </div>
                   <div className='flex justify-center mt-4'>
@@ -259,19 +209,12 @@ export default function LandingPage() {
                   <ul className='space-y-4'>
                     <li className='flex items-start gap-3'>
                       <CheckCircle className='h-5 w-5 text-green-500 mt-0.5' />
-                      <span>
-                        Full access to all AWS Cloud Practitioner (CLF-C02)
-                        practice questions
-                      </span>
+                      <span>Full access to all AWS practice questions</span>
                     </li>
-                    <li className='flex items-start gap-3'>
+                    {/* <li className='flex items-start gap-3'>
                       <CheckCircle className='h-5 w-5 text-green-500 mt-0.5' />
                       <span>Detailed explanations for every question</span>
-                    </li>
-                    <li className='flex items-start gap-3'>
-                      <CheckCircle className='h-5 w-5 text-green-500 mt-0.5' />
-                      <span>Performance tracking and analytics</span>
-                    </li>
+                    </li> */}
                     <li className='flex items-start gap-3'>
                       <CheckCircle className='h-5 w-5 text-green-500 mt-0.5' />
                       <span>Exam simulation mode</span>
@@ -284,10 +227,11 @@ export default function LandingPage() {
                 </CardContent>
                 <CardFooter className='bg-sky-50 p-6'>
                   <Button
+                    asChild
                     size='lg'
                     className='w-full bg-sky-600 hover:bg-sky-700'
                   >
-                    Start Learning Now
+                    <Link href='/dashboard'>Start Learning Now</Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -295,7 +239,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className='w-full py-12 md:py-24 lg:py-32'>
+        <section className='w-full py-12 md:py-24 lg:py-32' id='features'>
           <div className='container px-4 md:px-6'>
             <div className='grid gap-6 lg:grid-cols-2 lg:gap-12 items-center'>
               <div className='space-y-4'>
@@ -303,11 +247,11 @@ export default function LandingPage() {
                   Why Choose CloudCertify
                 </div>
                 <h2 className='text-3xl font-bold tracking-tighter md:text-4xl'>
-                  Focused on AWS Cloud Practitioner Success
+                  Focused on AWS Certification Success
                 </h2>
                 <p className='text-muted-foreground md:text-xl'>
-                  Our platform is specifically designed to help you pass the AWS
-                  Certified Cloud Practitioner (CLF-C02) exam.
+                  This website is specifically designed to help you pass the AWS
+                  certification exams
                 </p>
                 <div className='space-y-4'>
                   <div className='flex items-start gap-4'>
@@ -335,12 +279,12 @@ export default function LandingPage() {
                     <div>
                       <h3 className='font-bold'>Exam-Focused Learning</h3>
                       <p className='text-muted-foreground'>
-                        Questions aligned with the latest CLF-C02 exam
-                        objectives and format.
+                        Questions aligned with the latest exam objectives and
+                        format.
                       </p>
                     </div>
                   </div>
-                  <div className='flex items-start gap-4'>
+                  {/* <div className='flex items-start gap-4'>
                     <CheckCircle className='h-6 w-6 text-green-500 mt-1' />
                     <div>
                       <h3 className='font-bold'>Beginner-Friendly</h3>
@@ -349,7 +293,7 @@ export default function LandingPage() {
                         of fundamental concepts.
                       </p>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className='flex justify-center'>
@@ -361,12 +305,17 @@ export default function LandingPage() {
                         Ready to become AWS certified?
                       </h3>
                       <p className='text-muted-foreground'>
-                        Join thousands of successful AWS Cloud Practitioners.
+                        Take the first step towards your AWS certification
+                        success today.
                       </p>
                     </div>
                     <div className='grid w-full gap-2'>
-                      <Button size='lg' className='bg-sky-600 hover:bg-sky-700'>
-                        Start Learning Now
+                      <Button
+                        asChild
+                        size='lg'
+                        className='bg-sky-600 hover:bg-sky-700'
+                      >
+                        <Link href='/dashboard'>Start Learning Now</Link>
                       </Button>
                       <Button size='lg' variant='outline' asChild>
                         <a href='#pricing'>See Our Free Plan</a>
@@ -379,102 +328,8 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
-      <footer className='w-full border-t py-6 md:py-0'>
-        <div className='container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row'>
-          <div className='flex items-center gap-2 text-lg font-semibold'>
-            <Cloud className='h-5 w-5 text-sky-500' />
-            <p>CloudCertify</p>
-          </div>
-          <p className='text-center text-sm text-muted-foreground md:text-left'>
-            &copy; {new Date().getFullYear()} CloudCertify. All rights reserved.
-          </p>
-          <div className='flex gap-4'>
-            {/* <a
-                href='#'
-                className='text-sm text-muted-foreground hover:text-foreground'
-              >
-                Terms
-              </a>
-              <a
-                href='#'
-                className='text-sm text-muted-foreground hover:text-foreground'
-              >
-                Privacy
-              </a> */}
-            <a
-              href='#'
-              className='text-sm text-muted-foreground hover:text-foreground'
-            >
-              Contact
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
-  );
-}
-
-type CertificationCardProps = {
-  title: string;
-  // description: string;
-  icon: ReactNode;
-  difficulty: string;
-  questions: number;
-  available?: boolean;
-  href?: string;
-};
-
-function CertificationCard({
-  title,
-  // description,
-  icon,
-  difficulty,
-  questions,
-  available = false,
-  href
-}: CertificationCardProps) {
-  return (
-    <Card className='flex flex-col overflow-hidden transition-all hover:shadow-lg relative'>
-      {!available && (
-        <div className='absolute top-0 right-0 m-3'>
-          <Badge className='bg-amber-100 text-amber-800 hover:bg-amber-100'>
-            Coming Soon
-          </Badge>
-        </div>
-      )}
-      <CardHeader className='pb-0'>
-        <div className='flex justify-center mb-4'>{icon}</div>
-        <CardTitle className='text-xl'>{title}</CardTitle>
-        {/* <CardDescription className='mt-2'>{description}</CardDescription> */}
-      </CardHeader>
-      <CardContent className='flex-1'>
-        <div className='flex justify-between text-sm text-muted-foreground mt-4'>
-          <div className='flex items-center gap-1'>
-            <Badge variant='outline'>{difficulty}</Badge>
-          </div>
-          {available ? (
-            <div className='flex items-center gap-1'>
-              <span>{questions} Questions</span>
-              <BookOpen className='h-4 w-4' />
-            </div>
-          ) : null}
-        </div>
-      </CardContent>
-      <CardFooter>
-        {available && href ? (
-          <Button className='w-full' asChild>
-            <Link href={href}>Start Learning</Link>
-          </Button>
-        ) : (
-          <Button className='w-full' disabled={!available}>
-            {available ? 'Start Learning' : 'Coming Soon'}
-          </Button>
-        )}
-      </CardFooter>
-      {!available && (
-        <div className='absolute inset-0 bg-gradient-to-b from-transparent to-background/80 pointer-events-none' />
-      )}
-    </Card>
   );
 }
 
@@ -540,11 +395,14 @@ function QuizCard({
         </div>
       </CardContent>
       <CardFooter className='flex justify-between'>
-        <Button variant='ghost' size='sm'>
-          Explanation
+        <Button variant='outline'>
+          <ArrowLeft className='mr-2 h-4 w-4' />
+          Previous
         </Button>
-        <Button variant='outline' size='sm'>
-          Next Question
+
+        <Button>
+          Next
+          <ArrowRight className='ml-2 h-4 w-4' />
         </Button>
       </CardFooter>
     </Card>

@@ -171,7 +171,7 @@ const quizData: Quiz = {
 // Pass threshold percentage
 const PASS_THRESHOLD = 70;
 
-export default function QuizPage() {
+export function QuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
   const [quizCompleted, setQuizCompleted] = useState(false);
@@ -271,9 +271,6 @@ export default function QuizPage() {
               <Accordion type='single' collapsible className='w-full'>
                 {quizData.questions.map((question, index) => {
                   const userAnswerId = userAnswers[question.id];
-                  const userAnswer = question.answers.find(
-                    a => a.id === userAnswerId
-                  );
                   const correctAnswer = question.answers.find(a => a.isCorrect);
                   const isCorrect =
                     userAnswerId &&
