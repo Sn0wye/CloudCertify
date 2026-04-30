@@ -13,6 +13,7 @@ public class ApplicationDbContext: DbContext
     public DbSet<Quiz> Quiz { get; set; }
     public DbSet<Question> Question { get; set; }
     public DbSet<Answer> Answer { get; set; }
+    public DbSet<Submission> Submission { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,8 +22,11 @@ public class ApplicationDbContext: DbContext
             entity.HasKey(q => q.Id);
             entity.Property(q => q.Title).IsRequired().HasMaxLength(255);
             entity.Property(q => q.Description).IsRequired().HasMaxLength(255);
+            entity.Property(q => q.IconName).IsRequired().HasMaxLength(255);
+            entity.Property(q => q.QuizLevel).IsRequired().HasConversion<string>();
+            entity.Property(q => q.QuizProvider).IsRequired().HasConversion<string>();
             entity.Property(q => q.CreatedAt).IsRequired();
-        
+
             entity.HasMany(q => q.Questions)
                 .WithOne(q => q.Quiz)
                 .HasForeignKey(q => q.QuizId);
@@ -54,6 +58,19 @@ public class ApplicationDbContext: DbContext
             entity.HasOne(a => a.Question)
                 .WithMany(q => q.Answers)
                 .HasForeignKey(a => a.QuestionId);
+        });
+
+        modelBuilder.Entity<Submission>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.Email).IsRequired().HasMaxLength(255);
+            entity.Property(s => s.Finished).IsRequired();
+            entity.Property(s => s.Score).IsRequired();
+            entity.Property(s => s.CreatedAt).IsRequired();
+
+            entity.HasOne<Quiz>()
+                .WithMany()
+                .HasForeignKey(s => s.QuizId);
         });
     }
 }
