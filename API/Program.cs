@@ -5,6 +5,7 @@ using API.External;
 using API.Repositories;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddScoped<QuizRepository>();
 builder.Services.AddScoped<QuestionRepository>();
+builder.Services.AddScoped<SubmissionRepository>();
 
 builder.Services.AddScoped<QuestionService>();
 builder.Services.AddScoped<QuizService>();
@@ -34,6 +36,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.MapControllers();
