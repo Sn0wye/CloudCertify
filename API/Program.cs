@@ -5,6 +5,7 @@ using API.External;
 using API.Repositories;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 
 DotNetEnv.Env.TraversePath().Load();
@@ -13,7 +14,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, ct) =>
+    {
+        document.Info.Title = "CloudCertify API";
+        document.Info.Description = "CloudCertify API — a cloud certification quiz and exam prep platform.";
+        document.Info.Version = "v1";
+        document.Servers.Add(new OpenApiServer
+        {
+            Url = "https://api-cloudcertify.snowye.dev",
+            Description = "Production"
+        });
+        return Task.CompletedTask;
+    });
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -38,9 +53,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference("/docs", options =>
+    {
+        options.WithTitle("CloudCertify API");
+    });
 }
-
+    
 app.MapControllers();
 app.UseHttpsRedirection();
 
