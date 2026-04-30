@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250329195408_Initial")]
+    [Migration("20260429223103_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("API.Models.Answer", b =>
+            modelBuilder.Entity("API.Entities.Answer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -49,10 +49,12 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("QuestionId");
+
                     b.ToTable("Answer");
                 });
 
-            modelBuilder.Entity("API.Models.Question", b =>
+            modelBuilder.Entity("API.Entities.Question", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -68,8 +70,7 @@ namespace API.Migrations
 
                     b.Property<string>("Text")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -81,7 +82,7 @@ namespace API.Migrations
                     b.ToTable("Question");
                 });
 
-            modelBuilder.Entity("API.Models.Quiz", b =>
+            modelBuilder.Entity("API.Entities.Quiz", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -97,6 +98,13 @@ namespace API.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("IconName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("QuizLevel")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -107,16 +115,34 @@ namespace API.Migrations
                     b.ToTable("Quiz");
                 });
 
-            modelBuilder.Entity("API.Models.Question", b =>
+            modelBuilder.Entity("API.Entities.Answer", b =>
                 {
-                    b.HasOne("API.Models.Quiz", null)
+                    b.HasOne("API.Entities.Question", "Question")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("API.Entities.Question", b =>
+                {
+                    b.HasOne("API.Entities.Quiz", "Quiz")
                         .WithMany("Questions")
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Quiz");
                 });
 
-            modelBuilder.Entity("API.Models.Quiz", b =>
+            modelBuilder.Entity("API.Entities.Question", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("API.Entities.Quiz", b =>
                 {
                     b.Navigation("Questions");
                 });
