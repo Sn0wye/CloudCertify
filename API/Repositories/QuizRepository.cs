@@ -10,6 +10,12 @@ public class QuizRepository(ApplicationDbContext context)
         await context.Quiz.AddAsync(quiz);
         await context.SaveChangesAsync();
     }
+    
+    public async Task CreateMany(List<Quiz> quizzes)
+    {
+        await context.Quiz.AddRangeAsync(quizzes);
+        await context.SaveChangesAsync();
+    }
         
     public async Task<Quiz?> GetQuizById(int quizId)
     {
