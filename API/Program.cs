@@ -5,6 +5,7 @@ using API.External;
 using API.Repositories;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 
@@ -28,10 +29,35 @@ builder.Services.AddOpenApi(options =>
         });
         return Task.CompletedTask;
     });
+
+    options.AddSchemaTransformer((schema, context, ct) =>
+    {
+        if (context.JsonTypeInfo.Type.IsEnum)
+        {
+            schema.Type = "string";
+            schema.Format = null;
+            schema.Enum = Enum.GetNames(context.JsonTypeInfo.Type)
+                .Select(n => (IOpenApiAny)new OpenApiString(
+                    JsonNamingPolicy.SnakeCaseLower.ConvertName(n)))
+                .ToList();
+        }
+        return Task.CompletedTask;
+    });
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+            // .WithOrigins("https://cloudcertify.snowye.dev")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -59,6 +85,8 @@ if (app.Environment.IsDevelopment())
     });
 }
     
+app.UseCors();
+app.UseCors();
 app.MapControllers();
 app.UseHttpsRedirection();
 
