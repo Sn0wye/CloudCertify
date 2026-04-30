@@ -33,4 +33,5 @@ jobs:
           context: .
           file: API/Dockerfile
           push: true
+          platforms: linux/arm64
           tags: ghcr.io/sn0wye/cloudcertify:prod
