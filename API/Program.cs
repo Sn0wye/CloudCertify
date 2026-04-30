@@ -7,6 +7,8 @@ using API.Services;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
+DotNetEnv.Env.TraversePath().Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
