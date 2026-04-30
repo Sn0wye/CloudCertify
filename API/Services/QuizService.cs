@@ -7,14 +7,16 @@ namespace API.Services;
 
 public class QuizService
 {
-    public QuizService(QuizRepository quizRepository, QuestionRepository questionRepository)
+    public QuizService(QuizRepository quizRepository, QuestionRepository questionRepository, SubmissionRepository submissionRepository)
     {
         _quizRepository = quizRepository;
         _questionRepository = questionRepository;
+        _submissionRepository = submissionRepository;
     }
         
     private readonly QuizRepository _quizRepository;
     private readonly QuestionRepository _questionRepository;
+    private readonly SubmissionRepository _submissionRepository;
     
     public async Task<IEnumerable<QuizDto>> GetQuizzes()
     {
@@ -23,7 +25,12 @@ public class QuizService
         {
             Id = q.Id,
             Title = q.Title,
-            Description = q.Description
+            Description = q.Description,
+            IconName = q.IconName,
+            IsAvailable = q.IsAvailable,
+            QuizProvider = q.QuizProvider,
+            QuizLevel = q.QuizLevel,
+            CreatedAt = q.CreatedAt
         });
     }
     
@@ -46,7 +53,7 @@ public class QuizService
         };
     }
     
-    public async Task<QuizDetailDto?> StartQuiz(int quizId)
+    public async Task<QuizDetailDto?> StartQuiz(int quizId, string email)
     {
         var quiz = await _quizRepository.GetQuizById(quizId);
         
@@ -54,6 +61,20 @@ public class QuizService
         {
             return null;
         }
+
+        if (!quiz.IsAvailable)
+        {
+            throw new InvalidOperationException("Quiz is not available");
+        }
+
+        var submission = new Submission
+        {
+            Email = email,
+            QuizId = quizId,
+            Finished = false,
+        };
+
+        await _submissionRepository.Create(submission);
         
         // get random 65 questions
         var randomQuestions = quiz.Questions.OrderBy(q => Guid.NewGuid()).Take(1).ToList();
@@ -64,12 +85,20 @@ public class QuizService
             Title = quiz.Title,
             Description = quiz.Description,
             CreatedAt = quiz.CreatedAt,
-            Questions = randomQuestions
+            Questions = randomQuestions,
+            SubmissionId = submission.Id
         };
     }
 
-    public async Task<int> SubmitQuiz(int quizId, List<QuizAnswer> answers)
+    public async Task<int> SubmitQuiz(int quizId, int submissionId, List<QuizAnswer> answers)
     {
+        var submission = await _submissionRepository.GetById(quizId);
+        
+        if (submission == null)
+        {
+            throw new InvalidOperationException("Submission not found");
+        }
+        
         var questions = await _questionRepository.GetQuestionsByIds(answers.Select(a => a.QuestionId).ToList());
         int score = 0;
 
@@ -83,6 +112,10 @@ public class QuizService
                 score++;
             }
         }
+        
+        submission.Score = score;
+        submission.Finished = true;
+        await _submissionRepository.Update(submission);
         
         return score;
     }

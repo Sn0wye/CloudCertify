@@ -32,9 +32,9 @@ public class QuizController: ControllerBase
     }
     
     [HttpPost("{quizId}/start")]
-    public async Task<ActionResult<QuizDetailDto>> StartQuiz(int quizId)
+    public async Task<ActionResult<QuizDetailDto>> StartQuiz(int quizId, [FromBody] StartQuizRequestDto request)
     {
-        var quiz = await _quizService.StartQuiz(quizId);
+        var quiz = await _quizService.StartQuiz(quizId, request.Email);
 
         if (quiz == null)
         {
@@ -45,11 +45,11 @@ public class QuizController: ControllerBase
     }
 
     [HttpPost("{quizId}/submit")]
-    public async Task<ActionResult<SubmitQuizResponseDto>> SubmitQuiz(int quizId, [FromBody] SubmitQuizRequestDto requestDto)
+    public async Task<ActionResult<SubmitQuizResponseDto>> SubmitQuiz(int quizId, [FromBody] SubmitQuizRequestDto request)
     {
-        var answers = requestDto.Answers;
+        var answers = request.Answers;
         
-        var score = await _quizService.SubmitQuiz(quizId, answers);
+        var score = await _quizService.SubmitQuiz(quizId, request.SubmissionId, answers);
         
         return Ok(new SubmitQuizResponseDto
         {
