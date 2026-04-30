@@ -27,6 +27,8 @@ public class QuizRepository(ApplicationDbContext context)
     
     public async Task<List<Quiz>> GetQuizzes()
     {
-        return await context.Quiz.ToListAsync();
+        return await context.Quiz
+            .Include(q => q.Questions)
+            .ToListAsync();
     }
 }

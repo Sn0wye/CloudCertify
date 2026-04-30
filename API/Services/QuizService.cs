@@ -30,7 +30,8 @@ public class QuizService
             IsAvailable = q.IsAvailable,
             QuizProvider = q.QuizProvider,
             QuizLevel = q.QuizLevel,
-            CreatedAt = q.CreatedAt
+            CreatedAt = q.CreatedAt,
+            QuestionCount = q.Questions?.Count ?? 0
         });
     }
     
