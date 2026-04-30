@@ -13,6 +13,7 @@ public class Answer
     
     public string Text { get; set; }
     
+    [JsonIgnore]
     public bool IsCorrect { get; set; }
     
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
