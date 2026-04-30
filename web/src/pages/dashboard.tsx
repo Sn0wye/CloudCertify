@@ -5,11 +5,28 @@ import { Card } from '@/components/ui/card';
 import { Link } from 'wouter';
 import { Footer } from '@/components/footer';
 import { CertificationCard } from '@/components/certification-card';
-import { certifications } from '@/data/certifications';
+import { useGetQuiz } from '@/http/generated/api';
+import { getLucideIcon } from '@/lib/quiz-icon';
+
+function SkeletonCard() {
+  return (
+    <Card className='flex flex-col overflow-hidden h-56 animate-pulse'>
+      <div className='flex-1 p-6 flex flex-col gap-4'>
+        <div className='w-12 h-12 rounded-full bg-muted mx-auto' />
+        <div className='h-4 bg-muted rounded w-3/4 mx-auto' />
+        <div className='h-3 bg-muted rounded w-full' />
+        <div className='h-3 bg-muted rounded w-5/6' />
+      </div>
+    </Card>
+  );
+}
 
 export function DashboardPage() {
-  // Filter to only show available certifications
-  const availableCertifications = certifications.filter(cert => cert.available);
+  const { data, isLoading, isError } = useGetQuiz();
+  const quizzes = data?.data ?? [];
+
+  const availableQuizzes = quizzes.filter(q => q.isAvailable);
+  const comingSoonQuizzes = quizzes.filter(q => !q.isAvailable);
 
   return (
     <div className='flex min-h-screen flex-col'>
@@ -39,54 +56,79 @@ export function DashboardPage() {
             </p>
           </div>
 
-          <section>
-            <h2 className='text-xl font-semibold mb-4'>
-              Available Certifications
-            </h2>
+          {isError && (
+            <Card className='p-8 text-center'>
+              <p className='text-muted-foreground'>
+                Failed to load certifications. Please try again later.
+              </p>
+            </Card>
+          )}
 
-            {availableCertifications.length === 0 ? (
-              <Card className='p-8 text-center'>
-                <p className='text-muted-foreground'>
-                  No certifications are currently available.
-                </p>
-              </Card>
-            ) : (
-              <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-                {availableCertifications.map(cert => (
-                  <CertificationCard
-                    key={cert.id}
-                    title={cert.title}
-                    description={cert.description}
-                    icon={cert.icon}
-                    difficulty={cert.difficulty}
-                    questions={cert.questions}
-                    available={cert.available}
-                    href={cert.href}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
+          {!isError && (
+            <>
+              <section>
+                <h2 className='text-xl font-semibold mb-4'>
+                  Available Certifications
+                </h2>
 
-          <section className='mt-8'>
-            <h2 className='text-xl font-semibold mb-4'>Coming Soon</h2>
-            <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-              {certifications
-                .filter(cert => !cert.available)
-                .map(cert => (
-                  <CertificationCard
-                    key={cert.id}
-                    title={cert.title}
-                    description={cert.description}
-                    icon={cert.icon}
-                    difficulty={cert.difficulty}
-                    questions={cert.questions}
-                    available={cert.available}
-                    href={cert.href}
-                  />
-                ))}
-            </div>
-          </section>
+                {isLoading ? (
+                  <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                    <SkeletonCard />
+                    <SkeletonCard />
+                    <SkeletonCard />
+                  </div>
+                ) : availableQuizzes.length === 0 ? (
+                  <Card className='p-8 text-center'>
+                    <p className='text-muted-foreground'>
+                      No certifications are currently available.
+                    </p>
+                  </Card>
+                ) : (
+                  <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                    {availableQuizzes.map(quiz => (
+                      <CertificationCard
+                        key={quiz.id}
+                        title={quiz.title ?? ''}
+                        description={quiz.description}
+                        icon={getLucideIcon(quiz.iconName)}
+                        difficulty={String(quiz.quizLevel ?? '')}
+                        questions={quiz.questionCount ?? 0}
+                        available={quiz.isAvailable}
+                        href={`/quiz/${quiz.id}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section className='mt-8'>
+                <h2 className='text-xl font-semibold mb-4'>Coming Soon</h2>
+
+                {isLoading ? (
+                  <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                    <SkeletonCard />
+                    <SkeletonCard />
+                    <SkeletonCard />
+                  </div>
+                ) : comingSoonQuizzes.length === 0 ? null : (
+                  <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                    {comingSoonQuizzes.map(quiz => (
+                      <CertificationCard
+                        key={quiz.id}
+                        title={quiz.title ?? ''}
+                        description={quiz.description}
+                        icon={getLucideIcon(quiz.iconName)}
+                        difficulty={String(quiz.quizLevel ?? '')}
+                        questions={quiz.questionCount ?? 0}
+                        available={quiz.isAvailable}
+                        href={`/quiz/${quiz.id}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
         </div>
       </main>
 

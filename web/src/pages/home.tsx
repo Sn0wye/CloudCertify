@@ -1,3 +1,4 @@
+'use client';
 import { ArrowLeft, ArrowRight, Award, CheckCircle, Cloud } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -9,12 +10,29 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { certifications } from '@/data/certifications';
 import { Footer } from '@/components/footer';
 import { CertificationCard } from '@/components/certification-card';
 import { Link } from 'wouter';
+import { useGetQuiz } from '@/http/generated/api';
+import { getLucideIcon } from '@/lib/quiz-icon';
+
+function SkeletonCard() {
+  return (
+    <Card className='flex flex-col overflow-hidden h-56 animate-pulse'>
+      <div className='flex-1 p-6 flex flex-col gap-4'>
+        <div className='w-12 h-12 rounded-full bg-muted mx-auto' />
+        <div className='h-4 bg-muted rounded w-3/4 mx-auto' />
+        <div className='h-3 bg-muted rounded w-full' />
+        <div className='h-3 bg-muted rounded w-5/6' />
+      </div>
+    </Card>
+  );
+}
 
 export function HomePage() {
+  const { data, isLoading } = useGetQuiz();
+  const quizzes = data?.data ?? [];
+
   return (
     <div className='flex min-h-screen flex-col'>
       <header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60'>
@@ -95,18 +113,26 @@ export function HomePage() {
               </div>
             </div>
             <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8'>
-              {certifications.map(c => (
-                <CertificationCard
-                  key={c.id}
-                  title={c.title}
-                  icon={c.icon}
-                  difficulty={c.difficulty}
-                  questions={c.questions}
-                  available={c.available}
-                  description={c.description}
-                  href={c.href}
-                />
-              ))}
+              {isLoading ? (
+                <>
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </>
+              ) : (
+                quizzes.map(quiz => (
+                  <CertificationCard
+                    key={quiz.id}
+                    title={quiz.title ?? ''}
+                    description={quiz.description}
+                    icon={getLucideIcon(quiz.iconName)}
+                    difficulty={String(quiz.quizLevel ?? '')}
+                    questions={quiz.questionCount ?? 0}
+                    available={quiz.isAvailable}
+                    href={`/quiz/${quiz.id}`}
+                  />
+                ))
+              )}
             </div>
           </div>
         </section>
@@ -211,10 +237,6 @@ export function HomePage() {
                       <CheckCircle className='h-5 w-5 text-green-500 mt-0.5' />
                       <span>Full access to all AWS practice questions</span>
                     </li>
-                    {/* <li className='flex items-start gap-3'>
-                      <CheckCircle className='h-5 w-5 text-green-500 mt-0.5' />
-                      <span>Detailed explanations for every question</span>
-                    </li> */}
                     <li className='flex items-start gap-3'>
                       <CheckCircle className='h-5 w-5 text-green-500 mt-0.5' />
                       <span>Exam simulation mode</span>
@@ -284,16 +306,6 @@ export function HomePage() {
                       </p>
                     </div>
                   </div>
-                  {/* <div className='flex items-start gap-4'>
-                    <CheckCircle className='h-6 w-6 text-green-500 mt-1' />
-                    <div>
-                      <h3 className='font-bold'>Beginner-Friendly</h3>
-                      <p className='text-muted-foreground'>
-                        Designed for those new to AWS, with clear explanations
-                        of fundamental concepts.
-                      </p>
-                    </div>
-                  </div> */}
                 </div>
               </div>
               <div className='flex justify-center'>

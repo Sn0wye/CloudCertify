@@ -3,6 +3,7 @@ import { HomePage } from './pages/home';
 import { Route, Router } from 'wouter';
 import { QuizPage } from './pages/quiz';
 import { DashboardPage } from './pages/dashboard';
+import { Providers } from './providers';
 
 export function App() {
   useEffect(() => {
@@ -24,10 +25,12 @@ export function App() {
   }, []);
 
   return (
-    <Router>
-      <Route path='/' component={HomePage} />
-      <Route path='/quiz' component={QuizPage} />
-      <Route path='/dashboard' component={DashboardPage} />
-    </Router>
+    <Providers>
+      <Router>
+        <Route path='/' component={HomePage} />
+        <Route path='/quiz' component={QuizPage} />
+        <Route path='/dashboard' component={DashboardPage} />
+      </Router>
+    </Providers>
   );
 }
