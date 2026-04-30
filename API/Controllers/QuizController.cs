@@ -30,6 +30,19 @@ public class QuizController: ControllerBase
 
         return Ok(quizzes);
     }
+
+    [HttpGet("{quizId}")]
+    public async Task<ActionResult<QuizDetailDto>> GetQuizById(int quizId)
+    {
+        var quiz = await _quizService.GetQuizById(quizId);
+        
+        if (quiz == null)
+        {
+            return NotFound();
+        }
+        
+        return Ok(quiz);
+    }
     
     [HttpPost("{quizId}/start")]
     public async Task<ActionResult<QuizDetailDto>> StartQuiz(int quizId, [FromBody] StartQuizRequestDto request)
