@@ -52,7 +52,7 @@ export function DashboardPage() {
           <div>
             <h1 className='text-3xl font-bold tracking-tight'>Dashboard</h1>
             <p className='text-muted-foreground mt-1'>
-              Continue your AWS certification journey
+              Continue your cloud certification journey
             </p>
           </div>
 
@@ -91,7 +91,7 @@ export function DashboardPage() {
                         title={quiz.title ?? ''}
                         description={quiz.description}
                         icon={getLucideIcon(quiz.iconName)}
-                        difficulty={String(quiz.quizLevel ?? '')}
+                        difficulty={quiz.quizLevel ?? ''}
                         questions={quiz.questionCount ?? 0}
                         available={quiz.isAvailable}
                         href={`/quiz/${quiz.id}`}

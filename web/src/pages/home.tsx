@@ -1,5 +1,6 @@
 'use client';
 import { ArrowLeft, ArrowRight, Award, CheckCircle, Cloud } from 'lucide-react';
+import RotatingText from '@/components/RotatingText';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -73,12 +74,28 @@ export function HomePage() {
                 <Badge className='px-3 py-1 text-sm bg-sky-100 text-sky-800 hover:bg-sky-100'>
                   100% Free - No Credit Card Required
                 </Badge>
-                <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-black'>
-                  Master AWS Certifications with Confidence
+                <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-black flex flex-wrap items-center justify-center gap-x-3'>
+                  <span>Master</span>
+                  <RotatingText
+                    texts={['AWS', 'GCP', 'Azure']}
+                    mainClassName='bg-transparent text-sky-500 overflow-hidden'
+                    splitLevelClassName='overflow-hidden px-2'
+                    staggerFrom='last'
+                    staggerDuration={0.025}
+                    initial={{ y: '100%' }}
+                    animate={{ y: 0 }}
+                    exit={{ y: '-120%' }}
+                    transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+                    rotationInterval={2000}
+                    splitBy='characters'
+                    auto
+                    loop
+                  />
+                  <span>Certifications with Confidence</span>
                 </h1>
-                <p className='mx-auto max-w-[700px] text-muted-foreground md:text-xl'>
+                <p className='mx-auto max-w-175 text-muted-foreground md:text-xl'>
                   Interactive quizzes and practice exams designed to help you
-                  ace your AWS certification exams.
+                  ace your AWS, GCP, and Azure certification exams.
                 </p>
               </div>
               <div className='flex flex-col gap-2 min-[400px]:flex-row'>
@@ -104,11 +121,11 @@ export function HomePage() {
             <div className='flex flex-col items-center justify-center space-y-4 text-center'>
               <div className='space-y-2'>
                 <h2 className='text-3xl font-bold tracking-tighter md:text-4xl'>
-                  AWS Certification Paths
+                  Cloud Certification Paths
                 </h2>
-                <p className='mx-auto max-w-[700px] text-muted-foreground md:text-xl'>
-                  Choose your certification path and start your cloud journey
-                  today.
+                <p className='mx-auto max-w-175 text-muted-foreground md:text-xl'>
+                  Choose your certification path across AWS, GCP, and Azure and
+                  start your cloud journey today.
                 </p>
               </div>
             </div>
@@ -144,7 +161,7 @@ export function HomePage() {
                 <h2 className='text-3xl font-bold tracking-tighter md:text-4xl'>
                   Sample Quiz Questions
                 </h2>
-                <p className='mx-auto max-w-[700px] text-muted-foreground md:text-xl'>
+                <p className='mx-auto max-w-175 text-muted-foreground md:text-xl'>
                   Get a taste of our interactive quizzes designed to test your
                   knowledge.
                 </p>
@@ -160,32 +177,8 @@ export function HomePage() {
                   'AWS Lambda'
                 ]}
                 correctAnswer={2}
-                category='Solutions Architect'
+                category='AWS Solutions Architect'
                 difficulty='Medium'
-              />
-              <QuizCard
-                question='Which AWS service provides a virtual network dedicated to your AWS account?'
-                options={[
-                  'Amazon VPC',
-                  'AWS Direct Connect',
-                  'Amazon Route 53',
-                  'AWS Transit Gateway'
-                ]}
-                correctAnswer={0}
-                category='Cloud Practitioner'
-                difficulty='Easy'
-              />
-              <QuizCard
-                question='Which service would you use to store objects, with 99.999999999% durability?'
-                options={[
-                  'Amazon EBS',
-                  'Amazon S3',
-                  'Amazon EFS',
-                  'AWS Storage Gateway'
-                ]}
-                correctAnswer={1}
-                category='Developer'
-                difficulty='Easy'
               />
               <QuizCard
                 question='Which AWS service allows you to run code without provisioning or managing servers?'
@@ -196,8 +189,32 @@ export function HomePage() {
                   'Amazon ECS'
                 ]}
                 correctAnswer={2}
-                category='Developer'
+                category='AWS Developer'
                 difficulty='Medium'
+              />
+              <QuizCard
+                question='Which Google Cloud service is used to store unstructured objects, similar to Amazon S3?'
+                options={[
+                  'Cloud Filestore',
+                  'Cloud SQL',
+                  'Cloud Storage',
+                  'Persistent Disk'
+                ]}
+                correctAnswer={2}
+                category='Google Cloud'
+                difficulty='Easy'
+              />
+              <QuizCard
+                question='Which Azure service provides serverless compute to run event-driven code without managing infrastructure?'
+                options={[
+                  'Azure App Service',
+                  'Azure Functions',
+                  'Azure Logic Apps',
+                  'Azure Container Instances'
+                ]}
+                correctAnswer={1}
+                category='Azure'
+                difficulty='Easy'
               />
             </div>
           </div>
@@ -210,8 +227,8 @@ export function HomePage() {
                 <h2 className='text-3xl font-bold tracking-tighter md:text-4xl'>
                   Simple Pricing
                 </h2>
-                <p className='mx-auto max-w-[700px] text-muted-foreground md:text-xl'>
-                  No subscriptions. No premium tiers. Just free AWS
+                <p className='mx-auto max-w-175 text-muted-foreground md:text-xl'>
+                  No subscriptions. No premium tiers. Just free cloud
                   certification training.
                 </p>
               </div>
@@ -235,7 +252,10 @@ export function HomePage() {
                   <ul className='space-y-4'>
                     <li className='flex items-start gap-3'>
                       <CheckCircle className='h-5 w-5 text-green-500 mt-0.5' />
-                      <span>Full access to all AWS practice questions</span>
+                      <span>
+                        Full access to all AWS, GCP, and Azure practice
+                        questions
+                      </span>
                     </li>
                     <li className='flex items-start gap-3'>
                       <CheckCircle className='h-5 w-5 text-green-500 mt-0.5' />
@@ -269,20 +289,20 @@ export function HomePage() {
                   Why Choose CloudCertify
                 </div>
                 <h2 className='text-3xl font-bold tracking-tighter md:text-4xl'>
-                  Focused on AWS Certification Success
+                  Focused on Cloud Certification Success
                 </h2>
                 <p className='text-muted-foreground md:text-xl'>
-                  This website is specifically designed to help you pass the AWS
-                  certification exams
+                  Designed to help you pass certification exams across AWS,
+                  Google Cloud, and Azure.
                 </p>
                 <div className='space-y-4'>
                   <div className='flex items-start gap-4'>
                     <CheckCircle className='h-6 w-6 text-green-500 mt-1' />
                     <div>
-                      <h3 className='font-bold'>CLF-C02 Question Bank</h3>
+                      <h3 className='font-bold'>Multi-Cloud Question Bank</h3>
                       <p className='text-muted-foreground'>
-                        Over 500 practice questions covering all domains of the
-                        AWS Cloud Practitioner exam.
+                        Hundreds of practice questions covering AWS, Google
+                        Cloud, and Azure certification exams.
                       </p>
                     </div>
                   </div>
@@ -291,8 +311,9 @@ export function HomePage() {
                     <div>
                       <h3 className='font-bold'>Cloud Concepts Coverage</h3>
                       <p className='text-muted-foreground'>
-                        Comprehensive coverage of cloud concepts, AWS services,
-                        security, and pricing models.
+                        Comprehensive coverage of cloud concepts, services,
+                        security, and pricing models across all three major
+                        providers.
                       </p>
                     </div>
                   </div>
@@ -314,11 +335,11 @@ export function HomePage() {
                     <Award className='h-16 w-16 text-sky-500' />
                     <div className='text-center space-y-2'>
                       <h3 className='text-2xl font-bold text-black'>
-                        Ready to become AWS certified?
+                        Ready to get cloud certified?
                       </h3>
                       <p className='text-muted-foreground'>
-                        Take the first step towards your AWS certification
-                        success today.
+                        Take the first step towards your AWS, GCP, or Azure
+                        certification today.
                       </p>
                     </div>
                     <div className='grid w-full gap-2'>
@@ -372,8 +393,8 @@ function QuizCard({
               difficulty === 'Easy'
                 ? 'outline'
                 : difficulty === 'Medium'
-                ? 'secondary'
-                : 'destructive'
+                  ? 'secondary'
+                  : 'destructive'
             }
           >
             {difficulty}

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'wouter';
+import { capitalize } from '@/lib/utils';
 
 type CertificationCardProps = {
   title: string;
@@ -50,7 +51,7 @@ export function CertificationCard({
       <CardContent className='flex-1'>
         <div className='flex justify-between text-sm text-muted-foreground mt-4'>
           <div className='flex items-center gap-1'>
-            <Badge variant='outline'>{difficulty}</Badge>
+            <Badge variant='outline'>{capitalize(difficulty)}</Badge>
           </div>
           {available ? (
             <div className='flex items-center gap-1'>
