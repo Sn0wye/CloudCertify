@@ -12,23 +12,9 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Footer } from '@/components/footer';
-import { CertificationCard } from '@/components/certification-card';
+import { CertificationRoadmap } from '@/components/certification-roadmap';
 import { Link } from 'wouter';
 import { useGetQuiz } from '@/http/generated/api';
-import { getLucideIcon } from '@/lib/quiz-icon';
-
-function SkeletonCard() {
-  return (
-    <Card className='flex flex-col overflow-hidden h-56 animate-pulse'>
-      <div className='flex-1 p-6 flex flex-col gap-4'>
-        <div className='w-12 h-12 rounded-full bg-muted mx-auto' />
-        <div className='h-4 bg-muted rounded w-3/4 mx-auto' />
-        <div className='h-3 bg-muted rounded w-full' />
-        <div className='h-3 bg-muted rounded w-5/6' />
-      </div>
-    </Card>
-  );
-}
 
 export function HomePage() {
   const { data, isLoading } = useGetQuiz();
@@ -116,41 +102,31 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className='w-full py-12 md:py-24 lg:py-32' id='certifications'>
+        <section
+          className='w-full py-12 md:py-24 lg:py-32 relative overflow-hidden'
+          id='certifications'
+        >
+          {/* Subtle dot grid background */}
+          <div
+            aria-hidden='true'
+            className='absolute inset-0 -z-10 opacity-[0.4] [background-image:radial-gradient(circle,theme(colors.sky.200)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_75%)]'
+          />
           <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center justify-center space-y-4 text-center'>
+            <div className='flex flex-col items-center justify-center space-y-4 text-center mb-12'>
+              <Badge className='px-3 py-1 text-sm bg-sky-100 text-sky-800 hover:bg-sky-100'>
+                Visual Roadmap
+              </Badge>
               <div className='space-y-2'>
-                <h2 className='text-3xl font-bold tracking-tighter md:text-4xl'>
-                  Cloud Certification Paths
+                <h2 className='text-3xl font-bold tracking-tighter md:text-4xl text-balance'>
+                  Plan your cloud certification journey
                 </h2>
-                <p className='mx-auto max-w-175 text-muted-foreground md:text-xl'>
-                  Choose your certification path across AWS, GCP, and Azure and
-                  start your cloud journey today.
+                <p className='mx-auto max-w-175 text-muted-foreground md:text-xl text-pretty'>
+                  Follow the path from foundational to specialty. Each tier
+                  builds on the last, just like the official AWS guidance.
                 </p>
               </div>
             </div>
-            <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8'>
-              {isLoading ? (
-                <>
-                  <SkeletonCard />
-                  <SkeletonCard />
-                  <SkeletonCard />
-                </>
-              ) : (
-                quizzes.map(quiz => (
-                  <CertificationCard
-                    key={quiz.id}
-                    title={quiz.title ?? ''}
-                    description={quiz.description}
-                    icon={getLucideIcon(quiz.iconName)}
-                    difficulty={String(quiz.quizLevel ?? '')}
-                    questions={quiz.questionCount ?? 0}
-                    available={quiz.isAvailable}
-                    href={`/quiz/${quiz.id}`}
-                  />
-                ))
-              )}
-            </div>
+            <CertificationRoadmap quizzes={quizzes} isLoading={isLoading} />
           </div>
         </section>
 
