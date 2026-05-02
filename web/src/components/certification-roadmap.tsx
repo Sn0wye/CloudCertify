@@ -12,6 +12,60 @@ import type {
   QuizProvider
 } from '@/http/generated/api.schemas';
 
+type TierKey = 'foundational' | 'associate' | 'specialist';
+
+type TierStyle = {
+  label: string;
+  marker: string;
+  markerRing: string;
+  rail: string;
+  badge: string;
+  nodeBorder: string;
+  nodeIconBg: string;
+  nodeIcon: string;
+  button: string;
+  accent: string;
+};
+
+const TIER_STYLES: Record<TierKey, TierStyle> = {
+  foundational: {
+    label: 'text-emerald-700',
+    marker: 'border-emerald-500 text-emerald-700 bg-emerald-50',
+    markerRing: 'ring-emerald-100',
+    rail: 'border-emerald-200',
+    badge: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+    nodeBorder: 'border-emerald-200 hover:border-emerald-400',
+    nodeIconBg: 'bg-emerald-50',
+    nodeIcon: 'text-emerald-600',
+    button: 'text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800',
+    accent: 'bg-emerald-500'
+  },
+  associate: {
+    label: 'text-sky-700',
+    marker: 'border-sky-500 text-sky-700 bg-sky-50',
+    markerRing: 'ring-sky-100',
+    rail: 'border-sky-200',
+    badge: 'border-sky-200 bg-sky-50 text-sky-800',
+    nodeBorder: 'border-sky-200 hover:border-sky-400',
+    nodeIconBg: 'bg-sky-50',
+    nodeIcon: 'text-sky-600',
+    button: 'text-sky-700 hover:bg-sky-50 hover:text-sky-800',
+    accent: 'bg-sky-500'
+  },
+  specialist: {
+    label: 'text-orange-700',
+    marker: 'border-orange-500 text-orange-700 bg-orange-50',
+    markerRing: 'ring-orange-100',
+    rail: 'border-orange-200',
+    badge: 'border-orange-200 bg-orange-50 text-orange-800',
+    nodeBorder: 'border-orange-200 hover:border-orange-400',
+    nodeIconBg: 'bg-orange-50',
+    nodeIcon: 'text-orange-600',
+    button: 'text-orange-700 hover:bg-orange-50 hover:text-orange-800',
+    accent: 'bg-orange-500'
+  }
+};
+
 type Tier = {
   number: string;
   label: string;
@@ -127,6 +181,26 @@ export function CertificationRoadmap({
           {totalAvailable} of {totalCount} exams available now. More dropping
           weekly.
         </p>
+
+        {/* Tier color legend */}
+        <div className='mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs'>
+          {AWS_TIERS.map(tier => {
+            const styles = TIER_STYLES[tier.level as TierKey];
+            return (
+              <div
+                key={tier.level}
+                className='inline-flex items-center gap-2'
+              >
+                <span
+                  className={cn('h-2.5 w-2.5 rounded-full', styles.accent)}
+                />
+                <span className='font-medium text-muted-foreground'>
+                  {tier.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Roadmap body */}
@@ -136,6 +210,7 @@ export function CertificationRoadmap({
             <TierRow
               key={tier.level}
               tier={tier}
+              styles={TIER_STYLES[tier.level as TierKey]}
               isLast={tierIndex === grouped.length - 1}
               isLoading={isLoading}
               providerAvailable={
@@ -151,6 +226,7 @@ export function CertificationRoadmap({
 
 type TierRowProps = {
   tier: Tier & { quizzes: QuizDto[] };
+  styles: TierStyle;
   isLast: boolean;
   isLoading?: boolean;
   providerAvailable: boolean;
@@ -158,6 +234,7 @@ type TierRowProps = {
 
 function TierRow({
   tier,
+  styles,
   isLast,
   isLoading,
   providerAvailable
@@ -166,21 +243,35 @@ function TierRow({
     <div className='relative grid grid-cols-[48px_1fr] gap-4 md:grid-cols-[64px_1fr] md:gap-8'>
       {/* Left rail: number marker + dashed connector */}
       <div className='relative flex flex-col items-center'>
-        <div className='relative z-10 flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full border-2 border-sky-500 bg-background font-mono text-sm md:text-base font-bold text-sky-700 shadow-sm'>
+        <div
+          className={cn(
+            'relative z-10 flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full border-2 font-mono text-sm md:text-base font-bold shadow-sm ring-4',
+            styles.marker,
+            styles.markerRing
+          )}
+        >
           {tier.number}
         </div>
         {!isLast && (
           <div
             aria-hidden='true'
-            className='absolute left-1/2 top-12 md:top-14 h-[calc(100%+3rem)] md:h-[calc(100%+4rem)] w-0 -translate-x-1/2 border-l-2 border-dashed border-sky-200'
+            className={cn(
+              'absolute left-1/2 top-12 md:top-14 h-[calc(100%+3rem)] md:h-[calc(100%+4rem)] w-0 -translate-x-1/2 border-l-2 border-dashed',
+              styles.rail
+            )}
           />
         )}
       </div>
 
       {/* Right content */}
-      <div className='pb-2'>
+      <div className='pb-2 min-w-0'>
         <div className='flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1'>
-          <span className='text-xs font-semibold uppercase tracking-widest text-sky-600'>
+          <span
+            className={cn(
+              'text-xs font-semibold uppercase tracking-widest',
+              styles.label
+            )}
+          >
             Tier {tier.number}
           </span>
           <h4 className='text-xl md:text-2xl font-bold tracking-tight'>
@@ -200,7 +291,11 @@ function TierRow({
             </>
           ) : tier.quizzes.length > 0 ? (
             tier.quizzes.map(quiz => (
-              <CertificationNode key={quiz.id} quiz={quiz} />
+              <CertificationNode
+                key={quiz.id}
+                quiz={quiz}
+                styles={styles}
+              />
             ))
           ) : (
             <EmptyTierCard providerAvailable={providerAvailable} />
@@ -211,31 +306,31 @@ function TierRow({
   );
 }
 
-function CertificationNode({ quiz }: { quiz: QuizDto }) {
+function CertificationNode({
+  quiz,
+  styles
+}: {
+  quiz: QuizDto;
+  styles: TierStyle;
+}) {
   const available = quiz.isAvailable ?? false;
   const { code, name } = splitTitle(quiz.title ?? '');
 
   return (
     <div
       className={cn(
-        'group relative flex flex-col rounded-xl border bg-card p-4 transition-all',
+        'group relative flex flex-col overflow-hidden rounded-xl border bg-card p-4 transition-all',
         available
-          ? 'border-sky-200 hover:border-sky-400 hover:shadow-lg hover:-translate-y-0.5'
+          ? cn(styles.nodeBorder, 'hover:shadow-lg hover:-translate-y-0.5')
           : 'border-dashed border-border/80'
       )}
     >
-      {/* Connector dot to rail (decorative, only on md+) */}
-      <div
-        aria-hidden='true'
-        className='hidden md:block absolute -left-8 top-7 h-px w-6 border-t-2 border-dashed border-sky-200'
-      />
+      {/* Tier color accent stripe */}
       <div
         aria-hidden='true'
         className={cn(
-          'hidden md:block absolute -left-9 top-[22px] h-2.5 w-2.5 rounded-full border-2 ',
-          available
-            ? 'border-sky-500 bg-background'
-            : 'border-muted-foreground/40 bg-background'
+          'absolute left-0 top-0 h-full w-1',
+          available ? styles.accent : 'bg-muted-foreground/20'
         )}
       />
 
@@ -257,13 +352,13 @@ function CertificationNode({ quiz }: { quiz: QuizDto }) {
       <div
         className={cn(
           'mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg',
-          available ? 'bg-sky-50' : 'bg-muted'
+          available ? styles.nodeIconBg : 'bg-muted'
         )}
       >
         {getLucideIcon(quiz.iconName, {
           className: cn(
             'h-5 w-5',
-            available ? 'text-sky-600' : 'text-muted-foreground'
+            available ? styles.nodeIcon : 'text-muted-foreground'
           )
         })}
       </div>
@@ -300,7 +395,7 @@ function CertificationNode({ quiz }: { quiz: QuizDto }) {
             asChild
             size='sm'
             variant='ghost'
-            className='h-7 px-2 text-sky-700 hover:bg-sky-50 hover:text-sky-800'
+            className={cn('h-7 px-2', styles.button)}
           >
             <Link href={`/quiz/${quiz.id}`}>
               Start
