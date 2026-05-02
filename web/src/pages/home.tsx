@@ -271,7 +271,7 @@ export function HomePage() {
                 </p>
                 <div className='space-y-4'>
                   <div className='flex items-start gap-4'>
-                    <CheckCircle className='h-6 w-6 text-green-500 mt-1' />
+                    <CheckCircle className='h-5 w-5 text-green-500 shrink-0 mt-0.5' />
                     <div>
                       <h3 className='font-bold'>Multi-Cloud Question Bank</h3>
                       <p className='text-muted-foreground'>
@@ -281,7 +281,7 @@ export function HomePage() {
                     </div>
                   </div>
                   <div className='flex items-start gap-4'>
-                    <CheckCircle className='h-6 w-6 text-green-500 mt-1' />
+                    <CheckCircle className='h-5 w-5 text-green-500 shrink-0 mt-0.5' />
                     <div>
                       <h3 className='font-bold'>Cloud Concepts Coverage</h3>
                       <p className='text-muted-foreground'>
@@ -292,7 +292,7 @@ export function HomePage() {
                     </div>
                   </div>
                   <div className='flex items-start gap-4'>
-                    <CheckCircle className='h-6 w-6 text-green-500 mt-1' />
+                    <CheckCircle className='h-5 w-5 text-green-500 shrink-0 mt-0.5' />
                     <div>
                       <h3 className='font-bold'>Exam-Focused Learning</h3>
                       <p className='text-muted-foreground'>
