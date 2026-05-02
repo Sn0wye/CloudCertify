@@ -60,24 +60,31 @@ export function HomePage() {
                 <Badge className='px-3 py-1 text-sm bg-sky-100 text-sky-800 hover:bg-sky-100'>
                   100% Free - No Credit Card Required
                 </Badge>
-                <h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-black flex flex-wrap items-center justify-center gap-x-3'>
-                  <span>Master</span>
-                  <RotatingText
-                    texts={['AWS', 'GCP', 'Azure']}
-                    mainClassName='bg-transparent text-sky-500 overflow-hidden'
-                    splitLevelClassName='overflow-hidden px-2'
-                    staggerFrom='last'
-                    staggerDuration={0.025}
-                    initial={{ y: '100%' }}
-                    animate={{ y: 0 }}
-                    exit={{ y: '-120%' }}
-                    transition={{ type: 'spring', damping: 30, stiffness: 400 }}
-                    rotationInterval={2000}
-                    splitBy='characters'
-                    auto
-                    loop
-                  />
-                  <span>Certifications with Confidence</span>
+                <h1 className='mx-auto max-w-4xl text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-black text-balance'>
+                  <span className='inline-flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1'>
+                    <span>Master</span>
+                    <RotatingText
+                      texts={['AWS', 'GCP', 'Azure']}
+                      mainClassName='bg-transparent text-sky-500 overflow-hidden'
+                      splitLevelClassName='overflow-hidden px-2'
+                      staggerFrom='last'
+                      staggerDuration={0.025}
+                      initial={{ y: '100%' }}
+                      animate={{ y: 0 }}
+                      exit={{ y: '-120%' }}
+                      transition={{
+                        type: 'spring',
+                        damping: 30,
+                        stiffness: 400
+                      }}
+                      rotationInterval={2000}
+                      splitBy='characters'
+                      auto
+                      loop
+                    />
+                    <span>Certifications</span>
+                  </span>{' '}
+                  <span className='block mt-1'>with Confidence</span>
                 </h1>
                 <p className='mx-auto max-w-175 text-muted-foreground md:text-xl'>
                   Interactive quizzes and practice exams designed to help you
@@ -112,19 +119,10 @@ export function HomePage() {
             className='absolute inset-0 -z-10 opacity-[0.4] [background-image:radial-gradient(circle,theme(colors.sky.200)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_75%)]'
           />
           <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center justify-center space-y-4 text-center mb-12'>
-              <Badge className='px-3 py-1 text-sm bg-sky-100 text-sky-800 hover:bg-sky-100'>
-                Visual Roadmap
-              </Badge>
-              <div className='space-y-2'>
-                <h2 className='text-3xl font-bold tracking-tighter md:text-4xl text-balance'>
-                  Plan your cloud certification journey
-                </h2>
-                <p className='mx-auto max-w-175 text-muted-foreground md:text-xl text-pretty'>
-                  Follow the path from foundational to specialty. Each tier
-                  builds on the last, just like the official AWS guidance.
-                </p>
-              </div>
+            <div className='flex flex-col items-center justify-center text-center mb-10'>
+              <h2 className='text-3xl font-bold tracking-tighter md:text-4xl text-balance'>
+                Pick your path
+              </h2>
             </div>
             <CertificationRoadmap quizzes={quizzes} isLoading={isLoading} />
           </div>
@@ -318,18 +316,13 @@ export function HomePage() {
                         certification today.
                       </p>
                     </div>
-                    <div className='grid w-full gap-2'>
-                      <Button
-                        asChild
-                        size='lg'
-                        className='bg-sky-600 hover:bg-sky-700'
-                      >
-                        <Link href='/dashboard'>Start Learning Now</Link>
-                      </Button>
-                      <Button size='lg' variant='outline' asChild>
-                        <a href='#pricing'>See Our Free Plan</a>
-                      </Button>
-                    </div>
+                    <Button
+                      asChild
+                      size='lg'
+                      className='w-full bg-sky-600 hover:bg-sky-700'
+                    >
+                      <Link href='/dashboard'>Start Learning Now</Link>
+                    </Button>
                   </div>
                 </div>
               </div>

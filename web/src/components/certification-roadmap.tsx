@@ -1,9 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ArrowRight, BookOpen, Check, Clock, Lock } from 'lucide-react';
+import { ArrowRight, Clock, Lock } from 'lucide-react';
 import { Link } from 'wouter';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getLucideIcon } from '@/lib/quiz-icon';
 import type {
@@ -19,11 +17,9 @@ type TierStyle = {
   marker: string;
   markerRing: string;
   rail: string;
-  badge: string;
   nodeBorder: string;
   nodeIconBg: string;
   nodeIcon: string;
-  button: string;
   accent: string;
 };
 
@@ -33,11 +29,9 @@ const TIER_STYLES: Record<TierKey, TierStyle> = {
     marker: 'border-emerald-500 text-emerald-700 bg-emerald-50',
     markerRing: 'ring-emerald-100',
     rail: 'border-emerald-200',
-    badge: 'border-emerald-200 bg-emerald-50 text-emerald-800',
     nodeBorder: 'border-emerald-200 hover:border-emerald-400',
     nodeIconBg: 'bg-emerald-50',
     nodeIcon: 'text-emerald-600',
-    button: 'text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800',
     accent: 'bg-emerald-500'
   },
   associate: {
@@ -45,11 +39,9 @@ const TIER_STYLES: Record<TierKey, TierStyle> = {
     marker: 'border-sky-500 text-sky-700 bg-sky-50',
     markerRing: 'ring-sky-100',
     rail: 'border-sky-200',
-    badge: 'border-sky-200 bg-sky-50 text-sky-800',
     nodeBorder: 'border-sky-200 hover:border-sky-400',
     nodeIconBg: 'bg-sky-50',
     nodeIcon: 'text-sky-600',
-    button: 'text-sky-700 hover:bg-sky-50 hover:text-sky-800',
     accent: 'bg-sky-500'
   },
   specialist: {
@@ -57,11 +49,9 @@ const TIER_STYLES: Record<TierKey, TierStyle> = {
     marker: 'border-orange-500 text-orange-700 bg-orange-50',
     markerRing: 'ring-orange-100',
     rail: 'border-orange-200',
-    badge: 'border-orange-200 bg-orange-50 text-orange-800',
     nodeBorder: 'border-orange-200 hover:border-orange-400',
     nodeIconBg: 'bg-orange-50',
     nodeIcon: 'text-orange-600',
-    button: 'text-orange-700 hover:bg-orange-50 hover:text-orange-800',
     accent: 'bg-orange-500'
   }
 };
@@ -70,28 +60,12 @@ type Tier = {
   number: string;
   label: string;
   level: QuizLevel;
-  tagline: string;
 };
 
 const AWS_TIERS: Tier[] = [
-  {
-    number: '01',
-    label: 'Foundational',
-    level: 'foundational',
-    tagline: 'Build the cloud fundamentals every AWS role depends on.'
-  },
-  {
-    number: '02',
-    label: 'Associate',
-    level: 'associate',
-    tagline: 'Specialize by role — Developer, SysOps, or Solutions Architect.'
-  },
-  {
-    number: '03',
-    label: 'Specialty',
-    level: 'specialist',
-    tagline: 'Deep expertise in networking, security, and data.'
-  }
+  { number: '01', label: 'Foundational', level: 'foundational' },
+  { number: '02', label: 'Associate', level: 'associate' },
+  { number: '03', label: 'Specialty', level: 'specialist' }
 ];
 
 const PROVIDERS: {
@@ -123,11 +97,6 @@ export function CertificationRoadmap({
       quizzes: filtered.filter(q => q.quizLevel === tier.level)
     }));
   }, [quizzes, provider]);
-
-  const totalAvailable = quizzes.filter(
-    q => q.quizProvider === provider && q.isAvailable
-  ).length;
-  const totalCount = quizzes.filter(q => q.quizProvider === provider).length;
 
   return (
     <div className='mx-auto max-w-5xl'>
@@ -161,43 +130,6 @@ export function CertificationRoadmap({
                   </span>
                 )}
               </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Roadmap header */}
-      <div className='flex flex-col items-center text-center mb-12'>
-        <Badge
-          variant='outline'
-          className='mb-3 border-sky-200 bg-sky-50 text-sky-800'
-        >
-          {PROVIDERS.find(p => p.id === provider)?.label} Roadmap
-        </Badge>
-        <h3 className='text-2xl md:text-3xl font-bold tracking-tight text-balance'>
-          Your path from beginner to certified
-        </h3>
-        <p className='mt-2 max-w-xl text-muted-foreground'>
-          {totalAvailable} of {totalCount} exams available now. More dropping
-          weekly.
-        </p>
-
-        {/* Tier color legend */}
-        <div className='mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs'>
-          {AWS_TIERS.map(tier => {
-            const styles = TIER_STYLES[tier.level as TierKey];
-            return (
-              <div
-                key={tier.level}
-                className='inline-flex items-center gap-2'
-              >
-                <span
-                  className={cn('h-2.5 w-2.5 rounded-full', styles.accent)}
-                />
-                <span className='font-medium text-muted-foreground'>
-                  {tier.label}
-                </span>
-              </div>
             );
           })}
         </div>
@@ -265,22 +197,14 @@ function TierRow({
 
       {/* Right content */}
       <div className='pb-2 min-w-0'>
-        <div className='flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1'>
-          <span
-            className={cn(
-              'text-xs font-semibold uppercase tracking-widest',
-              styles.label
-            )}
-          >
-            Tier {tier.number}
-          </span>
-          <h4 className='text-xl md:text-2xl font-bold tracking-tight'>
-            {tier.label}
-          </h4>
-        </div>
-        <p className='text-sm text-muted-foreground mb-5 max-w-xl'>
-          {tier.tagline}
-        </p>
+        <h4
+          className={cn(
+            'mb-4 text-xl md:text-2xl font-bold tracking-tight',
+            styles.label
+          )}
+        >
+          {tier.label}
+        </h4>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
           {isLoading ? (
@@ -316,15 +240,8 @@ function CertificationNode({
   const available = quiz.isAvailable ?? false;
   const { code, name } = splitTitle(quiz.title ?? '');
 
-  return (
-    <div
-      className={cn(
-        'group relative flex flex-col overflow-hidden rounded-xl border bg-card p-4 transition-all',
-        available
-          ? cn(styles.nodeBorder, 'hover:shadow-lg hover:-translate-y-0.5')
-          : 'border-dashed border-border/80'
-      )}
-    >
+  const content = (
+    <>
       {/* Tier color accent stripe */}
       <div
         aria-hidden='true'
@@ -334,78 +251,64 @@ function CertificationNode({
         )}
       />
 
-      {/* Status badge */}
-      <div className='absolute right-3 top-3'>
-        {available ? (
-          <span className='inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-green-700 ring-1 ring-inset ring-green-200'>
-            <Check className='h-3 w-3' />
-            Live
-          </span>
-        ) : (
-          <span className='inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700 ring-1 ring-inset ring-amber-200'>
-            <Clock className='h-3 w-3' />
-            Soon
-          </span>
-        )}
-      </div>
-
-      <div
-        className={cn(
-          'mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg',
-          available ? styles.nodeIconBg : 'bg-muted'
-        )}
-      >
-        {getLucideIcon(quiz.iconName, {
-          className: cn(
-            'h-5 w-5',
-            available ? styles.nodeIcon : 'text-muted-foreground'
-          )
-        })}
-      </div>
-
-      {code && (
-        <div className='mb-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground'>
-          {code}
+      <div className='flex items-start gap-3'>
+        <div
+          className={cn(
+            'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+            available ? styles.nodeIconBg : 'bg-muted'
+          )}
+        >
+          {available ? (
+            getLucideIcon(quiz.iconName, {
+              className: cn('h-5 w-5', styles.nodeIcon)
+            })
+          ) : (
+            <Lock className='h-4 w-4 text-muted-foreground' />
+          )}
         </div>
-      )}
-      <h5 className='text-sm font-bold leading-snug text-balance pr-12'>
-        {name}
-      </h5>
-      {quiz.description && (
-        <p className='mt-1.5 text-xs text-muted-foreground line-clamp-2'>
-          {quiz.description}
-        </p>
-      )}
 
-      <div className='mt-4 flex items-center justify-between border-t pt-3'>
-        {available ? (
-          <span className='inline-flex items-center gap-1.5 text-xs text-muted-foreground'>
-            <BookOpen className='h-3.5 w-3.5' />
-            {quiz.questionCount ?? 0} questions
-          </span>
-        ) : (
-          <span className='inline-flex items-center gap-1.5 text-xs text-muted-foreground'>
-            <Lock className='h-3.5 w-3.5' />
-            In development
-          </span>
+        <div className='min-w-0 flex-1'>
+          {code && (
+            <div className='font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground'>
+              {code}
+            </div>
+          )}
+          <h5 className='text-sm font-bold leading-snug text-balance'>
+            {name}
+          </h5>
+        </div>
+
+        {available && (
+          <ArrowRight
+            className={cn(
+              'h-4 w-4 shrink-0 mt-3 transition-transform group-hover:translate-x-0.5',
+              styles.nodeIcon
+            )}
+          />
         )}
-
-        {available ? (
-          <Button
-            asChild
-            size='sm'
-            variant='ghost'
-            className={cn('h-7 px-2', styles.button)}
-          >
-            <Link href={`/quiz/${quiz.id}`}>
-              Start
-              <ArrowRight className='ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5' />
-            </Link>
-          </Button>
-        ) : null}
       </div>
-    </div>
+    </>
   );
+
+  const baseClasses = cn(
+    'group relative flex overflow-hidden rounded-xl border bg-card p-4 transition-all',
+    available
+      ? cn(
+          styles.nodeBorder,
+          'hover:shadow-lg hover:-translate-y-0.5 cursor-pointer'
+        )
+      : 'border-dashed border-border/80 opacity-70'
+  );
+
+  if (available) {
+    return (
+      <Link href={`/quiz/${quiz.id}`} className={baseClasses}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={baseClasses}>{content}</div>;
 }
 
 function NodeSkeleton() {
