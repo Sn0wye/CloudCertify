@@ -96,7 +96,7 @@ public class QuestionService
         },
         new()
         {
-            Title = "AWS Certified CloudOps Engineer Associate (SOA-C03)",
+            Title = "AWS Certified SysOps Administrator Associate (SOA-C03)",
             Description = "Operate, manage, and automate workloads on AWS.",
             IconName = "monitor",
             QuizProvider = QuizProvider.AWS,
@@ -112,9 +112,25 @@ public class QuestionService
         },
         new()
         {
-            Title = "AWS Certified Database Specialty (DBS-C01)",
-            Description = "Design, deploy, and manage AWS database solutions.",
-            IconName = "database",
+            Title = "AWS Certified Advanced Networking Specialty (ANS-C01)",
+            Description = "Design and implement scalable, secure AWS and hybrid network architectures.",
+            IconName = "network",
+            QuizProvider = QuizProvider.AWS,
+            QuizLevel = QuizLevel.Specialist
+        },
+        new()
+        {
+            Title = "AWS Certified Security Specialty (SCS-C02)",
+            Description = "Secure AWS workloads using security services, controls, and best practices.",
+            IconName = "lock",
+            QuizProvider = QuizProvider.AWS,
+            QuizLevel = QuizLevel.Specialist
+        },
+        new()
+        {
+            Title = "AWS Certified Data Analytics Specialty (DAS-C01)",
+            Description = "Design, build, and maintain analytics solutions on AWS.",
+            IconName = "bar-chart",
             QuizProvider = QuizProvider.AWS,
             QuizLevel = QuizLevel.Specialist
         },

@@ -1,13 +1,16 @@
 // import * as LucideIcons from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 import {
+  BarChart,
   BookOpen,
   Cloud,
   Code,
   Cpu,
   Database,
   HardDrive,
+  Lock,
   Monitor,
+  Network,
   Server,
   Settings,
   Shield
@@ -24,7 +27,10 @@ const iconMap = {
   'book-open': BookOpen,
   'hard-drive': HardDrive,
   shield: Shield,
-  cpu: Cpu
+  cpu: Cpu,
+  network: Network,
+  lock: Lock,
+  'bar-chart': BarChart
 };
 
 export function getLucideIcon(
