@@ -168,7 +168,7 @@ public class QuestionService
         },
         new()
         {
-            Title = "Google Cloud Platform (GCP) Associate Cloud Engineer (ACE)",
+            Title = "Google Cloud Platform Associate Cloud Engineer (ACE)",
             Description = "Deploy, manage, and monitor GCP resources and services.",
             IconName = "cpu",
             QuizProvider = QuizProvider.GCP,
