@@ -51,16 +51,12 @@ export function CertificationCard({
         ) : null}
       </CardHeader>
       <CardContent className='flex-1'>
-        <div className='flex justify-between text-sm mt-4'>
-          <div className='flex items-center gap-1'>
-            <Badge variant='outline'>{capitalize(difficulty)}</Badge>
+        <div className='flex justify-between items-center text-sm mt-4'>
+          <Badge variant='outline'>{capitalize(difficulty)}</Badge>
+          <div className='flex items-center gap-1 font-medium text-black'>
+            <span>{questions} Questions</span>
+            <BookOpen className='h-4 w-4' />
           </div>
-          {available ? (
-            <div className='flex items-center gap-1 font-medium text-black'>
-              <span>{questions} Questions</span>
-              <BookOpen className='h-4 w-4' />
-            </div>
-          ) : null}
         </div>
       </CardContent>
       <CardFooter>
