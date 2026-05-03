@@ -30,16 +30,16 @@ const TIER_STYLES: Record<TierKey, TierStyle> = {
   },
   associate: {
     label: 'text-black',
-    marker: 'border-black bg-[#88aaee] text-black',
-    accent: 'bg-[#88aaee]',
-    nodeBg: 'bg-[#88aaee]',
+    marker: 'border-black bg-[#38bdf8] text-black',
+    accent: 'bg-[#38bdf8]',
+    nodeBg: 'bg-[#38bdf8]',
     nodeIcon: 'text-black'
   },
   specialist: {
     label: 'text-black',
-    marker: 'border-black bg-[#feca57] text-black',
-    accent: 'bg-[#feca57]',
-    nodeBg: 'bg-[#feca57]',
+    marker: 'border-black bg-[#a78bfa] text-black',
+    accent: 'bg-[#a78bfa]',
+    nodeBg: 'bg-[#a78bfa]',
     nodeIcon: 'text-black'
   }
 };
@@ -100,8 +100,8 @@ export function CertificationRoadmap({
                 className={cn(
                   'relative flex items-center gap-2 rounded-[5px] px-4 py-2 text-sm font-bold transition-all border-2',
                   isActive
-                    ? 'bg-[#88aaee] text-black border-black shadow-[2px_2px_0px_0px_#000]'
-                    : 'text-black border-transparent hover:bg-[#dfe5f2]'
+                    ? 'bg-[#38bdf8] text-black border-black shadow-[2px_2px_0px_0px_#000]'
+                    : 'text-black border-transparent hover:bg-[#e0f2fe]'
                 )}
               >
                 <span>{p.short}</span>
@@ -111,7 +111,7 @@ export function CertificationRoadmap({
                       'rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black',
                       isActive
                         ? 'bg-white text-black'
-                        : 'bg-[#feca57] text-black'
+                        : 'bg-[#e0f2fe] text-black'
                     )}
                   >
                     Soon
