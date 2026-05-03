@@ -32,12 +32,6 @@ export function CertificationCard({
   available = false,
   href
 }: CertificationCardProps) {
-  const difficultyVariant = difficulty.toLowerCase() === 'easy' 
-    ? 'outline' 
-    : difficulty.toLowerCase() === 'medium' 
-      ? 'secondary' 
-      : 'destructive';
-
   return (
     <Card className='flex flex-col overflow-hidden relative border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] transition-all'>
       {!available && (
@@ -61,7 +55,7 @@ export function CertificationCard({
       <CardContent className='flex-1'>
         <div className='flex justify-between text-sm mt-4'>
           <div className='flex items-center gap-1'>
-            <Badge variant={difficultyVariant}>{capitalize(difficulty)}</Badge>
+            <Badge variant='outline'>{capitalize(difficulty)}</Badge>
           </div>
           {available ? (
             <div className='flex items-center gap-1 font-medium text-black'>
