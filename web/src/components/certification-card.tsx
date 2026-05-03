@@ -36,7 +36,7 @@ export function CertificationCard({
     <Card className='flex flex-col overflow-hidden relative border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] transition-all'>
       {!available && (
         <div className='absolute top-0 right-0 m-3 z-10'>
-          <Badge className='bg-[#feca57]'>
+          <Badge className='bg-[#feca57] text-balance'>
             Soon
           </Badge>
         </div>
