@@ -50,16 +50,15 @@ export function CertificationCard({
           <CardDescription className='mt-2 text-center text-balance'>{description}</CardDescription>
         ) : null}
       </CardHeader>
-      <CardContent className='flex-1'>
-        <div className='flex justify-between items-center text-sm mt-4'>
+      <CardContent className='flex-1' />
+      <CardFooter className='flex flex-col gap-3'>
+        <div className='flex justify-between items-center text-sm w-full'>
           <Badge variant='outline'>{capitalize(difficulty)}</Badge>
           <div className='flex items-center gap-1 font-medium text-black'>
             <span>{questions} Questions</span>
             <BookOpen className='h-4 w-4' />
           </div>
         </div>
-      </CardContent>
-      <CardFooter>
         {available && href ? (
           <Button className='w-full' asChild>
             <Link href={href}>Start Learning</Link>
