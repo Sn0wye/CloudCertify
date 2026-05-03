@@ -32,29 +32,39 @@ export function CertificationCard({
   available = false,
   href
 }: CertificationCardProps) {
+  const difficultyVariant = difficulty.toLowerCase() === 'easy' 
+    ? 'outline' 
+    : difficulty.toLowerCase() === 'medium' 
+      ? 'secondary' 
+      : 'destructive';
+
   return (
-    <Card className='flex flex-col overflow-hidden transition-all hover:shadow-lg relative'>
+    <Card className='flex flex-col overflow-hidden relative border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] transition-all'>
       {!available && (
-        <div className='absolute top-0 right-0 m-3'>
-          <Badge className='bg-amber-100 text-amber-800 hover:bg-amber-100'>
+        <div className='absolute top-0 right-0 m-3 z-10'>
+          <Badge className='bg-[#feca57]'>
             Coming Soon
           </Badge>
         </div>
       )}
       <CardHeader className='pb-0'>
-        <div className='flex justify-center mb-4'>{icon}</div>
-        <CardTitle className='text-xl'>{title}</CardTitle>
+        <div className='flex justify-center mb-4'>
+          <div className='h-12 w-12 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+            {icon}
+          </div>
+        </div>
+        <CardTitle className='text-xl font-black text-black text-center'>{title}</CardTitle>
         {description ? (
-          <CardDescription className='mt-2'>{description}</CardDescription>
+          <CardDescription className='mt-2 text-center'>{description}</CardDescription>
         ) : null}
       </CardHeader>
       <CardContent className='flex-1'>
-        <div className='flex justify-between text-sm text-muted-foreground mt-4'>
+        <div className='flex justify-between text-sm mt-4'>
           <div className='flex items-center gap-1'>
-            <Badge variant='outline'>{capitalize(difficulty)}</Badge>
+            <Badge variant={difficultyVariant}>{capitalize(difficulty)}</Badge>
           </div>
           {available ? (
-            <div className='flex items-center gap-1'>
+            <div className='flex items-center gap-1 font-medium text-black'>
               <span>{questions} Questions</span>
               <BookOpen className='h-4 w-4' />
             </div>
@@ -67,13 +77,13 @@ export function CertificationCard({
             <Link href={href}>Start Learning</Link>
           </Button>
         ) : (
-          <Button className='w-full' disabled={!available}>
-            {available ? 'Start Learning' : 'Coming Soon'}
+          <Button className='w-full' disabled={!available} variant='outline'>
+            Coming Soon
           </Button>
         )}
       </CardFooter>
       {!available && (
-        <div className='absolute inset-0 bg-gradient-to-b from-transparent to-background/80 pointer-events-none' />
+        <div className='absolute inset-0 bg-white/60 pointer-events-none' />
       )}
     </Card>
   );
