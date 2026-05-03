@@ -52,7 +52,9 @@ export function DashboardPage() {
       <main className='flex-1 container py-8'>
         <div className='flex flex-col gap-8'>
           <div>
-            <h1 className='text-3xl font-black tracking-tight text-black'>Dashboard</h1>
+            <h1 className='text-3xl font-black tracking-tight text-black'>
+              Dashboard
+            </h1>
             <p className='text-black/70 font-medium mt-1'>
               Continue your cloud certification journey
             </p>
@@ -104,7 +106,9 @@ export function DashboardPage() {
               </section>
 
               <section className='mt-8'>
-                <h2 className='text-xl font-black mb-4 text-black'>Coming Soon</h2>
+                <h2 className='text-xl font-black mb-4 text-black'>
+                  Coming Soon
+                </h2>
 
                 {isLoading ? (
                   <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
