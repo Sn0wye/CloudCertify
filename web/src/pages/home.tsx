@@ -203,46 +203,32 @@ export function HomePage() {
               </div>
             </div>
             <div className='mx-auto max-w-md mt-8'>
-              <Card className='overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
-                <CardHeader className='bg-[#0ea5e9] pb-8 border-b-2 border-black'>
-                  <div className='flex justify-center'>
-                    <Badge className='text-lg bg-white'>
-                      100% Free
-                    </Badge>
+              <Card className='overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_#000] bg-white'>
+                <CardHeader className='pb-4 pt-8 text-center'>
+                  <div className='flex justify-center mb-4'>
+                    <span className='text-6xl font-black text-black'>$0</span>
                   </div>
-                  <div className='flex justify-center mt-4'>
-                    <div className='flex items-baseline'>
-                      <span className='text-6xl font-black text-black'>$0</span>
-                      <span className='text-black/70 ml-1 font-bold'>/month</span>
-                    </div>
-                  </div>
+                  <p className='text-black/70 font-bold'>Forever free. No catches.</p>
                 </CardHeader>
-                <CardContent className='p-6 bg-white'>
-                  <ul className='space-y-4'>
-                    <li className='flex items-start gap-3'>
-                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center'>
-                        <CheckCircle className='h-4 w-4 text-black' />
-                      </div>
+                <CardContent className='p-6'>
+                  <ul className='space-y-3'>
+                    <li className='flex items-center gap-3'>
+                      <CheckCircle className='h-5 w-5 text-black' />
                       <span className='font-medium text-black'>
-                        Full access to all AWS, GCP, and Azure practice
-                        questions
+                        All AWS, GCP, and Azure questions
                       </span>
                     </li>
-                    <li className='flex items-start gap-3'>
-                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center'>
-                        <CheckCircle className='h-4 w-4 text-black' />
-                      </div>
+                    <li className='flex items-center gap-3'>
+                      <CheckCircle className='h-5 w-5 text-black' />
                       <span className='font-medium text-black'>Exam simulation mode</span>
                     </li>
-                    <li className='flex items-start gap-3'>
-                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center'>
-                        <CheckCircle className='h-4 w-4 text-black' />
-                      </div>
+                    <li className='flex items-center gap-3'>
+                      <CheckCircle className='h-5 w-5 text-black' />
                       <span className='font-medium text-black'>No credit card required</span>
                     </li>
                   </ul>
                 </CardContent>
-                <CardFooter className='bg-[#e0f2fe] p-6 border-t-2 border-black'>
+                <CardFooter className='p-6 pt-0'>
                   <Button asChild size='lg' className='w-full'>
                     <Link href='/dashboard'>Start Learning Now</Link>
                   </Button>
@@ -309,7 +295,7 @@ export function HomePage() {
               <div className='flex justify-center'>
                 <div className='relative w-full max-w-md overflow-hidden rounded-[5px] border-4 border-black bg-white p-2 shadow-[8px_8px_0px_0px_#000]'>
                   <div className='bg-[#0ea5e9] rounded-[5px] border-2 border-black p-8 flex flex-col items-center justify-center space-y-6'>
-                    <div className='h-20 w-20 rounded-[5px] border-2 border-black bg-white flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'>
+                    <div className='h-20 w-20 rounded-[5px] border-2 border-black bg-[#feca57] flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'>
                       <Award className='h-10 w-10 text-black' />
                     </div>
                     <div className='text-center space-y-2'>
