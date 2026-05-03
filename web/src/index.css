@@ -160,9 +160,9 @@
 :root {
   --radius: 5px;
 
-  /* Neobrutalism colors - sky-500 based */
-  --main: #0ea5e9;
-  --main-accent: #0284c7;
+  /* Neobrutalism colors - sky-400 based */
+  --main: #38bdf8;
+  --main-accent: #0ea5e9;
   --bg: #f0f9ff;
   --text: #000;
   --nb-border: #000;
@@ -176,7 +176,7 @@
   --popover: #fff;
   --popover-foreground: #000;
 
-  --primary: #0ea5e9;
+  --primary: #38bdf8;
   --primary-foreground: #000;
 
   --secondary: #feca57;
@@ -192,9 +192,9 @@
 
   --border: #000;
   --input: #000;
-  --ring: #0ea5e9;
+  --ring: #38bdf8;
 
-  --chart-1: #0ea5e9;
+  --chart-1: #38bdf8;
   --chart-2: #feca57;
   --chart-3: #ff6b6b;
   --chart-4: #48dbfb;
@@ -202,12 +202,12 @@
 
   --sidebar: #fff;
   --sidebar-foreground: #000;
-  --sidebar-primary: #0ea5e9;
+  --sidebar-primary: #38bdf8;
   --sidebar-primary-foreground: #000;
   --sidebar-accent: #f0f9ff;
   --sidebar-accent-foreground: #000;
   --sidebar-border: #000;
-  --sidebar-ring: #0ea5e9;
+  --sidebar-ring: #38bdf8;
 
   /* Neobrutalism box shadow */
   --shadow-light: 4px 4px 0px 0px #000;
