@@ -106,14 +106,7 @@ export function CertificationRoadmap({
               >
                 <span>{p.short}</span>
                 {!p.available && (
-                  <span
-                    className={cn(
-                      'rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black',
-                      isActive
-                        ? 'bg-white text-black'
-                        : 'bg-[#e0f2fe] text-black'
-                    )}
-                  >
+                  <span className='rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black bg-[#feca57] text-black'>
                     Soon
                   </span>
                 )}
@@ -262,10 +255,14 @@ function CertificationNode({
           </h5>
         </div>
 
-        {available && (
+        {available ? (
           <ArrowRight
             className='h-4 w-4 shrink-0 mt-3 transition-transform group-hover:translate-x-1 text-black'
           />
+        ) : (
+          <span className='rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black bg-[#feca57] text-black shrink-0 self-start'>
+            Soon
+          </span>
         )}
       </div>
     </>

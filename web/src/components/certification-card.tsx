@@ -37,7 +37,7 @@ export function CertificationCard({
       {!available && (
         <div className='absolute top-0 right-0 m-3 z-10'>
           <Badge className='bg-[#feca57]'>
-            Coming Soon
+            Soon
           </Badge>
         </div>
       )}
@@ -72,7 +72,7 @@ export function CertificationCard({
           </Button>
         ) : (
           <Button className='w-full' disabled={!available} variant='outline'>
-            Coming Soon
+            Soon
           </Button>
         )}
       </CardFooter>
