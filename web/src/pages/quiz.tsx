@@ -251,9 +251,9 @@ export function QuizPage() {
 
         <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
           <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
-            <CardHeader className='text-center border-b-2 border-black'>
+            <CardHeader className='text-center border-b-2 border-black pb-6'>
               <CardTitle className='text-2xl md:text-3xl font-black text-black'>Quiz Results</CardTitle>
-              <p className='text-black/70 font-medium'>{quizData.title}</p>
+              <p className='text-black/70 font-medium mt-2'>{quizData.title}</p>
             </CardHeader>
             <CardContent className='space-y-8 py-8'>
               <div className='flex flex-col items-center justify-center space-y-4'>
@@ -414,8 +414,8 @@ export function QuizPage() {
 
       <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
         <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
-          <CardHeader className='border-b-2 border-black'>
-            <div className='flex justify-between items-center mb-2'>
+          <CardHeader className='border-b-2 border-black pb-6'>
+            <div className='flex justify-between items-center mb-4'>
               <Badge variant='outline'>
                 Question {currentQuestionIndex + 1} of {totalQuestions}
               </Badge>
@@ -424,11 +424,11 @@ export function QuizPage() {
             <CardTitle className='text-xl md:text-2xl font-black text-black'>
               {currentQuestion.text}
             </CardTitle>
-            <div className='w-full mt-4'>
+            <div className='w-full mt-6'>
               <Progress value={progress} />
             </div>
           </CardHeader>
-          <CardContent className='pt-6'>
+          <CardContent className='py-6'>
             <div className='space-y-3'>
               {currentQuestion.answers.map(answer => {
                 const isSelected = userAnswers[currentQuestion.id] === answer.id;
