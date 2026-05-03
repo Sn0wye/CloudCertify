@@ -213,17 +213,23 @@ export function HomePage() {
                 <CardContent className='p-6'>
                   <ul className='space-y-3'>
                     <li className='flex items-center gap-3'>
-                      <CheckCircle className='h-5 w-5 text-black' />
+                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
+                        <CheckCircle className='h-4 w-4 text-black' />
+                      </div>
                       <span className='font-medium text-black'>
                         All AWS, GCP, and Azure questions
                       </span>
                     </li>
                     <li className='flex items-center gap-3'>
-                      <CheckCircle className='h-5 w-5 text-black' />
+                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
+                        <CheckCircle className='h-4 w-4 text-black' />
+                      </div>
                       <span className='font-medium text-black'>Exam simulation mode</span>
                     </li>
                     <li className='flex items-center gap-3'>
-                      <CheckCircle className='h-5 w-5 text-black' />
+                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
+                        <CheckCircle className='h-4 w-4 text-black' />
+                      </div>
                       <span className='font-medium text-black'>No credit card required</span>
                     </li>
                   </ul>
