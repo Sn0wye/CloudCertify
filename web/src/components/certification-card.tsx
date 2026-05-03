@@ -49,7 +49,7 @@ export function CertificationCard({
       )}
       <CardHeader className='pb-0'>
         <div className='flex justify-center mb-4'>
-          <div className='h-12 w-12 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+          <div className='h-14 w-14 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
             {icon}
           </div>
         </div>
