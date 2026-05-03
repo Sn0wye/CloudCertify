@@ -25,7 +25,7 @@ export function HomePage() {
       <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
         <div className='container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0'>
           <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#0ea5e9] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
               <Cloud className='h-5 w-5 text-black' />
             </div>
             <span>CloudCertify</span>
@@ -59,13 +59,13 @@ export function HomePage() {
           <div className='container px-4 md:px-6'>
             <div className='flex flex-col items-center space-y-6 text-center'>
               <div className='space-y-4'>
-                <Badge className='bg-[#0ea5e9]'>
+                <Badge className='bg-[#38bdf8]'>
                   100% Free - No Credit Card Required
                 </Badge>
                 <h1 className='mx-auto max-w-4xl text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-black text-balance'>
                   <span className='inline-flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1'>
                     <span>Master</span>
-                    <span className='inline-block rounded-[5px] border-2 border-black bg-[#0ea5e9] px-3 shadow-[4px_4px_0px_0px_#000]'>
+                    <span className='inline-block rounded-[5px] border-2 border-black bg-[#38bdf8] px-3 shadow-[4px_4px_0px_0px_#000]'>
                       <RotatingText
                         texts={['AWS', 'GCP', 'Azure']}
                         mainClassName='text-black'
@@ -123,7 +123,7 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className='w-full py-12 md:py-24 lg:py-32 bg-[#0ea5e9]'>
+        <section className='w-full py-12 md:py-24 lg:py-32 bg-[#38bdf8]'>
           <div className='container px-4 md:px-6'>
             <div className='flex flex-col items-center justify-center space-y-4 text-center'>
               <div className='space-y-2'>
@@ -294,7 +294,7 @@ export function HomePage() {
               </div>
               <div className='flex justify-center'>
                 <div className='relative w-full max-w-md overflow-hidden rounded-[5px] border-4 border-black bg-white p-2 shadow-[8px_8px_0px_0px_#000]'>
-                  <div className='bg-[#0ea5e9] rounded-[5px] border-2 border-black p-8 flex flex-col items-center justify-center space-y-6'>
+                  <div className='bg-[#38bdf8] rounded-[5px] border-2 border-black p-8 flex flex-col items-center justify-center space-y-6'>
                     <div className='h-20 w-20 rounded-[5px] border-2 border-black bg-[#feca57] flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'>
                       <Award className='h-10 w-10 text-black' />
                     </div>
