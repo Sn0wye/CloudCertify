@@ -30,9 +30,9 @@ const TIER_STYLES: Record<TierKey, TierStyle> = {
   },
   associate: {
     label: 'text-black',
-    marker: 'border-black bg-[#38bdf8] text-black',
-    accent: 'bg-[#38bdf8]',
-    nodeBg: 'bg-[#38bdf8]',
+    marker: 'border-black bg-[#0ea5e9] text-black',
+    accent: 'bg-[#0ea5e9]',
+    nodeBg: 'bg-[#0ea5e9]',
     nodeIcon: 'text-black'
   },
   specialist: {
@@ -100,7 +100,7 @@ export function CertificationRoadmap({
                 className={cn(
                   'relative flex items-center gap-2 rounded-[5px] px-4 py-2 text-sm font-bold transition-all border-2',
                   isActive
-                    ? 'bg-[#38bdf8] text-black border-black shadow-[2px_2px_0px_0px_#000]'
+                    ? 'bg-[#0ea5e9] text-black border-black shadow-[2px_2px_0px_0px_#000]'
                     : 'text-black border-transparent hover:bg-[#e0f2fe]'
                 )}
               >
