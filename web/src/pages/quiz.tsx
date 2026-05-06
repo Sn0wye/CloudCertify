@@ -438,8 +438,8 @@ export function QuizPage() {
                     key={answer.id}
                     className={`p-4 rounded-[5px] border-2 border-black ${
                       isSelected
-                        ? 'bg-[#38bdf8] shadow-[2px_2px_0px_0px_#000]'
-                        : 'bg-white hover:bg-[#f0f9ff]'
+                        ? 'bg-[#38bdf8] shadow-none translate-x-[2px] translate-y-[2px]'
+                        : 'bg-white hover:bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'
                     } flex items-start gap-3 cursor-pointer transition-all`}
                     onClick={() => handleAnswerSelect(answer.id)}
                   >
