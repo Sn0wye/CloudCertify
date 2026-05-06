@@ -371,8 +371,8 @@ function QuizCard({
               key={index}
               className={`p-3 rounded-[5px] border-2 border-black font-medium ${
                 index === correctAnswer
-                  ? 'bg-[#1dd1a1] shadow-[2px_2px_0px_0px_#000]'
-                  : 'bg-white'
+                  ? 'bg-[#1dd1a1] shadow-none translate-x-[2px] translate-y-[2px]'
+                  : 'bg-white shadow-[4px_4px_0px_0px_#000]'
               } flex items-start gap-2`}
             >
               <div
