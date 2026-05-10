@@ -16,14 +16,8 @@ public class QuizRepository(ApplicationDbContext context)
         await context.Quiz.AddRangeAsync(quizzes);
         await context.SaveChangesAsync();
     }
-        
-    public async Task<Quiz?> GetQuizById(int quizId)
-    {
-        return await context.Quiz
-            .FirstOrDefaultAsync(q => q.Id == quizId);
-    }
 
-    public async Task<Quiz?> GetQuizByIdWithQuestions(int quizId)
+    public async Task<Quiz?> GetQuizById(int quizId)
     {
         return await context.Quiz
             .Include(q => q.Questions)

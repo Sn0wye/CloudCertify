@@ -54,13 +54,13 @@ public class QuizService
             QuizProvider = quiz.QuizProvider,
             QuizLevel = quiz.QuizLevel,
             CreatedAt = quiz.CreatedAt,
-            QuestionCount = 0
+            QuestionCount = quiz.Questions?.Count ?? 0
         };
     }
     
     public async Task<QuizDetailDto?> StartQuiz(int quizId, string email)
     {
-        var quiz = await _quizRepository.GetQuizByIdWithQuestions(quizId);
+        var quiz = await _quizRepository.GetQuizById(quizId);
         
         if (quiz == null)
         {
