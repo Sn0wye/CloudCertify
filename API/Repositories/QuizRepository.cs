@@ -20,6 +20,12 @@ public class QuizRepository(ApplicationDbContext context)
     public async Task<Quiz?> GetQuizById(int quizId)
     {
         return await context.Quiz
+            .FirstOrDefaultAsync(q => q.Id == quizId);
+    }
+
+    public async Task<Quiz?> GetQuizByIdWithQuestions(int quizId)
+    {
+        return await context.Quiz
             .Include(q => q.Questions)
             .ThenInclude(q => q.Answers)
             .FirstOrDefaultAsync(q => q.Id == quizId);

@@ -32,7 +32,7 @@ public class QuizController: ControllerBase
     }
 
     [HttpGet("{quizId}")]
-    public async Task<ActionResult<QuizDetailDto>> GetQuizById(int quizId)
+    public async Task<ActionResult<QuizDto>> GetQuizById(int quizId)
     {
         var quiz = await _quizService.GetQuizById(quizId);
         

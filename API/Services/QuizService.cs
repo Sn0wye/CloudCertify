@@ -35,7 +35,7 @@ public class QuizService
         });
     }
     
-    public async Task<QuizDetailDto?> GetQuizById(int quizId)
+    public async Task<QuizDto?> GetQuizById(int quizId)
     {
         var quiz = await _quizRepository.GetQuizById(quizId);
         
@@ -44,19 +44,46 @@ public class QuizService
             return null;
         }
 
-        return new QuizDetailDto
+        return new QuizDto
         {
             Id = quiz.Id,
             Title = quiz.Title,
             Description = quiz.Description,
+            IconName = quiz.IconName,
+            IsAvailable = quiz.IsAvailable,
+            QuizProvider = quiz.QuizProvider,
+            QuizLevel = quiz.QuizLevel,
             CreatedAt = quiz.CreatedAt,
-            Questions = quiz.Questions
+            QuestionCount = 0
+        };
+    }
+
+    private async Task<QuizDto?> GetQuizById_REMOVE(int quizId)
+    {
+        var quiz = await _quizRepository.GetQuizById(quizId);
+
+        if (quiz == null)
+        {
+            return null;
+        }
+
+        return new QuizDto
+        {
+            Id = quiz.Id,
+            Title = quiz.Title,
+            Description = quiz.Description,
+            IconName = quiz.IconName,
+            IsAvailable = quiz.IsAvailable,
+            QuizProvider = quiz.QuizProvider,
+            QuizLevel = quiz.QuizLevel,
+            CreatedAt = quiz.CreatedAt,
+            QuestionCount = quiz.Questions?.Count ?? 0
         };
     }
     
     public async Task<QuizDetailDto?> StartQuiz(int quizId, string email)
     {
-        var quiz = await _quizRepository.GetQuizById(quizId);
+        var quiz = await _quizRepository.GetQuizByIdWithQuestions(quizId);
         
         if (quiz == null)
         {
