@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'API/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 jobs:
@@ -35,3 +36,5 @@ jobs:
           push: true
           platforms: linux/arm64
           tags: ghcr.io/sn0wye/cloudcertify:prod
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
