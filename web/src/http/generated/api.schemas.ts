@@ -12,11 +12,12 @@ export interface Answer {
   createdAt?: string;
 }
 
-export type QuestionType = (typeof QuestionType)[keyof typeof QuestionType];
+export type QuestionType = typeof QuestionType[keyof typeof QuestionType];
+
 
 export const QuestionType = {
   multiple_choice: 'multiple_choice',
-  true_false: 'true_false'
+  true_false: 'true_false',
 } as const;
 
 export interface Question {
@@ -42,21 +43,23 @@ export interface QuizDetailDto {
   questions?: Question[];
 }
 
-export type QuizProvider = (typeof QuizProvider)[keyof typeof QuizProvider];
+export type QuizProvider = typeof QuizProvider[keyof typeof QuizProvider];
+
 
 export const QuizProvider = {
   azure: 'azure',
   aws: 'aws',
-  gcp: 'gcp'
+  gcp: 'gcp',
 } as const;
 
-export type QuizLevel = (typeof QuizLevel)[keyof typeof QuizLevel];
+export type QuizLevel = typeof QuizLevel[keyof typeof QuizLevel];
+
 
 export const QuizLevel = {
   foundational: 'foundational',
   associate: 'associate',
   professional: 'professional',
-  specialist: 'specialist'
+  specialist: 'specialist',
 } as const;
 
 export interface QuizDto {
@@ -71,6 +74,20 @@ export interface QuizDto {
   questionCount?: number;
 }
 
+export interface QuizResultAnswerDto {
+  id: number;
+  text: string;
+  isCorrect: boolean;
+  wasSelected: boolean;
+}
+
+export interface QuizResultQuestionDto {
+  id: number;
+  text: string;
+  type: QuestionType;
+  answers: QuizResultAnswerDto[];
+}
+
 export interface StartQuizRequestDto {
   email?: string;
 }
@@ -82,4 +99,8 @@ export interface SubmitQuizRequestDto {
 
 export interface SubmitQuizResponseDto {
   score: number;
+  totalQuestions: number;
+  correctCount: number;
+  questions: QuizResultQuestionDto[];
 }
+
