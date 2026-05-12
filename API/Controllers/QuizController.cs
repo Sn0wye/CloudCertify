@@ -62,12 +62,9 @@ public class QuizController: ControllerBase
     {
         var answers = request.Answers;
         
-        var score = await _quizService.SubmitQuiz(quizId, request.SubmissionId, answers);
+        var result = await _quizService.SubmitQuiz(quizId, request.SubmissionId, answers);
         
-        return Ok(new SubmitQuizResponseDto
-        {
-            Score = score
-        });
+        return Ok(result);
     }
     
     [HttpPost("process")]

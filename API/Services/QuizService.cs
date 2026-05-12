@@ -1,6 +1,7 @@
 using API.Dto;
 using API.Entities;
 using API.Model.Request;
+using API.Model.Response;
 using API.Repositories;
 
 namespace API.Services;
@@ -95,9 +96,9 @@ public class QuizService
         };
     }
 
-    public async Task<int> SubmitQuiz(int quizId, int submissionId, List<QuizAnswer> answers)
+    public async Task<SubmitQuizResponseDto> SubmitQuiz(int quizId, int submissionId, List<QuizAnswer> answers)
     {
-        var submission = await _submissionRepository.GetById(quizId);
+        var submission = await _submissionRepository.GetById(submissionId);
         
         if (submission == null)
         {
@@ -105,24 +106,47 @@ public class QuizService
         }
         
         var questions = await _questionRepository.GetQuestionsByIds(answers.Select(a => a.QuestionId).ToList());
-        int score = 0;
+        int correctCount = 0;
+        var resultQuestions = new List<QuizResultQuestionDto>();
 
         foreach (var question in questions)
         {
-            var userAnswers = answers.Where(a => a.QuestionId == question.Id).Select(a => a.AnswerId).ToList();
-            var correctAnswers = question.Answers.Where(a => a.IsCorrect).Select(a => a.Id).ToList();
+            var userAnswerIds = answers.Where(a => a.QuestionId == question.Id).Select(a => a.AnswerId).ToList();
+            var correctAnswerIds = question.Answers.Where(a => a.IsCorrect).Select(a => a.Id).ToList();
             
-            if (userAnswers.Count == correctAnswers.Count && !userAnswers.Except(correctAnswers).Any())
+            if (userAnswerIds.Count == correctAnswerIds.Count && !userAnswerIds.Except(correctAnswerIds).Any())
             {
-                score++;
+                correctCount++;
             }
+
+            resultQuestions.Add(new QuizResultQuestionDto
+            {
+                Id = question.Id,
+                Text = question.Text,
+                Type = question.Type,
+                Answers = question.Answers.Select(a => new QuizResultAnswerDto
+                {
+                    Id = a.Id,
+                    Text = a.Text,
+                    IsCorrect = a.IsCorrect,
+                    WasSelected = userAnswerIds.Contains(a.Id)
+                }).ToList()
+            });
         }
+
+        int totalQuestions = questions.Count();
         
-        submission.Score = score;
+        submission.Score = correctCount;
         submission.Finished = true;
         await _submissionRepository.Update(submission);
         
-        return score;
+        return new SubmitQuizResponseDto
+        {
+            Score = correctCount,
+            TotalQuestions = totalQuestions,
+            CorrectCount = correctCount,
+            Questions = resultQuestions
+        };
     }
     
     public async Task CreateQuiz(Quiz quiz)
