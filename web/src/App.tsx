@@ -3,6 +3,8 @@ import { HomePage } from './pages/home';
 import { Route, Router } from 'wouter';
 import { QuizPage } from './pages/quiz';
 import { DashboardPage } from './pages/dashboard';
+import { QuizDetailPage } from './pages/quiz-detail';
+import { QuizSessionPage } from './pages/quiz-session';
 import { Providers } from './providers';
 
 export function App() {
@@ -29,6 +31,8 @@ export function App() {
       <Router>
         <Route path='/' component={HomePage} />
         <Route path='/quiz' component={QuizPage} />
+        <Route path='/quiz/:id' component={QuizDetailPage} />
+        <Route path='/quiz/:id/session' component={QuizSessionPage} />
         <Route path='/dashboard' component={DashboardPage} />
       </Router>
     </Providers>
