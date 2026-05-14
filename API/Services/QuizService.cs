@@ -82,18 +82,31 @@ public class QuizService
 
         await _submissionRepository.Create(submission);
         
-        // get random 65 questions
-        var randomQuestions = quiz.Questions.OrderBy(q => Guid.NewGuid()).Take(1).ToList();
+        // get random 65 questions (5 for testing)
+        var randomQuestions = quiz.Questions.OrderBy(q => Guid.NewGuid()).Take(5).ToList();
 
-        return new QuizDetailDto
-        {
-            Id = quiz.Id,
-            Title = quiz.Title,
-            Description = quiz.Description,
-            CreatedAt = quiz.CreatedAt,
-            Questions = randomQuestions,
-            SubmissionId = submission.Id
-        };
+         return new QuizDetailDto
+         {
+             Id = quiz.Id,
+             Title = quiz.Title,
+             Description = quiz.Description,
+             CreatedAt = quiz.CreatedAt,
+             SubmissionId = submission.Id,
+             Questions = randomQuestions.Select(q => new QuestionDto
+             {
+                 Id = q.Id,
+                 Text = q.Text,
+                 Images = q.Images,
+                 Type = q.Type,
+                 SelectCount = q.SelectCount,
+                 Answers = q.Answers.Select(a => new AnswerDto
+                 {
+                     Id = a.Id,
+                     Text = a.Text,
+                     Image = a.Image,
+                 }).ToList()
+             }).ToList()
+         };
     }
 
     public async Task<SubmitQuizResponseDto> SubmitQuiz(int quizId, int submissionId, List<QuizAnswer> answers)
@@ -119,19 +132,25 @@ public class QuizService
                 correctCount++;
             }
 
-            resultQuestions.Add(new QuizResultQuestionDto
-            {
-                Id = question.Id,
-                Text = question.Text,
-                Type = question.Type,
-                Answers = question.Answers.Select(a => new QuizResultAnswerDto
-                {
-                    Id = a.Id,
-                    Text = a.Text,
-                    IsCorrect = a.IsCorrect,
-                    WasSelected = userAnswerIds.Contains(a.Id)
-                }).ToList()
-            });
+             resultQuestions.Add(new QuizResultQuestionDto
+             {
+                 Id = question.Id,
+                 Text = question.Text,
+                 Type = question.Type,
+                 Domain = question.Domain,
+                 Concepts = question.Concepts,
+                 ServiceCategory = question.ServiceCategory,
+                 Services = question.Services,
+                 Explanation = question.Explanation,
+                 Answers = question.Answers.Select(a => new QuizResultAnswerDto
+                 {
+                     Id = a.Id,
+                     Text = a.Text,
+                     Image = a.Image,
+                     IsCorrect = a.IsCorrect,
+                     WasSelected = userAnswerIds.Contains(a.Id)
+                 }).ToList()
+             });
         }
 
         int totalQuestions = questions.Count();
