@@ -35,7 +35,7 @@ public class ApplicationDbContext: DbContext
         modelBuilder.Entity<Question>(entity =>
         {
             entity.HasKey(q => q.Id);
-            entity.Property(q => q.Text).IsRequired().HasColumnType("text");
+            entity.Property(q => q.Text).HasColumnType("text");
             entity.Property(q => q.Images).HasColumnType("text[]").IsRequired();
             entity.Property(q => q.Type).IsRequired();
             entity.Property(q => q.SelectCount).IsRequired().HasDefaultValue(1);
