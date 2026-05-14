@@ -36,7 +36,14 @@ public class ApplicationDbContext: DbContext
         {
             entity.HasKey(q => q.Id);
             entity.Property(q => q.Text).IsRequired().HasColumnType("text");
+            entity.Property(q => q.Images).HasColumnType("text[]").IsRequired();
             entity.Property(q => q.Type).IsRequired();
+            entity.Property(q => q.SelectCount).IsRequired().HasDefaultValue(1);
+            entity.Property(q => q.Domain).HasMaxLength(255);
+            entity.Property(q => q.Concepts).HasColumnType("text[]");
+            entity.Property(q => q.ServiceCategory).HasMaxLength(255);
+            entity.Property(q => q.Services).HasColumnType("text[]");
+            entity.Property(q => q.Explanation).HasColumnType("text");
             entity.Property(q => q.CreatedAt).IsRequired();
 
             entity.HasOne(q => q.Quiz)
@@ -51,8 +58,9 @@ public class ApplicationDbContext: DbContext
         modelBuilder.Entity<Answer>(entity =>
         {
             entity.HasKey(a => a.Id);
-            entity.Property(a => a.Text).IsRequired().HasMaxLength(255);
+            entity.Property(a => a.Text).HasMaxLength(255);
             entity.Property(a => a.IsCorrect).IsRequired();
+            entity.Property(a => a.Image).HasMaxLength(255);
             entity.Property(a => a.CreatedAt).IsRequired();
 
             entity.HasOne(a => a.Question)
