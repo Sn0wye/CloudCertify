@@ -82,8 +82,8 @@ public class QuizService
 
         await _submissionRepository.Create(submission);
         
-        // get random 65 questions (5 for testing)
-        var randomQuestions = quiz.Questions.OrderBy(q => Guid.NewGuid()).Take(5).ToList();
+         // get random 65 questions (5 for testing)
+         var randomQuestions = quiz.Questions?.OrderBy(q => Guid.NewGuid()).Take(5).ToList() ?? new List<Question>();
 
          return new QuizDetailDto
          {
@@ -99,12 +99,7 @@ public class QuizService
                  Images = q.Images,
                  Type = q.Type,
                  SelectCount = q.SelectCount,
-                 Answers = q.Answers.Select(a => new AnswerDto
-                 {
-                     Id = a.Id,
-                     Text = a.Text,
-                     Image = a.Image,
-                 }).ToList()
+                  Answers = q.Answers.Select(a => MapAnswerToDto(a)).ToList()
              }).ToList()
          };
     }
@@ -142,14 +137,7 @@ public class QuizService
                  ServiceCategory = question.ServiceCategory,
                  Services = question.Services,
                  Explanation = question.Explanation,
-                 Answers = question.Answers.Select(a => new QuizResultAnswerDto
-                 {
-                     Id = a.Id,
-                     Text = a.Text,
-                     Image = a.Image,
-                     IsCorrect = a.IsCorrect,
-                     WasSelected = userAnswerIds.Contains(a.Id)
-                 }).ToList()
+                  Answers = question.Answers.Select(a => MapAnswerToResultDto(a, userAnswerIds.Contains(a.Id))).ToList()
              });
         }
 
@@ -168,8 +156,30 @@ public class QuizService
         };
     }
     
-    public async Task CreateQuiz(Quiz quiz)
-    {
-        await _quizRepository.Create(quiz);
-    }
-}
+     public async Task CreateQuiz(Quiz quiz)
+     {
+         await _quizRepository.Create(quiz);
+     }
+     
+     private static AnswerDto MapAnswerToDto(Answer answer)
+     {
+         return new AnswerDto
+         {
+             Id = answer.Id,
+             Text = answer.Text,
+             Image = answer.Image,
+         };
+     }
+     
+     private static QuizResultAnswerDto MapAnswerToResultDto(Answer answer, bool wasSelected)
+     {
+         return new QuizResultAnswerDto
+         {
+             Id = answer.Id,
+             Text = answer.Text,
+             Image = answer.Image,
+             IsCorrect = answer.IsCorrect,
+             WasSelected = wasSelected,
+         };
+     }
+ }
