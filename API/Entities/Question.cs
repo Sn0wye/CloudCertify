@@ -8,17 +8,31 @@ public class Question
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; init; }
-    
+
     public int QuizId { get; set; }
-    
+
     public string Text { get; set; }
-    
+
+    public string[] Images { get; set; } = [];
+
     public QuestionType Type { get; set; }
-    
+
+    public int SelectCount { get; set; }
+
+    public string? Domain { get; set; }
+
+    public string[]? Concepts { get; set; }
+
+    public string? ServiceCategory { get; set; }
+
+    public string[]? Services { get; set; }
+
+    public string? Explanation { get; set; }
+
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-    
+
     public virtual ICollection<Answer> Answers { get; set; }
-    
+
     [JsonIgnore]
     public virtual Quiz Quiz { get; set; }
 }
@@ -26,5 +40,5 @@ public class Question
 public enum QuestionType
 {
     MultipleChoice,
-    TrueFalse,
+    MultipleResponse,
 }
