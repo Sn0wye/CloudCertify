@@ -64,9 +64,12 @@ public class QuestionService
         {
             Text = question.Text,
             Images = question.Images,
-            Type = question.Type == "multiple_response"
-                ? QuestionType.MultipleResponse
-                : QuestionType.MultipleChoice,
+            Type = question.Type switch
+            {
+                "multiple_choice" => QuestionType.MultipleChoice,
+                "multiple_response" => QuestionType.MultipleResponse,
+                _ => throw new InvalidOperationException($"Unknown question type: {question.Type}")
+            },
             SelectCount = question.SelectCount,
             Domain = question.Domain,
             Concepts = question.Concepts,
@@ -181,7 +184,7 @@ public class QuestionService
 
 public class QuestionPayload
 {
-    public string Text { get; set; }
+    public string? Text { get; set; }
     public string[] Images { get; set; } = [];
     public string Type { get; set; }
     public int SelectCount { get; set; }
@@ -190,7 +193,7 @@ public class QuestionPayload
     public string? ServiceCategory { get; set; }
     public string[]? Services { get; set; }
     public string? Explanation { get; set; }
-    public List<AnswerPayload> Answers { get; set; }
+    public List<AnswerPayload>? Answers { get; set; }
 }
 
 public class AnswerPayload
