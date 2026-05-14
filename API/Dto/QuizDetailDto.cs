@@ -1,4 +1,4 @@
-using API.Entities;
+using API.Dto;
 
 namespace API.Dto;
 
@@ -9,5 +9,5 @@ public class QuizDetailDto
     public string Description { get; set; }
     public int SubmissionId { get; set; }
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-    public ICollection<Question> Questions { get; set; }
+    public ICollection<QuestionDto> Questions { get; set; }
 }
