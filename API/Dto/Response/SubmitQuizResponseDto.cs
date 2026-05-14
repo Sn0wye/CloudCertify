@@ -26,8 +26,8 @@ public class QuizResultQuestionDto
 public class QuizResultAnswerDto
 {
     public required int Id { get; set; }
-    public required string? Text { get; set; }
-    public required string? Image { get; set; }
+    public string? Text { get; set; }
+    public string? Image { get; set; }
     public required bool IsCorrect { get; set; }
     public required bool WasSelected { get; set; }
 }
