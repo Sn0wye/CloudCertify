@@ -63,11 +63,21 @@ public class QuestionService
         quiz.Questions = jsonQuestions.Select(question => new API.Entities.Question
         {
             Text = question.Text,
-            Type = QuestionType.MultipleChoice,
-            Answers = (question.Answers ?? new List<AnswerPayload>()).Select(answer => new API.Entities.Answer
+            Images = question.Images,
+            Type = question.Type == "multiple_response"
+                ? QuestionType.MultipleResponse
+                : QuestionType.MultipleChoice,
+            SelectCount = question.SelectCount,
+            Domain = question.Domain,
+            Concepts = question.Concepts,
+            ServiceCategory = question.ServiceCategory,
+            Services = question.Services,
+            Explanation = question.Explanation,
+            Answers = (question.Answers ?? []).Select(answer => new API.Entities.Answer
             {
                 Text = answer.Text,
                 IsCorrect = answer.IsCorrect,
+                Image = answer.Image,
             }).ToList(),
         }).ToList();
 
@@ -172,14 +182,22 @@ public class QuestionService
 public class QuestionPayload
 {
     public string Text { get; set; }
+    public string[] Images { get; set; } = [];
     public string Type { get; set; }
+    public int SelectCount { get; set; }
+    public string? Domain { get; set; }
+    public string[]? Concepts { get; set; }
+    public string? ServiceCategory { get; set; }
+    public string[]? Services { get; set; }
+    public string? Explanation { get; set; }
     public List<AnswerPayload> Answers { get; set; }
 }
 
 public class AnswerPayload
 {
-    public string Text { get; set; }
+    public string? Text { get; set; }
     public bool IsCorrect { get; set; }
+    public string? Image { get; set; }
 }
 
 public class QuizSeed
