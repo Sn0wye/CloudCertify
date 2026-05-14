@@ -37,7 +37,7 @@ public class ApplicationDbContext: DbContext
             entity.HasKey(q => q.Id);
             entity.Property(q => q.Text).HasColumnType("text");
             entity.Property(q => q.Images).HasColumnType("text[]").IsRequired();
-            entity.Property(q => q.Type).IsRequired();
+            entity.Property(q => q.Type).IsRequired().HasConversion<string>();
             entity.Property(q => q.SelectCount).IsRequired().HasDefaultValue(1);
             entity.Property(q => q.Domain).HasMaxLength(255);
             entity.Property(q => q.Concepts).HasColumnType("text[]");
