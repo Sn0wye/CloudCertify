@@ -5,6 +5,7 @@ import { QuizPage } from './pages/quiz';
 import { DashboardPage } from './pages/dashboard';
 import { QuizDetailPage } from './pages/quiz-detail';
 import { QuizSessionPage } from './pages/quiz-session';
+import { SubquizSessionPage } from './pages/subquiz-session';
 import { Providers } from './providers';
 
 export function App() {
@@ -33,6 +34,7 @@ export function App() {
         <Route path='/quiz' component={QuizPage} />
         <Route path='/quiz/:id' component={QuizDetailPage} />
         <Route path='/quiz/:id/session' component={QuizSessionPage} />
+        <Route path='/quiz/:id/subquiz/:subquizId/session' component={SubquizSessionPage} />
         <Route path='/dashboard' component={DashboardPage} />
       </Router>
     </Providers>
