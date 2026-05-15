@@ -96,6 +96,7 @@ public class QuestionService
             IconName = "cloud",
             QuizProvider = QuizProvider.AWS,
             QuizLevel = QuizLevel.Foundational,
+            Slug = "CLF-C02",
             QuestionsFileName = "clf-c02.json",
             IsAvailable = true
         },
@@ -105,7 +106,8 @@ public class QuestionService
             Description = "Develop and deploy applications on AWS services and tools.",
             IconName = "code",
             QuizProvider = QuizProvider.AWS,
-            QuizLevel = QuizLevel.Associate
+            QuizLevel = QuizLevel.Associate,
+            Slug = "DVA-C02"
         },
         new()
         {
@@ -113,7 +115,8 @@ public class QuestionService
             Description = "Operate, manage, and automate workloads on AWS.",
             IconName = "monitor",
             QuizProvider = QuizProvider.AWS,
-            QuizLevel = QuizLevel.Associate
+            QuizLevel = QuizLevel.Associate,
+            Slug = "SOA-C03"
         },
         new()
         {
@@ -121,7 +124,8 @@ public class QuestionService
             Description = "Design secure, resilient, and cost-optimized AWS solutions.",
             IconName = "server",
             QuizProvider = QuizProvider.AWS,
-            QuizLevel = QuizLevel.Associate
+            QuizLevel = QuizLevel.Associate,
+            Slug = "SAA-C03"
         },
         new()
         {
@@ -129,7 +133,8 @@ public class QuestionService
             Description = "Design and implement scalable, secure AWS and hybrid network architectures.",
             IconName = "network",
             QuizProvider = QuizProvider.AWS,
-            QuizLevel = QuizLevel.Specialist
+            QuizLevel = QuizLevel.Specialist,
+            Slug = "ANS-C01"
         },
         new()
         {
@@ -137,7 +142,8 @@ public class QuestionService
             Description = "Secure AWS workloads using security services, controls, and best practices.",
             IconName = "lock",
             QuizProvider = QuizProvider.AWS,
-            QuizLevel = QuizLevel.Specialist
+            QuizLevel = QuizLevel.Specialist,
+            Slug = "SCS-C02"
         },
         new()
         {
@@ -145,7 +151,8 @@ public class QuestionService
             Description = "Implement and manage Azure compute, storage, and networking.",
             IconName = "settings",
             QuizProvider = QuizProvider.Azure,
-            QuizLevel = QuizLevel.Associate
+            QuizLevel = QuizLevel.Associate,
+            Slug = "AZ-104"
         },
         new()
         {
@@ -153,7 +160,8 @@ public class QuestionService
             Description = "Learn foundational Azure concepts, services, and pricing.",
             IconName = "book-open",
             QuizProvider = QuizProvider.Azure,
-            QuizLevel = QuizLevel.Foundational
+            QuizLevel = QuizLevel.Foundational,
+            Slug = "AZ-900"
         },
         new()
         {
@@ -161,7 +169,8 @@ public class QuestionService
             Description = "Manage Windows Server workloads in hybrid environments.",
             IconName = "hard-drive",
             QuizProvider = QuizProvider.Azure,
-            QuizLevel = QuizLevel.Associate
+            QuizLevel = QuizLevel.Associate,
+            Slug = "AZ-800"
         },
         new()
         {
@@ -169,7 +178,8 @@ public class QuestionService
             Description = "Implement security controls and protect Azure workloads.",
             IconName = "shield",
             QuizProvider = QuizProvider.Azure,
-            QuizLevel = QuizLevel.Associate
+            QuizLevel = QuizLevel.Associate,
+            Slug = "AZ-500"
         },
         new()
         {
@@ -177,7 +187,8 @@ public class QuestionService
             Description = "Deploy, manage, and monitor GCP resources and services.",
             IconName = "cpu",
             QuizProvider = QuizProvider.GCP,
-            QuizLevel = QuizLevel.Associate
+            QuizLevel = QuizLevel.Associate,
+            Slug = "ACE"
         }
     ];
 }
@@ -212,6 +223,7 @@ public class QuizSeed
     public bool IsAvailable { get; set; } = false;
     public QuizProvider QuizProvider { get; init; }
     public QuizLevel QuizLevel { get; init; }
+    public string Slug { get; init; }
     public string QuestionsFileName { get; init; }
 
     public Quiz ToQuiz()
@@ -223,7 +235,8 @@ public class QuizSeed
             IconName = IconName,
             IsAvailable = IsAvailable,
             QuizProvider = QuizProvider,
-            QuizLevel = QuizLevel
+            QuizLevel = QuizLevel,
+            Slug = Slug
         };
     }
 }
