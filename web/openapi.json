@@ -214,6 +214,187 @@
           }
         }
       }
+    },
+    "/quiz/{quizId}/subquizzes": {
+      "get": {
+        "tags": ["Subquiz"],
+        "parameters": [
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubquizDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubquizDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubquizDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz/{quizId}/subquizzes/{subquizId}/start": {
+      "post": {
+        "tags": ["Subquiz"],
+        "parameters": [
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "subquizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartQuizRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartQuizRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartQuizRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubquizDetailDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubquizDetailDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubquizDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz/{quizId}/subquizzes/{subquizId}/submit": {
+      "post": {
+        "tags": ["Subquiz"],
+        "parameters": [
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "subquizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitQuizRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitQuizRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitQuizRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitQuizResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitQuizResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitQuizResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -232,6 +413,27 @@
           "image": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "DomainResult": {
+        "required": ["domain", "correct", "total", "weight"],
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "correct": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weight": {
+            "type": "number",
+            "format": "double"
           }
         }
       },
@@ -300,6 +502,9 @@
           "description": {
             "type": "string"
           },
+          "slug": {
+            "type": "string"
+          },
           "submissionId": {
             "type": "integer",
             "format": "int32"
@@ -341,6 +546,9 @@
           "quizLevel": {
             "$ref": "#/components/schemas/QuizLevel"
           },
+          "slug": {
+            "type": "string"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -348,6 +556,13 @@
           "questionCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "subQuizzes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubquizDto"
+            },
+            "nullable": true
           }
         }
       },
@@ -455,7 +670,15 @@
         }
       },
       "SubmitQuizResponseDto": {
-        "required": ["score", "totalQuestions", "correctCount", "questions"],
+        "required": [
+          "score",
+          "totalQuestions",
+          "correctCount",
+          "scaledScore",
+          "passed",
+          "domainBreakdown",
+          "questions"
+        ],
         "type": "object",
         "properties": {
           "score": {
@@ -470,11 +693,78 @@
             "type": "integer",
             "format": "int32"
           },
+          "scaledScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "domainBreakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainResult"
+            }
+          },
           "questions": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/QuizResultQuestionDto"
             }
+          }
+        }
+      },
+      "SubquizDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionDto"
+            }
+          }
+        }
+      },
+      "SubquizDto": {
+        "required": ["id", "title", "domain", "slug", "isAvailable"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "isAvailable": {
+            "type": "boolean"
           }
         }
       }
@@ -483,6 +773,9 @@
   "tags": [
     {
       "name": "Quiz"
+    },
+    {
+      "name": "Subquiz"
     }
   ]
 }
