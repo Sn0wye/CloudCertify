@@ -3,6 +3,7 @@ using API.Model.Request;
 
 namespace API.Services.Grading;
 
+// Source: https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02.html
 public class ClfC02GradingStrategy : IGradingStrategy
 {
     private static readonly Dictionary<string, double> DomainWeights = new()
