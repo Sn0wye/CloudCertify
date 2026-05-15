@@ -1,4 +1,5 @@
 using API.Entities;
+using API.Services.Grading;
 
 namespace API.Model.Response;
 
@@ -7,6 +8,9 @@ public class SubmitQuizResponseDto
     public required int Score { get; set; }
     public required int TotalQuestions { get; set; }
     public required int CorrectCount { get; set; }
+    public required int ScaledScore { get; set; }
+    public required bool Passed { get; set; }
+    public required List<DomainResult> DomainBreakdown { get; set; }
     public required List<QuizResultQuestionDto> Questions { get; set; }
 }
 

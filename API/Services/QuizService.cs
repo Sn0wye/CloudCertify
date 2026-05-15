@@ -3,6 +3,7 @@ using API.Entities;
 using API.Model.Request;
 using API.Model.Response;
 using API.Repositories;
+using API.Services.Grading;
 
 namespace API.Services;
 
@@ -31,6 +32,7 @@ public class QuizService
             IsAvailable = q.IsAvailable,
             QuizProvider = q.QuizProvider,
             QuizLevel = q.QuizLevel,
+            Slug = q.Slug,
             CreatedAt = q.CreatedAt,
             QuestionCount = q.Questions?.Count ?? 0
         });
@@ -54,6 +56,7 @@ public class QuizService
             IsAvailable = quiz.IsAvailable,
             QuizProvider = quiz.QuizProvider,
             QuizLevel = quiz.QuizLevel,
+            Slug = quiz.Slug,
             CreatedAt = quiz.CreatedAt,
             QuestionCount = quiz.Questions?.Count ?? 0
         };
@@ -82,14 +85,14 @@ public class QuizService
 
         await _submissionRepository.Create(submission);
         
-         // get random 65 questions (5 for testing)
-         var randomQuestions = quiz.Questions?.OrderBy(q => Guid.NewGuid()).Take(5).ToList() ?? new List<Question>();
+         var randomQuestions = quiz.Questions?.OrderBy(q => Guid.NewGuid()).Take(65).ToList() ?? new List<Question>();
 
          return new QuizDetailDto
          {
              Id = quiz.Id,
              Title = quiz.Title,
              Description = quiz.Description,
+             Slug = quiz.Slug,
              CreatedAt = quiz.CreatedAt,
              SubmissionId = submission.Id,
              Questions = randomQuestions.Select(q => new QuestionDto
@@ -104,28 +107,30 @@ public class QuizService
          };
     }
 
-    public async Task<SubmitQuizResponseDto> SubmitQuiz(int quizId, int submissionId, List<QuizAnswer> answers)
-    {
-        var submission = await _submissionRepository.GetById(submissionId);
-        
-        if (submission == null)
-        {
-            throw new InvalidOperationException("Submission not found");
-        }
-        
-        var questions = await _questionRepository.GetQuestionsByIds(answers.Select(a => a.QuestionId).ToList());
-        int correctCount = 0;
-        var resultQuestions = new List<QuizResultQuestionDto>();
-
-        foreach (var question in questions)
-        {
-            var userAnswerIds = answers.Where(a => a.QuestionId == question.Id).SelectMany(a => a.AnswerIds).ToList();
-            var correctAnswerIds = question.Answers.Where(a => a.IsCorrect).Select(a => a.Id).ToList();
-            
-            if (userAnswerIds.Count == correctAnswerIds.Count && !userAnswerIds.Except(correctAnswerIds).Any())
-            {
-                correctCount++;
-            }
+     public async Task<SubmitQuizResponseDto> SubmitQuiz(int quizId, int submissionId, List<QuizAnswer> answers)
+     {
+         var submission = await _submissionRepository.GetById(submissionId);
+         
+         if (submission == null)
+         {
+             throw new InvalidOperationException("Submission not found");
+         }
+         
+         var quiz = await _quizRepository.GetQuizById(quizId);
+         if (quiz == null)
+         {
+             throw new InvalidOperationException("Quiz not found");
+         }
+         
+         var questions = await _questionRepository.GetQuestionsByIds(answers.Select(a => a.QuestionId).ToList());
+         
+         var strategy = GradingStrategyFactory.GetStrategy(quiz);
+         var gradingResult = strategy.Grade(questions, answers);
+         
+         var resultQuestions = new List<QuizResultQuestionDto>();
+         foreach (var question in questions)
+         {
+             var userAnswerIds = answers.Where(a => a.QuestionId == question.Id).SelectMany(a => a.AnswerIds).ToList();
 
              resultQuestions.Add(new QuizResultQuestionDto
              {
@@ -137,24 +142,25 @@ public class QuizService
                  ServiceCategory = question.ServiceCategory,
                  Services = question.Services,
                  Explanation = question.Explanation,
-                  Answers = question.Answers.Select(a => MapAnswerToResultDto(a, userAnswerIds.Contains(a.Id))).ToList()
+                 Answers = question.Answers.Select(a => MapAnswerToResultDto(a, userAnswerIds.Contains(a.Id))).ToList()
              });
-        }
-
-        int totalQuestions = questions.Count();
-        
-        submission.Score = correctCount;
-        submission.Finished = true;
-        await _submissionRepository.Update(submission);
-        
-        return new SubmitQuizResponseDto
-        {
-            Score = correctCount,
-            TotalQuestions = totalQuestions,
-            CorrectCount = correctCount,
-            Questions = resultQuestions
-        };
-    }
+         }
+         
+         submission.Score = gradingResult.ScaledScore;
+         submission.Finished = true;
+         await _submissionRepository.Update(submission);
+         
+         return new SubmitQuizResponseDto
+         {
+             Score = gradingResult.ScaledScore,
+             TotalQuestions = gradingResult.TotalQuestions,
+             CorrectCount = gradingResult.CorrectCount,
+             ScaledScore = gradingResult.ScaledScore,
+             Passed = gradingResult.Passed,
+             DomainBreakdown = gradingResult.DomainBreakdown,
+             Questions = resultQuestions
+         };
+     }
     
      public async Task CreateQuiz(Quiz quiz)
      {

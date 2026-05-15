@@ -8,5 +8,5 @@ public class SubmitQuizRequestDto
 public class QuizAnswer
 {
     public int QuestionId { get; set; }
-    public List<int> AnswerIds { get; set; }
+    public List<int> AnswerIds { get; set; } = new();
 }
