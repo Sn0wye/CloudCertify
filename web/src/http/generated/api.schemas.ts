@@ -13,6 +13,13 @@ export interface AnswerDto {
   image?: string | null;
 }
 
+export interface DomainResult {
+  domain: string;
+  correct: number;
+  total: number;
+  weight: number;
+}
+
 export type QuestionType = typeof QuestionType[keyof typeof QuestionType];
 
 
@@ -40,6 +47,7 @@ export interface QuizDetailDto {
   id?: number;
   title?: string;
   description?: string;
+  slug?: string;
   submissionId?: number;
   createdAt?: string;
   questions?: QuestionDto[];
@@ -64,6 +72,14 @@ export const QuizLevel = {
   specialist: 'specialist',
 } as const;
 
+export interface SubquizDto {
+  id: number;
+  title: string;
+  domain: string;
+  slug: string;
+  isAvailable: boolean;
+}
+
 export interface QuizDto {
   id?: number;
   title?: string;
@@ -72,8 +88,11 @@ export interface QuizDto {
   isAvailable?: boolean;
   quizProvider?: QuizProvider;
   quizLevel?: QuizLevel;
+  slug?: string;
   createdAt?: string;
   questionCount?: number;
+  /** @nullable */
+  subQuizzes?: SubquizDto[] | null;
 }
 
 export interface QuizResultAnswerDto {
@@ -116,6 +135,19 @@ export interface SubmitQuizResponseDto {
   score: number;
   totalQuestions: number;
   correctCount: number;
+  scaledScore: number;
+  passed: boolean;
+  domainBreakdown: DomainResult[];
   questions: QuizResultQuestionDto[];
+}
+
+export interface SubquizDetailDto {
+  id?: number;
+  title?: string;
+  domain?: string;
+  slug?: string;
+  submissionId?: number;
+  createdAt?: string;
+  questions?: QuestionDto[];
 }
 

@@ -19,6 +19,7 @@
 - [x] AWS Matching grading system for CLF-C02
 - [x] End-of-quiz summary: score, pass/fail, percentage
 - [x] Future-proof question schema (domain, concepts, services, categories)
+- [x] Domain based subquizzes (for focused practice)
 
 **UX Priorities:**
 
