@@ -232,9 +232,9 @@ export function QuizDetailPage() {
                     >
                       <BookOpen className='h-3 w-3' />
                       {providerQuestionCount && quiz.questionCount
-                        ? `${providerQuestionCount} indicative of ${quiz.questionCount}`
+                        ? `~${providerQuestionCount} questions · ${quiz.questionCount} in pool`
                         : providerQuestionCount
-                          ? `${providerQuestionCount} Questions`
+                          ? `~${providerQuestionCount} Questions`
                           : quiz.questionCount != null
                             ? `${quiz.questionCount} Questions`
                             : 'Questions'}
