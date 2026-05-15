@@ -12,12 +12,12 @@
 
 **Core Features:**
 
-- [ ] Random 60-question selection (configurable amount)
-- [ ] AWS-style multiple choice
+- [ ] Random 40-60 question selection
+- [x] AWS-style multiple choice
 - [ ] Shuffled answer options
 - [ ] End-of-quiz summary: score, pass/fail, percentage, weak domains
-- [ ] Future-proof question schema (domain, difficulty, services, explanation)
-- [ ] Basic analytics tracking (success rate, answer time, most failed, abandonment, score distribution)
+- [ ] Future-proof question schema (domain, concepts, services, categories)
+- [ ] Basic analytics tracking (success rate, most failed)
 
 **UX Priorities:**
 
@@ -30,6 +30,8 @@
 
 **V1 — Real Learning Platform**
 
+- [ ] Domain grouped tests (focused on user weaknesses)
+- [ ] Improved analytics tracking (answer time, abandonment, score distribution)
 - [ ] Detailed explanations (why correct/wrong, exam strategy, common traps)
 - [ ] Domain performance tracking by service/concept
 - [ ] Review modes (retry incorrect, flagged, guessed)
@@ -39,7 +41,6 @@
 
 - [ ] Weighted quiz generation (40% weak topics, 30% retention, 20% reinforcement, 10% stretch)
 - [ ] Spaced repetition with forgetting curve tracking
-- [ ] Concept dependency graph with intelligent remediation
 - [ ] Service comparison tables
 
 ---
