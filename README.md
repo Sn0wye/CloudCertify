@@ -12,12 +12,12 @@
 
 **Core Features:**
 
-- [ ] CLF-C02
+- [x] CLF-C02
 - [x] Random 40-60 question selection
 - [x] AWS-style multiple choice
 - [x] Shuffled answer options
 - [ ] AWS Matching grading system for CLF-C02
-- [ ] End-of-quiz summary: score, pass/fail, percentage, weak domains
+- [x] End-of-quiz summary: score, pass/fail, percentage
 - [x] Future-proof question schema (domain, concepts, services, categories)
 - [ ] Basic analytics tracking (success rate, most failed)
 
