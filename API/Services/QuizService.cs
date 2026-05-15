@@ -119,7 +119,7 @@ public class QuizService
 
         foreach (var question in questions)
         {
-            var userAnswerIds = answers.Where(a => a.QuestionId == question.Id).Select(a => a.AnswerId).ToList();
+            var userAnswerIds = answers.Where(a => a.QuestionId == question.Id).SelectMany(a => a.AnswerIds).ToList();
             var correctAnswerIds = question.Answers.Where(a => a.IsCorrect).Select(a => a.Id).ToList();
             
             if (userAnswerIds.Count == correctAnswerIds.Count && !userAnswerIds.Except(correctAnswerIds).Any())
