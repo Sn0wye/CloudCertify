@@ -99,7 +99,7 @@ public class QuizService
                  Images = q.Images,
                  Type = q.Type,
                  SelectCount = q.SelectCount,
-                  Answers = q.Answers.Select(a => MapAnswerToDto(a)).ToList()
+                  Answers = q.Answers.OrderBy(a => Guid.NewGuid()).Select(a => MapAnswerToDto(a)).ToList()
              }).ToList()
          };
     }

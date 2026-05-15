@@ -14,7 +14,7 @@
 
 - [ ] Random 40-60 question selection
 - [x] AWS-style multiple choice
-- [ ] Shuffled answer options
+- [x] Shuffled answer options
 - [ ] End-of-quiz summary: score, pass/fail, percentage, weak domains
 - [ ] Future-proof question schema (domain, concepts, services, categories)
 - [ ] Basic analytics tracking (success rate, most failed)
