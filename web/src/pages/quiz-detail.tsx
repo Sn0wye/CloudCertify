@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, BookOpen, Cloud, Lock, Target, Zap } from 'lucide-react';
 import { Link, useLocation, useParams } from 'wouter';
+import { toast } from 'sonner';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -16,10 +18,14 @@ import {
   postQuizQuizIdSubquizzesSubquizIdStart,
   useGetQuizQuizId
 } from '@/http/generated/api';
-import type { SubquizDto } from '@/http/generated/api.schemas';
+import type { QuizProvider, SubquizDto } from '@/http/generated/api.schemas';
 import { getLucideIcon } from '@/lib/quiz-icon';
 import { capitalize } from '@/lib/utils';
 
+// --- Validation ---
+const emailSchema = z.email('Please enter a valid email address.');
+
+// --- Constants ---
 const LEVEL_COLORS: Record<string, string> = {
   foundational: 'bg-[#1dd1a1]',
   associate: 'bg-[#38bdf8]',
@@ -33,6 +39,13 @@ const PROVIDER_LABELS: Record<string, string> = {
   azure: 'Microsoft Azure'
 };
 
+const PROVIDER_QUESTION_COUNT: Record<string, string> = {
+  aws: '65',
+  azure: '40–60',
+  gcp: '50',
+};
+
+// --- Page ---
 export function QuizDetailPage() {
   const params = useParams<{ id: string }>();
   const quizId = Number(params.id);
@@ -48,47 +61,54 @@ export function QuizDetailPage() {
     } catch {}
     return '';
   });
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const [isStartingExam, setIsStartingExam] = useState(false);
   const [startingSubquizId, setStartingSubquizId] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
+
+  const validateEmail = (): boolean => {
+    const result = emailSchema.safeParse(email.trim());
+    if (!result.success) {
+      const msg = result.error.issues[0]?.message ?? 'Invalid email.';
+      setEmailError(msg);
+      toast.error(msg);
+      return false;
+    }
+    setEmailError(null);
+    return true;
+  };
 
   const handleStartExam = async () => {
-    if (!email.trim()) return;
+    if (!validateEmail()) return;
     setIsStartingExam(true);
-    setError(null);
     try {
-      const response = await postQuizQuizIdStart(quizId, { email });
+      const response = await postQuizQuizIdStart(quizId, { email: email.trim() });
       sessionStorage.setItem(
         `quiz-session-${quizId}`,
-        JSON.stringify({ quizDetail: response.data, email })
+        JSON.stringify({ quizDetail: response.data, email: email.trim() })
       );
       navigate(`/quiz/${quizId}/session`);
     } catch {
-      setError('Failed to start the exam. Please try again.');
+      toast.error('Failed to start the exam. Please try again.');
     } finally {
       setIsStartingExam(false);
     }
   };
 
   const handleStartSubquiz = async (subquiz: SubquizDto) => {
-    if (!email.trim()) {
-      setError('Please enter your email first.');
-      return;
-    }
+    if (!validateEmail()) return;
     setStartingSubquizId(subquiz.id);
-    setError(null);
     try {
       const response = await postQuizQuizIdSubquizzesSubquizIdStart(quizId, subquiz.id, {
-        email
+        email: email.trim()
       });
       sessionStorage.setItem(
         `subquiz-session-${quizId}-${subquiz.id}`,
-        JSON.stringify({ subquizDetail: response.data, email })
+        JSON.stringify({ subquizDetail: response.data, email: email.trim() })
       );
       navigate(`/quiz/${quizId}/subquiz/${subquiz.id}/session`);
     } catch {
-      setError('Failed to start the practice. Please try again.');
+      toast.error('Failed to start the practice. Please try again.');
     } finally {
       setStartingSubquizId(null);
     }
@@ -97,6 +117,8 @@ export function QuizDetailPage() {
   const levelColor =
     quiz?.quizLevel ? (LEVEL_COLORS[quiz.quizLevel] ?? 'bg-[#38bdf8]') : 'bg-[#38bdf8]';
   const subquizzes = quiz?.subQuizzes ?? [];
+  const providerQuestionCount =
+    quiz?.quizProvider ? (PROVIDER_QUESTION_COUNT[quiz.quizProvider] ?? null) : null;
 
   return (
     <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
@@ -162,11 +184,30 @@ export function QuizDetailPage() {
                 id='email'
                 type='email'
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError(null);
+                }}
+                onBlur={() => {
+                  if (email.trim()) {
+                    const result = emailSchema.safeParse(email.trim());
+                    if (!result.success) {
+                      setEmailError(result.error.issues[0]?.message ?? 'Invalid email.');
+                    } else {
+                      setEmailError(null);
+                    }
+                  }
+                }}
                 placeholder='you@example.com'
-                className='w-full rounded-[5px] border-2 border-black px-4 py-3 text-black font-medium placeholder:text-black/40 focus:outline-none focus:shadow-[4px_4px_0px_0px_#000] bg-white shadow-[2px_2px_0px_0px_#000]'
+                className={`w-full rounded-[5px] border-2 px-4 py-3 text-black font-medium placeholder:text-black/40 focus:outline-none bg-white transition-shadow ${
+                  emailError
+                    ? 'border-[#ff4757] shadow-[2px_2px_0px_0px_#ff4757] focus:shadow-[4px_4px_0px_0px_#ff4757]'
+                    : 'border-black shadow-[2px_2px_0px_0px_#000] focus:shadow-[4px_4px_0px_0px_#000]'
+                }`}
               />
-              {error && <p className='text-sm font-bold text-[#ff4757]'>{error}</p>}
+              {emailError && (
+                <p className='text-sm font-bold text-[#ff4757]'>{emailError}</p>
+              )}
             </div>
 
             {/* Full Simulation Exam */}
@@ -185,15 +226,17 @@ export function QuizDetailPage() {
                 </CardHeader>
                 <CardContent className='py-4'>
                   <div className='flex gap-3 flex-wrap'>
-                    {quiz.questionCount != null && (
-                      <Badge
-                        variant='outline'
-                        className='border-2 border-black font-bold flex items-center gap-1'
-                      >
-                        <BookOpen className='h-3 w-3' />
-                        {quiz.questionCount} Questions
-                      </Badge>
-                    )}
+                    <Badge
+                      variant='outline'
+                      className='border-2 border-black font-bold flex items-center gap-1'
+                    >
+                      <BookOpen className='h-3 w-3' />
+                      {providerQuestionCount
+                        ? `${providerQuestionCount} Questions`
+                        : quiz.questionCount != null
+                          ? `${quiz.questionCount} Questions`
+                          : 'Questions'}
+                    </Badge>
                     <Badge variant='outline' className='border-2 border-black font-bold'>
                       Scaled Score
                     </Badge>
@@ -209,7 +252,7 @@ export function QuizDetailPage() {
                   <Button
                     className='w-full'
                     onClick={handleStartExam}
-                    disabled={!email.trim() || isStartingExam}
+                    disabled={isStartingExam}
                   >
                     {isStartingExam ? 'Starting...' : 'Start Exam'}
                     {!isStartingExam && <ArrowRight className='ml-2 h-4 w-4' />}
@@ -233,7 +276,6 @@ export function QuizDetailPage() {
                     <SubquizCard
                       key={sq.id}
                       subquiz={sq}
-                      email={email}
                       isStarting={startingSubquizId === sq.id}
                       onStart={() => handleStartSubquiz(sq)}
                     />
@@ -258,21 +300,19 @@ export function QuizDetailPage() {
 
 function SubquizCard({
   subquiz,
-  email,
   isStarting,
   onStart
 }: {
   subquiz: SubquizDto;
-  email: string;
   isStarting: boolean;
   onStart: () => void;
 }) {
-  const isDisabled = !subquiz.isAvailable;
+  const isUnavailable = !subquiz.isAvailable;
 
   return (
     <Card
       className={`border-2 border-black ${
-        isDisabled
+        isUnavailable
           ? 'opacity-60 shadow-none bg-white/60'
           : 'shadow-[4px_4px_0px_0px_#000] bg-white'
       }`}
@@ -282,7 +322,7 @@ function SubquizCard({
           <CardTitle className='text-base font-black text-black leading-tight'>
             {subquiz.title}
           </CardTitle>
-          {isDisabled && <Lock className='h-4 w-4 text-black/40 shrink-0 mt-0.5' />}
+          {isUnavailable && <Lock className='h-4 w-4 text-black/40 shrink-0 mt-0.5' />}
         </div>
         <Badge
           variant='outline'
@@ -297,7 +337,7 @@ function SubquizCard({
           <Button
             size='sm'
             onClick={onStart}
-            disabled={isDisabled || isStarting || !email.trim()}
+            disabled={isUnavailable || isStarting}
           >
             {isStarting ? 'Starting...' : 'Practice'}
             {!isStarting && <ArrowRight className='ml-1 h-3 w-3' />}
