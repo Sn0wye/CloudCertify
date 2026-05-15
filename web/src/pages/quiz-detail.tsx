@@ -226,19 +226,24 @@ export function QuizDetailPage() {
                 </CardHeader>
                 <CardContent className='py-4'>
                   <div className='flex gap-3 flex-wrap'>
-                    <Badge
-                      variant='outline'
-                      className='border-2 border-black font-bold flex items-center gap-1'
-                    >
-                      <BookOpen className='h-3 w-3' />
-                      {providerQuestionCount && quiz.questionCount
-                        ? `~${providerQuestionCount} questions · ${quiz.questionCount} in pool`
-                        : providerQuestionCount
-                          ? `~${providerQuestionCount} Questions`
-                          : quiz.questionCount != null
-                            ? `${quiz.questionCount} Questions`
-                            : 'Questions'}
-                    </Badge>
+                    {quiz.questionCount != null && (
+                      <Badge
+                        variant='outline'
+                        className='border-2 border-black font-bold flex items-center gap-1'
+                      >
+                        <BookOpen className='h-3 w-3' />
+                        {quiz.questionCount} Questions in pool
+                      </Badge>
+                    )}
+                    {providerQuestionCount && (
+                      <Badge
+                        variant='outline'
+                        className='border-2 border-black font-bold flex items-center gap-1'
+                      >
+                        <Target className='h-3 w-3' />
+                        ~{providerQuestionCount} per exam
+                      </Badge>
+                    )}
                     <Badge variant='outline' className='border-2 border-black font-bold'>
                       Scaled Score
                     </Badge>
