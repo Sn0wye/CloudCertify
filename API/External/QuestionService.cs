@@ -8,19 +8,23 @@ using Entities;
 public class QuestionService
 {
     private readonly QuizRepository _quizRepository;
+    private readonly SubquizRepository _subquizRepository;
 
-    public QuestionService(QuizRepository quizRepository)
+    public QuestionService(QuizRepository quizRepository, SubquizRepository subquizRepository)
     {
         _quizRepository = quizRepository;
+        _subquizRepository = subquizRepository;
     }
 
     public async Task ProcessQuestions()
     {
-        var existingTitles = (await _quizRepository.GetQuizzes())
-            .Select(q => q.Title)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var existingQuizzes = await _quizRepository.GetQuizzes();
+        var existingTitles = existingQuizzes.Select(q => q.Title).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var existingSlugs = existingQuizzes.Select(q => q.Slug).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var quizzesToCreate = new List<Quiz>();
+        // First pass: create parent quizzes (ParentSlug == null)
+        var parentQuizzesToCreate = new List<Quiz>();
+        var subquizSeeds = new List<QuizSeed>();
 
         foreach (var seed in QuizSeeds)
         {
@@ -29,21 +33,59 @@ public class QuestionService
                 continue;
             }
 
-            if (!string.IsNullOrWhiteSpace(seed.QuestionsFileName))
+            if (seed.ParentSlug != null)
             {
-                quizzesToCreate.Add(BuildQuizWithQuestions(seed));
+                subquizSeeds.Add(seed);
                 continue;
             }
 
-            quizzesToCreate.Add(seed.ToQuiz());
+            if (!string.IsNullOrWhiteSpace(seed.QuestionsFileName))
+            {
+                parentQuizzesToCreate.Add(BuildQuizWithQuestions(seed));
+                continue;
+            }
+
+            parentQuizzesToCreate.Add(seed.ToQuiz());
         }
 
-        if (quizzesToCreate.Count == 0)
+        if (parentQuizzesToCreate.Count > 0)
         {
-            return;
+            await _quizRepository.CreateMany(parentQuizzesToCreate);
         }
 
-        await _quizRepository.CreateMany(quizzesToCreate);
+        // Second pass: create subquizzes with resolved ParentQuizId
+        if (subquizSeeds.Count > 0)
+        {
+            var allQuizzes = await _quizRepository.GetQuizzes();
+            var slugToId = allQuizzes.ToDictionary(q => q.Slug, q => q.Id, StringComparer.OrdinalIgnoreCase);
+
+            var subquizzesToCreate = new List<Subquiz>();
+            foreach (var subquizSeed in subquizSeeds)
+            {
+                if (existingTitles.Contains(subquizSeed.Title))
+                {
+                    continue;
+                }
+
+                if (slugToId.TryGetValue(subquizSeed.ParentSlug!, out var parentId))
+                {
+                    subquizzesToCreate.Add(new Subquiz
+                    {
+                        QuizId = parentId,
+                        Title = subquizSeed.Title,
+                        Domain = subquizSeed.Domain ?? "",
+                        Slug = subquizSeed.Slug,
+                        IsAvailable = subquizSeed.IsAvailable,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+            }
+
+            if (subquizzesToCreate.Count > 0)
+            {
+                await _subquizRepository.CreateMany(subquizzesToCreate);
+            }
+        }
     }
 
     private static Quiz BuildQuizWithQuestions(QuizSeed seed)
@@ -98,6 +140,54 @@ public class QuestionService
             QuizLevel = QuizLevel.Foundational,
             Slug = "CLF-C02",
             QuestionsFileName = "clf-c02.json",
+            IsAvailable = true
+        },
+        new()
+        {
+            Title = "Cloud Concepts (CLF-C02)",
+            Description = "Practice questions focused on Cloud Concepts domain.",
+            IconName = "cloud",
+            QuizProvider = QuizProvider.AWS,
+            QuizLevel = QuizLevel.Foundational,
+            Slug = "CLF-C02-DOMAIN-1",
+            ParentSlug = "CLF-C02",
+            Domain = "Cloud Concepts",
+            IsAvailable = true
+        },
+        new()
+        {
+            Title = "Security and Compliance (CLF-C02)",
+            Description = "Practice questions focused on Security and Compliance domain.",
+            IconName = "cloud",
+            QuizProvider = QuizProvider.AWS,
+            QuizLevel = QuizLevel.Foundational,
+            Slug = "CLF-C02-DOMAIN-2",
+            ParentSlug = "CLF-C02",
+            Domain = "Security and Compliance",
+            IsAvailable = true
+        },
+        new()
+        {
+            Title = "Cloud Technology and Services (CLF-C02)",
+            Description = "Practice questions focused on Cloud Technology and Services domain.",
+            IconName = "cloud",
+            QuizProvider = QuizProvider.AWS,
+            QuizLevel = QuizLevel.Foundational,
+            Slug = "CLF-C02-DOMAIN-3",
+            ParentSlug = "CLF-C02",
+            Domain = "Cloud Technology and Services",
+            IsAvailable = true
+        },
+        new()
+        {
+            Title = "Billing, Pricing, and Support (CLF-C02)",
+            Description = "Practice questions focused on Billing, Pricing, and Support domain.",
+            IconName = "cloud",
+            QuizProvider = QuizProvider.AWS,
+            QuizLevel = QuizLevel.Foundational,
+            Slug = "CLF-C02-DOMAIN-4",
+            ParentSlug = "CLF-C02",
+            Domain = "Billing, Pricing, and Support",
             IsAvailable = true
         },
         new()
@@ -224,9 +314,11 @@ public class QuizSeed
     public QuizProvider QuizProvider { get; init; }
     public QuizLevel QuizLevel { get; init; }
     public string Slug { get; init; }
+    public string? ParentSlug { get; init; }
+    public string? Domain { get; init; }
     public string QuestionsFileName { get; init; }
 
-    public Quiz ToQuiz()
+    public Quiz ToQuiz(int? parentId = null)
     {
         return new Quiz
         {

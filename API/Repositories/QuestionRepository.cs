@@ -11,4 +11,12 @@ public class QuestionRepository(ApplicationDbContext context)
             .Include(q => q.Answers)
             .ToListAsync();
     }
+
+    public async Task<List<Question>> GetQuestionsByQuizId(int quizId)
+    {
+        return await context.Question
+            .Where(q => q.QuizId == quizId)
+            .Include(q => q.Answers)
+            .ToListAsync();
+    }
 }

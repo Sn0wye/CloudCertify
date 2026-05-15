@@ -11,6 +11,7 @@ public class ApplicationDbContext: DbContext
     }
 
     public DbSet<Quiz> Quiz { get; set; }
+    public DbSet<Subquiz> Subquiz { get; set; }
     public DbSet<Question> Question { get; set; }
     public DbSet<Answer> Answer { get; set; }
     public DbSet<Submission> Submission { get; set; }
@@ -30,6 +31,25 @@ public class ApplicationDbContext: DbContext
             entity.HasMany(q => q.Questions)
                 .WithOne(q => q.Quiz)
                 .HasForeignKey(q => q.QuizId);
+
+            entity.HasMany(q => q.SubQuizzes)
+                .WithOne(sq => sq.Quiz)
+                .HasForeignKey(sq => sq.QuizId);
+        });
+
+        modelBuilder.Entity<Subquiz>(entity =>
+        {
+            entity.HasKey(sq => sq.Id);
+            entity.Property(sq => sq.QuizId).IsRequired();
+            entity.Property(sq => sq.Title).IsRequired().HasMaxLength(255);
+            entity.Property(sq => sq.Domain).IsRequired().HasMaxLength(255);
+            entity.Property(sq => sq.Slug).IsRequired().HasMaxLength(255);
+            entity.Property(sq => sq.IsAvailable).IsRequired().HasDefaultValue(true);
+            entity.Property(sq => sq.CreatedAt).IsRequired();
+
+            entity.HasOne(sq => sq.Quiz)
+                .WithMany(q => q.SubQuizzes)
+                .HasForeignKey(sq => sq.QuizId);
         });
 
         modelBuilder.Entity<Question>(entity =>
@@ -79,6 +99,10 @@ public class ApplicationDbContext: DbContext
             entity.HasOne<Quiz>()
                 .WithMany()
                 .HasForeignKey(s => s.QuizId);
+
+            entity.HasOne<Subquiz>()
+                .WithMany()
+                .HasForeignKey(s => s.SubquizId);
         });
     }
 }

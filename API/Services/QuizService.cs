@@ -23,7 +23,13 @@ public class QuizService
     public async Task<IEnumerable<QuizDto>> GetQuizzes()
     {
         var quizzes = await _quizRepository.GetQuizzes();
-        return quizzes.Select(q => new QuizDto
+        return quizzes
+            .Select(q => MapQuizToDto(q));
+    }
+
+    private static QuizDto MapQuizToDto(Quiz q)
+    {
+        return new QuizDto
         {
             Id = q.Id,
             Title = q.Title,
@@ -34,8 +40,16 @@ public class QuizService
             QuizLevel = q.QuizLevel,
             Slug = q.Slug,
             CreatedAt = q.CreatedAt,
-            QuestionCount = q.Questions?.Count ?? 0
-        });
+            QuestionCount = q.Questions?.Count ?? 0,
+            SubQuizzes = q.SubQuizzes?.Select(sq => new SubquizDto
+            {
+                Id = sq.Id,
+                Title = sq.Title,
+                Domain = sq.Domain ?? "",
+                Slug = sq.Slug,
+                IsAvailable = sq.IsAvailable
+            }).ToList()
+        };
     }
     
     public async Task<QuizDto?> GetQuizById(int quizId)
@@ -47,65 +61,53 @@ public class QuizService
             return null;
         }
 
-        return new QuizDto
-        {
-            Id = quiz.Id,
-            Title = quiz.Title,
-            Description = quiz.Description,
-            IconName = quiz.IconName,
-            IsAvailable = quiz.IsAvailable,
-            QuizProvider = quiz.QuizProvider,
-            QuizLevel = quiz.QuizLevel,
-            Slug = quiz.Slug,
-            CreatedAt = quiz.CreatedAt,
-            QuestionCount = quiz.Questions?.Count ?? 0
-        };
+        return MapQuizToDto(quiz);
     }
     
-    public async Task<QuizDetailDto?> StartQuiz(int quizId, string email)
-    {
-        var quiz = await _quizRepository.GetQuizById(quizId);
-        
-        if (quiz == null)
-        {
-            return null;
-        }
-
-        if (!quiz.IsAvailable)
-        {
-            throw new InvalidOperationException("Quiz is not available");
-        }
-
-        var submission = new Submission
-        {
-            Email = email,
-            QuizId = quizId,
-            Finished = false,
-        };
-
-        await _submissionRepository.Create(submission);
-        
-         var randomQuestions = quiz.Questions?.OrderBy(q => Guid.NewGuid()).Take(65).ToList() ?? new List<Question>();
-
-         return new QuizDetailDto
+     public async Task<QuizDetailDto?> StartQuiz(int quizId, string email)
+     {
+         var quiz = await _quizRepository.GetQuizById(quizId);
+         
+         if (quiz == null)
          {
-             Id = quiz.Id,
-             Title = quiz.Title,
-             Description = quiz.Description,
-             Slug = quiz.Slug,
-             CreatedAt = quiz.CreatedAt,
-             SubmissionId = submission.Id,
-             Questions = randomQuestions.Select(q => new QuestionDto
-             {
-                 Id = q.Id,
-                 Text = q.Text,
-                 Images = q.Images,
-                 Type = q.Type,
-                 SelectCount = q.SelectCount,
-                  Answers = q.Answers.OrderBy(a => Guid.NewGuid()).Select(a => MapAnswerToDto(a)).ToList()
-             }).ToList()
+             return null;
+         }
+
+         if (!quiz.IsAvailable)
+         {
+             throw new InvalidOperationException("Quiz is not available");
+         }
+
+         var submission = new Submission
+         {
+             Email = email,
+             QuizId = quizId,
+             Finished = false,
          };
-    }
+
+          await _submissionRepository.Create(submission);
+          
+          var randomQuestions = quiz.Questions?.OrderBy(q => Guid.NewGuid()).Take(65).ToList() ?? new List<Question>();
+
+           return new QuizDetailDto
+           {
+               Id = quiz.Id,
+               Title = quiz.Title,
+               Description = quiz.Description,
+               Slug = quiz.Slug,
+               CreatedAt = quiz.CreatedAt,
+               SubmissionId = submission.Id,
+               Questions = randomQuestions.Select(q => new QuestionDto
+               {
+                   Id = q.Id,
+                   Text = q.Text,
+                   Images = q.Images,
+                   Type = q.Type,
+                   SelectCount = q.SelectCount,
+                    Answers = q.Answers.OrderBy(a => Guid.NewGuid()).Select(a => MapAnswerToDto(a)).ToList()
+               }).ToList()
+           };
+      }
 
      public async Task<SubmitQuizResponseDto> SubmitQuiz(int quizId, int submissionId, List<QuizAnswer> answers)
      {

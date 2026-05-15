@@ -67,11 +67,13 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddScoped<QuizRepository>();
+builder.Services.AddScoped<SubquizRepository>();
 builder.Services.AddScoped<QuestionRepository>();
 builder.Services.AddScoped<SubmissionRepository>();
 
 builder.Services.AddScoped<QuestionService>();
 builder.Services.AddScoped<QuizService>();
+builder.Services.AddScoped<SubquizService>();
 
 var app = builder.Build();
 

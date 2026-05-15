@@ -22,6 +22,7 @@ public class QuizRepository(ApplicationDbContext context)
         return await context.Quiz
             .Include(q => q.Questions)
             .ThenInclude(q => q.Answers)
+            .Include(q => q.SubQuizzes)
             .FirstOrDefaultAsync(q => q.Id == quizId);
     }
     
@@ -29,6 +30,7 @@ public class QuizRepository(ApplicationDbContext context)
     {
         return await context.Quiz
             .Include(q => q.Questions)
+            .Include(q => q.SubQuizzes)
             .ToListAsync();
     }
 }

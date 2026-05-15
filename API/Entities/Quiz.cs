@@ -20,11 +20,13 @@ public class Quiz
     
      public QuizLevel QuizLevel { get; set; }
 
-     public string Slug { get; set; }
+      public string Slug { get; set; }
 
-     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-    
-    public virtual ICollection<Question> Questions { get; set; }
+      public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+     
+     public virtual ICollection<Question> Questions { get; set; }
+
+     public virtual ICollection<Subquiz> SubQuizzes { get; set; } = new List<Subquiz>();
 }
 
 public enum QuizLevel

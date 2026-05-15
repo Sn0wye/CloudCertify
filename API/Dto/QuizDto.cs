@@ -11,7 +11,8 @@ public class QuizDto
     public bool IsAvailable { get; set; }
     public QuizProvider QuizProvider { get; set; }
      public QuizLevel QuizLevel { get; set; }
-     public string Slug { get; set; }
-     public DateTime CreatedAt { get; init; }
-     public int QuestionCount { get; set; }
+      public string Slug { get; set; }
+      public DateTime CreatedAt { get; init; }
+      public int QuestionCount { get; set; }
+      public List<SubquizDto>? SubQuizzes { get; set; }
 }
