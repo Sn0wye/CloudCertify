@@ -231,11 +231,13 @@ export function QuizDetailPage() {
                       className='border-2 border-black font-bold flex items-center gap-1'
                     >
                       <BookOpen className='h-3 w-3' />
-                      {providerQuestionCount
-                        ? `${providerQuestionCount} Questions`
-                        : quiz.questionCount != null
-                          ? `${quiz.questionCount} Questions`
-                          : 'Questions'}
+                      {providerQuestionCount && quiz.questionCount
+                        ? `${providerQuestionCount} indicative of ${quiz.questionCount}`
+                        : providerQuestionCount
+                          ? `${providerQuestionCount} Questions`
+                          : quiz.questionCount != null
+                            ? `${quiz.questionCount} Questions`
+                            : 'Questions'}
                     </Badge>
                     <Badge variant='outline' className='border-2 border-black font-bold'>
                       Scaled Score
