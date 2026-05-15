@@ -19,7 +19,6 @@
 - [x] AWS Matching grading system for CLF-C02
 - [x] End-of-quiz summary: score, pass/fail, percentage
 - [x] Future-proof question schema (domain, concepts, services, categories)
-- [ ] Basic analytics tracking (success rate, most failed)
 
 **UX Priorities:**
 
@@ -33,7 +32,7 @@
 **V1 — Real Learning Platform**
 
 - [ ] Domain grouped tests (focused on user weaknesses)
-- [ ] Improved analytics tracking (answer time, abandonment, score distribution)
+- [ ] Analytics tracking (success rate, most failed, answer time, abandonment, score distribution)
 - [ ] Detailed explanations (why correct/wrong, exam strategy, common traps)
 - [ ] Domain performance tracking by service/concept
 - [ ] Review modes (retry incorrect, flagged, guessed)
