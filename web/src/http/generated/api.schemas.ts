@@ -5,11 +5,12 @@
  * CloudCertify API — a cloud certification quiz and exam prep platform.
  * OpenAPI spec version: v1
  */
-export interface Answer {
+export interface AnswerDto {
   id?: number;
-  questionId?: number;
-  text?: string;
-  createdAt?: string;
+  /** @nullable */
+  text?: string | null;
+  /** @nullable */
+  image?: string | null;
 }
 
 export type QuestionType = typeof QuestionType[keyof typeof QuestionType];
@@ -17,21 +18,22 @@ export type QuestionType = typeof QuestionType[keyof typeof QuestionType];
 
 export const QuestionType = {
   multiple_choice: 'multiple_choice',
-  true_false: 'true_false',
+  multiple_response: 'multiple_response',
 } as const;
 
-export interface Question {
+export interface QuestionDto {
   id?: number;
-  quizId?: number;
-  text?: string;
+  /** @nullable */
+  text?: string | null;
+  images?: string[];
   type?: QuestionType;
-  createdAt?: string;
-  answers?: Answer[];
+  selectCount?: number;
+  answers?: AnswerDto[];
 }
 
 export interface QuizAnswer {
   questionId?: number;
-  answerId?: number;
+  answerIds?: number[];
 }
 
 export interface QuizDetailDto {
@@ -40,7 +42,7 @@ export interface QuizDetailDto {
   description?: string;
   submissionId?: number;
   createdAt?: string;
-  questions?: Question[];
+  questions?: QuestionDto[];
 }
 
 export type QuizProvider = typeof QuizProvider[keyof typeof QuizProvider];
@@ -76,7 +78,10 @@ export interface QuizDto {
 
 export interface QuizResultAnswerDto {
   id: number;
-  text: string;
+  /** @nullable */
+  text?: string | null;
+  /** @nullable */
+  image?: string | null;
   isCorrect: boolean;
   wasSelected: boolean;
 }
@@ -85,6 +90,16 @@ export interface QuizResultQuestionDto {
   id: number;
   text: string;
   type: QuestionType;
+  /** @nullable */
+  domain?: string | null;
+  /** @nullable */
+  concepts?: string[] | null;
+  /** @nullable */
+  serviceCategory?: string | null;
+  /** @nullable */
+  services?: string[] | null;
+  /** @nullable */
+  explanation?: string | null;
   answers: QuizResultAnswerDto[];
 }
 

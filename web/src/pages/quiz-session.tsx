@@ -42,7 +42,7 @@ export function QuizSessionPage() {
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [phase, setPhase] = useState<Phase>('quiz');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
+  const [userAnswers, setUserAnswers] = useState<Record<number, number[]>>({});
   const [score, setScore] = useState<number | null>(null);
   const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
   const [correctCount, setCorrectCount] = useState<number | null>(null);
@@ -75,13 +75,27 @@ export function QuizSessionPage() {
 
   const handleAnswerSelect = (answerId: number) => {
     if (currentQuestion.id == null) return;
-    setUserAnswers(prev => ({ ...prev, [currentQuestion.id!]: answerId }));
+    const qId = currentQuestion.id!;
+    const type = currentQuestion.type;
+    const selectCount = currentQuestion.selectCount ?? 1;
+
+    setUserAnswers(prev => {
+      const current = prev[qId] ?? [];
+      if (type === 'multiple_response') {
+        if (current.includes(answerId)) {
+          return { ...prev, [qId]: current.filter(id => id !== answerId) };
+        }
+        if (current.length >= selectCount) return prev;
+        return { ...prev, [qId]: [...current, answerId] };
+      }
+      return { ...prev, [qId]: [answerId] };
+    });
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     const answers: QuizAnswer[] = Object.entries(userAnswers).map(
-      ([questionId, answerId]) => ({ questionId: Number(questionId), answerId })
+      ([questionId, answerIds]) => ({ questionId: Number(questionId), answerIds })
     );
     try {
       const res = await postQuizQuizIdSubmit(quizId, {
@@ -188,10 +202,10 @@ export function QuizSessionPage() {
               <div className='space-y-6'>
                 <h3 className='text-xl font-black text-black'>Question Summary</h3>
                 <Accordion type='single' collapsible className='w-full'>
-                  {(resultQuestions ?? []).map((question, index) => {
-                    const isCorrect = question.answers.some(
-                      a => a.wasSelected && a.isCorrect
-                    );
+                   {(resultQuestions ?? []).map((question, index) => {
+                     const isCorrect = question.answers.every(
+                       a => (a.isCorrect ? a.wasSelected : !a.wasSelected)
+                     );
 
                     return (
                       <AccordionItem key={question.id} value={`question-${question.id}`}>
@@ -308,16 +322,23 @@ export function QuizSessionPage() {
             <CardTitle className='text-xl md:text-2xl font-black text-black'>
               {currentQuestion?.text}
             </CardTitle>
+            {currentQuestion?.type === 'multiple_response' && (
+              <p className='text-sm font-bold text-black/60 mt-2'>
+                Select {currentQuestion.selectCount ?? 2} answers
+              </p>
+            )}
             <div className='w-full mt-6'>
               <Progress value={progress} />
             </div>
           </CardHeader>
-          <CardContent className='py-6'>
+           <CardContent className='py-6'>
             <div className='space-y-3'>
               {currentQuestion?.answers?.map(answer => {
-                const isSelected =
-                  currentQuestion.id != null &&
-                  userAnswers[currentQuestion.id] === answer.id;
+                const selected = currentQuestion.id != null ? (userAnswers[currentQuestion.id] ?? []) : [];
+                const isSelected = answer.id != null && selected.includes(answer.id);
+                const isMultiResponse = currentQuestion.type === 'multiple_response';
+                const atCap = isMultiResponse && selected.length >= (currentQuestion.selectCount ?? 1);
+                const isDisabled = !isSelected && atCap;
                 return (
                   <div
                     key={answer.id}
@@ -325,8 +346,8 @@ export function QuizSessionPage() {
                       isSelected
                         ? 'bg-[#38bdf8] shadow-none translate-x-[2px] translate-y-[2px]'
                         : 'bg-white hover:bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'
-                    } flex items-start gap-3 cursor-pointer transition-all`}
-                    onClick={() => answer.id != null && handleAnswerSelect(answer.id)}
+                    } ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'} flex items-start gap-3 transition-all`}
+                    onClick={() => !isDisabled && answer.id != null && handleAnswerSelect(answer.id)}
                   >
                     <div
                       className={`w-6 h-6 rounded-[5px] flex items-center justify-center border-2 border-black mt-0.5 shrink-0 ${
