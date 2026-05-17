@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, Cloud, Lock, Target, Zap } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  Cloud,
+  Lock,
+  Target,
+  Zap
+} from 'lucide-react';
 import { Link, useLocation, useParams } from 'wouter';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -18,7 +26,7 @@ import {
   postQuizQuizIdSubquizzesSubquizIdStart,
   useGetQuizQuizId
 } from '@/http/generated/api';
-import type { QuizProvider, SubquizDto } from '@/http/generated/api.schemas';
+import type { SubquizDto } from '@/http/generated/api.schemas';
 import { getLucideIcon } from '@/lib/quiz-icon';
 import { capitalize } from '@/lib/utils';
 
@@ -42,7 +50,7 @@ const PROVIDER_LABELS: Record<string, string> = {
 const PROVIDER_QUESTION_COUNT: Record<string, string> = {
   aws: '65',
   azure: '40–60',
-  gcp: '50',
+  gcp: '50'
 };
 
 // --- Page ---
@@ -64,7 +72,9 @@ export function QuizDetailPage() {
   const [emailError, setEmailError] = useState<string | null>(null);
 
   const [isStartingExam, setIsStartingExam] = useState(false);
-  const [startingSubquizId, setStartingSubquizId] = useState<number | null>(null);
+  const [startingSubquizId, setStartingSubquizId] = useState<number | null>(
+    null
+  );
 
   const validateEmail = (): boolean => {
     const result = emailSchema.safeParse(email.trim());
@@ -82,7 +92,9 @@ export function QuizDetailPage() {
     if (!validateEmail()) return;
     setIsStartingExam(true);
     try {
-      const response = await postQuizQuizIdStart(quizId, { email: email.trim() });
+      const response = await postQuizQuizIdStart(quizId, {
+        email: email.trim()
+      });
       sessionStorage.setItem(
         `quiz-session-${quizId}`,
         JSON.stringify({ quizDetail: response.data, email: email.trim() })
@@ -99,9 +111,13 @@ export function QuizDetailPage() {
     if (!validateEmail()) return;
     setStartingSubquizId(subquiz.id);
     try {
-      const response = await postQuizQuizIdSubquizzesSubquizIdStart(quizId, subquiz.id, {
-        email: email.trim()
-      });
+      const response = await postQuizQuizIdSubquizzesSubquizIdStart(
+        quizId,
+        subquiz.id,
+        {
+          email: email.trim()
+        }
+      );
       sessionStorage.setItem(
         `subquiz-session-${quizId}-${subquiz.id}`,
         JSON.stringify({ subquizDetail: response.data, email: email.trim() })
@@ -114,11 +130,13 @@ export function QuizDetailPage() {
     }
   };
 
-  const levelColor =
-    quiz?.quizLevel ? (LEVEL_COLORS[quiz.quizLevel] ?? 'bg-[#38bdf8]') : 'bg-[#38bdf8]';
+  const levelColor = quiz?.quizLevel
+    ? (LEVEL_COLORS[quiz.quizLevel] ?? 'bg-[#38bdf8]')
+    : 'bg-[#38bdf8]';
   const subquizzes = quiz?.subQuizzes ?? [];
-  const providerQuestionCount =
-    quiz?.quizProvider ? (PROVIDER_QUESTION_COUNT[quiz.quizProvider] ?? null) : null;
+  const providerQuestionCount = quiz?.quizProvider
+    ? (PROVIDER_QUESTION_COUNT[quiz.quizProvider] ?? null)
+    : null;
 
   return (
     <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
@@ -149,7 +167,9 @@ export function QuizDetailPage() {
               <div
                 className={`h-20 w-20 rounded-[5px] border-2 border-black ${levelColor} flex items-center justify-center shadow-[4px_4px_0px_0px_#000]`}
               >
-                {getLucideIcon(quiz.iconName, { className: 'h-10 w-10 text-black' })}
+                {getLucideIcon(quiz.iconName, {
+                  className: 'h-10 w-10 text-black'
+                })}
               </div>
               <h1 className='text-3xl md:text-4xl font-black text-black text-balance'>
                 {quiz.title}
@@ -162,7 +182,8 @@ export function QuizDetailPage() {
               <div className='flex justify-center gap-3 flex-wrap'>
                 {quiz.quizProvider && (
                   <Badge className='bg-[#38bdf8] border-2 border-black text-black font-bold'>
-                    {PROVIDER_LABELS[quiz.quizProvider] ?? quiz.quizProvider.toUpperCase()}
+                    {PROVIDER_LABELS[quiz.quizProvider] ??
+                      quiz.quizProvider.toUpperCase()}
                   </Badge>
                 )}
                 {quiz.quizLevel && (
@@ -177,7 +198,10 @@ export function QuizDetailPage() {
 
             {/* Shared email input */}
             <div className='space-y-2'>
-              <label htmlFor='email' className='block text-sm font-black text-black'>
+              <label
+                htmlFor='email'
+                className='block text-sm font-black text-black'
+              >
                 Your email
               </label>
               <input
@@ -192,7 +216,9 @@ export function QuizDetailPage() {
                   if (email.trim()) {
                     const result = emailSchema.safeParse(email.trim());
                     if (!result.success) {
-                      setEmailError(result.error.issues[0]?.message ?? 'Invalid email.');
+                      setEmailError(
+                        result.error.issues[0]?.message ?? 'Invalid email.'
+                      );
                     } else {
                       setEmailError(null);
                     }
@@ -214,14 +240,19 @@ export function QuizDetailPage() {
             <section className='space-y-3'>
               <div className='flex items-center gap-2'>
                 <Target className='h-5 w-5 text-black' />
-                <h2 className='text-xl font-black text-black'>Full Simulation Exam</h2>
+                <h2 className='text-xl font-black text-black'>
+                  Full Simulation Exam
+                </h2>
               </div>
               <Card className='border-4 border-black shadow-[6px_6px_0px_0px_#000]'>
                 <CardHeader className='border-b-2 border-black pb-4'>
-                  <CardTitle className='text-lg font-black text-black'>{quiz.title}</CardTitle>
+                  <CardTitle className='text-lg font-black text-black'>
+                    {quiz.title}
+                  </CardTitle>
                   <p className='text-sm font-medium text-black/70 mt-1'>
-                    Full-length exam simulation. At the end you&apos;ll see your scaled score,
-                    whether you&apos;d pass, and which domains need work.
+                    Full-length exam simulation. At the end you&apos;ll see your
+                    scaled score, whether you&apos;d pass, and which domains
+                    need work.
                   </p>
                 </CardHeader>
                 <CardContent className='py-4'>
@@ -240,17 +271,26 @@ export function QuizDetailPage() {
                         variant='outline'
                         className='border-2 border-black font-bold flex items-center gap-1'
                       >
-                        <Target className='h-3 w-3' />
-                        ~{providerQuestionCount} per exam
+                        <Target className='h-3 w-3' />~{providerQuestionCount}{' '}
+                        per exam
                       </Badge>
                     )}
-                    <Badge variant='outline' className='border-2 border-black font-bold'>
+                    <Badge
+                      variant='outline'
+                      className='border-2 border-black font-bold'
+                    >
                       Scaled Score
                     </Badge>
-                    <Badge variant='outline' className='border-2 border-black font-bold'>
+                    <Badge
+                      variant='outline'
+                      className='border-2 border-black font-bold'
+                    >
                       Pass / Fail
                     </Badge>
-                    <Badge variant='outline' className='border-2 border-black font-bold'>
+                    <Badge
+                      variant='outline'
+                      className='border-2 border-black font-bold'
+                    >
                       Domain Breakdown
                     </Badge>
                   </div>
@@ -273,10 +313,13 @@ export function QuizDetailPage() {
               <section className='space-y-4'>
                 <div className='flex items-center gap-2'>
                   <Zap className='h-5 w-5 text-black' />
-                  <h2 className='text-xl font-black text-black'>Domain Practice</h2>
+                  <h2 className='text-xl font-black text-black'>
+                    Domain Practice
+                  </h2>
                 </div>
                 <p className='text-sm text-black/70 font-medium -mt-2'>
-                  15-question focused quizzes per domain. Fast feedback, no pass/fail pressure.
+                  15-question focused quizzes per domain. Fast feedback, no
+                  pass/fail pressure.
                 </p>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   {subquizzes.map(sq => (
@@ -329,7 +372,9 @@ function SubquizCard({
           <CardTitle className='text-base font-black text-black leading-tight'>
             {subquiz.title}
           </CardTitle>
-          {isUnavailable && <Lock className='h-4 w-4 text-black/40 shrink-0 mt-0.5' />}
+          {isUnavailable && (
+            <Lock className='h-4 w-4 text-black/40 shrink-0 mt-0.5' />
+          )}
         </div>
         <Badge
           variant='outline'
