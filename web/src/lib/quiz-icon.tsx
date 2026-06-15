@@ -38,7 +38,7 @@ export function getLucideIcon(
   props?: LucideProps
 ): React.ReactNode {
   const defaultProps: LucideProps = {
-    className: 'h-6 w-6 text-black',
+    className: 'h-6 w-6 text-primary-foreground',
     ...props
   };
 

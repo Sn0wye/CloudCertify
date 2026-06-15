@@ -1,17 +1,12 @@
 'use client';
-import { ArrowLeft, ArrowRight, Award, CheckCircle, Cloud } from 'lucide-react';
+import { ArrowRight, Check, Cloud, Crosshair, Target } from 'lucide-react';
 import RotatingText from '@/components/RotatingText';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Footer } from '@/components/footer';
+import { SiteHeader } from '@/components/site-header';
 import { CertificationRoadmap } from '@/components/certification-roadmap';
 import { Link } from 'wouter';
 import { useGetQuiz } from '@/http/generated/api';
@@ -21,54 +16,58 @@ export function HomePage() {
   const quizzes = data?.data ?? [];
 
   return (
-    <div className='flex min-h-screen flex-col bg-[#dfe5f2]'>
-      <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
-        <div className='container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0'>
-          <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-              <Cloud className='h-5 w-5 text-black' />
-            </div>
-            <span>CloudCertify</span>
-          </Link>
-          <div className='flex flex-1 items-center justify-end'>
-            <nav className='flex items-center space-x-6'>
-              <a
-                href='#features'
-                className='text-sm font-bold text-black transition-colors hover:underline'
-              >
-                Features
-              </a>
-              <a
-                href='#pricing'
-                className='text-sm font-bold text-black transition-colors hover:underline'
-              >
-                Pricing
-              </a>
-              <Button asChild size='sm'>
-                <a href='/dashboard'>Dashboard</a>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
+    <div className='flex min-h-dvh flex-col bg-background'>
+      <SiteHeader>
+        <nav className='flex items-center gap-6'>
+          <a href='#features' className='hud-label hidden hover:text-primary sm:inline'>
+            Features
+          </a>
+          <a href='#pricing' className='hud-label hidden hover:text-primary sm:inline'>
+            Pricing
+          </a>
+          <Button asChild size='sm'>
+            <Link href='/dashboard'>Dashboard</Link>
+          </Button>
+        </nav>
+      </SiteHeader>
+
       <main className='flex-1'>
+        {/* HERO */}
         <section
-          className='w-full py-12 md:py-24 lg:py-32 bg-white border-b-2 border-black'
           id='hero'
+          className='relative w-full overflow-hidden border-b border-border'
         >
-          <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center space-y-6 text-center'>
-              <div className='space-y-4'>
-                <Badge className='bg-[#38bdf8]'>
-                  100% Free - No Credit Card Required
-                </Badge>
-                <h1 className='mx-auto max-w-4xl text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-black text-balance'>
-                  <span className='inline-flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1'>
-                    <span>Master</span>
-                    <span className='inline-block rounded-[5px] border-2 border-black bg-[#38bdf8] px-3 shadow-[4px_4px_0px_0px_#000]'>
+          {/* blueprint grid backdrop */}
+          <div
+            aria-hidden='true'
+            className='pointer-events-none absolute inset-0 opacity-[0.05]'
+            style={{
+              backgroundImage:
+                'linear-gradient(var(--foreground) 1px, transparent 1px), linear-gradient(90deg, var(--foreground) 1px, transparent 1px)',
+              backgroundSize: '48px 48px'
+            }}
+          />
+          <div className='container relative py-20 md:py-28 lg:py-36'>
+            <div className='flex items-center justify-between border-b border-border pb-4'>
+              <span className='hud-label flex items-center gap-2'>
+                <Crosshair className='h-3.5 w-3.5 text-primary' />
+                SYS://CERTIFICATION-TRAINER
+              </span>
+              <span className='hud-label'>
+                <span className='text-success blink'>●</span> ONLINE · REV 2.1
+              </span>
+            </div>
+
+            <div className='grid items-end gap-10 pt-10 lg:grid-cols-[1.4fr_1fr]'>
+              <div>
+                <h1 className='font-display text-[clamp(2.75rem,9vw,7rem)] uppercase leading-[0.9] tracking-[-0.03em] text-foreground'>
+                  Master
+                  <br />
+                  <span className='inline-flex items-baseline gap-3'>
+                    <span className='bg-primary px-3 py-1 text-primary-foreground'>
                       <RotatingText
-                        texts={['AWS', 'GCP', 'Azure']}
-                        mainClassName='text-black'
+                        texts={['AWS', 'GCP', 'AZURE']}
+                        mainClassName='text-primary-foreground'
                         splitLevelClassName='overflow-hidden'
                         staggerFrom='last'
                         staggerDuration={0.025}
@@ -86,71 +85,63 @@ export function HomePage() {
                         loop
                       />
                     </span>
-                    <span>Certifications</span>
-                  </span>{' '}
-                  <span className='block mt-2'>with Confidence</span>
+                  </span>
+                  <br />
+                  Certs
                 </h1>
-                <p className='mx-auto max-w-175 text-black/80 md:text-xl font-medium'>
-                  Interactive quizzes and practice exams designed to help you
-                  ace your AWS, GCP, and Azure certification exams.
-                </p>
               </div>
-              <div className='flex flex-col gap-3 min-[400px]:flex-row'>
-                <Button asChild size='lg'>
-                  <Link href='/dashboard'>
-                    Start Learning <ArrowRight className='ml-2 h-4 w-4' />
-                  </Link>
-                </Button>
-                <Button size='lg' variant='outline' asChild>
-                  <a href='#certifications'>View Certifications</a>
-                </Button>
+
+              <div className='space-y-6 lg:pb-4'>
+                <p className='max-w-md font-mono text-base leading-relaxed text-muted-foreground'>
+                  <span className='text-primary'>&gt;</span> Interactive practice
+                  exams and domain drills built to get you through the AWS, GCP
+                  and Azure certification gauntlet.
+                </p>
+                <div className='flex flex-col gap-3 sm:flex-row'>
+                  <Button asChild size='lg'>
+                    <Link href='/dashboard'>
+                      Start drills <ArrowRight className='h-4 w-4' />
+                    </Link>
+                  </Button>
+                  <Button size='lg' variant='outline' asChild>
+                    <a href='#certifications'>View paths</a>
+                  </Button>
+                </div>
+                <Badge variant='secondary'>100% free · no account</Badge>
               </div>
             </div>
           </div>
         </section>
 
+        {/* CERTIFICATION PATHS */}
         <section
-          className='w-full py-12 md:py-24 lg:py-32 relative overflow-hidden bg-[#f0f9ff]'
           id='certifications'
+          className='w-full border-b border-border py-20 md:py-28'
         >
-          <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center justify-center text-center mb-10'>
-              <h2 className='text-3xl font-black tracking-tight md:text-4xl text-balance text-black'>
-                Pick your path
-              </h2>
-            </div>
+          <div className='container'>
+            <SectionHeading index='01' title='Pick your path' />
             <CertificationRoadmap quizzes={quizzes} isLoading={isLoading} />
           </div>
         </section>
 
-        <section className='w-full py-12 md:py-24 lg:py-32 bg-[#38bdf8]'>
-          <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center justify-center space-y-4 text-center'>
-              <div className='space-y-2'>
-                <h2 className='text-3xl font-black tracking-tight md:text-4xl text-black'>
-                  Sample Quiz Questions
-                </h2>
-                <p className='mx-auto max-w-175 text-black/80 md:text-xl font-medium'>
-                  Get a taste of our interactive quizzes designed to test your
-                  knowledge.
-                </p>
-              </div>
-            </div>
-            <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 mt-8'>
+        {/* SAMPLE QUESTIONS */}
+        <section className='w-full border-b border-border py-20 md:py-28'>
+          <div className='container'>
+            <SectionHeading
+              index='02'
+              title='Sample questions'
+              note='A taste of the drill format.'
+            />
+            <div className='mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-2'>
               <QuizCard
-                question='Which AWS service would you use to run containers without managing servers or clusters?'
-                options={[
-                  'Amazon ECS',
-                  'Amazon EKS',
-                  'AWS Fargate',
-                  'AWS Lambda'
-                ]}
+                question='Which AWS service runs containers without managing servers or clusters?'
+                options={['Amazon ECS', 'Amazon EKS', 'AWS Fargate', 'AWS Lambda']}
                 correctAnswer={2}
                 category='AWS Solutions Architect'
                 difficulty='Medium'
               />
               <QuizCard
-                question='Which AWS service allows you to run code without provisioning or managing servers?'
+                question='Which AWS service runs code without provisioning or managing servers?'
                 options={[
                   'AWS Elastic Beanstalk',
                   'Amazon EC2',
@@ -162,7 +153,7 @@ export function HomePage() {
                 difficulty='Medium'
               />
               <QuizCard
-                question='Which Google Cloud service is used to store unstructured objects, similar to Amazon S3?'
+                question='Which Google Cloud service stores unstructured objects, similar to Amazon S3?'
                 options={[
                   'Cloud Filestore',
                   'Cloud SQL',
@@ -174,7 +165,7 @@ export function HomePage() {
                 difficulty='Easy'
               />
               <QuizCard
-                question='Which Azure service provides serverless compute to run event-driven code without managing infrastructure?'
+                question='Which Azure service provides serverless compute for event-driven code?'
                 options={[
                   'Azure App Service',
                   'Azure Functions',
@@ -189,54 +180,44 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className='w-full py-12 md:py-24 lg:py-32 bg-[#f0f9ff]' id='pricing'>
-          <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center justify-center space-y-4 text-center'>
-              <div className='space-y-2'>
-                <h2 className='text-3xl font-black tracking-tight md:text-4xl text-black'>
-                  Simple Pricing
-                </h2>
-                <p className='mx-auto max-w-175 text-black/70 md:text-xl font-medium'>
-                  No subscriptions. No premium tiers. Just free cloud
-                  certification training.
-                </p>
-              </div>
-            </div>
-            <div className='mx-auto max-w-md mt-8'>
-              <Card className='overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_#000] bg-white'>
-                <CardHeader className='pb-4 pt-8 text-center'>
-                  <div className='flex justify-center mb-4'>
-                    <span className='text-6xl font-black text-black'>$0</span>
-                  </div>
-                  <p className='text-black/70 font-bold'>Forever free. No catches.</p>
+        {/* PRICING */}
+        <section
+          id='pricing'
+          className='w-full border-b border-border py-20 md:py-28'
+        >
+          <div className='container'>
+            <SectionHeading
+              index='03'
+              title='Pricing'
+              note='No subscriptions. No tiers. Just free training.'
+            />
+            <div className='mx-auto mt-10 max-w-md'>
+              <Card className='gap-0 border-border'>
+                <CardHeader className='items-center gap-2 border-b border-border pb-6 text-center'>
+                  <span className='hud-label'>Access cost</span>
+                  <span className='font-display text-7xl text-primary'>$0</span>
+                  <p className='text-sm text-muted-foreground'>
+                    Forever free. No catches.
+                  </p>
                 </CardHeader>
-                <CardContent className='p-6'>
+                <CardContent className='py-6'>
                   <ul className='space-y-3'>
-                    <li className='flex items-center gap-3'>
-                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                        <CheckCircle className='h-4 w-4 text-black' />
-                      </div>
-                      <span className='font-medium text-black'>
-                        All AWS, GCP, and Azure questions
-                      </span>
-                    </li>
-                    <li className='flex items-center gap-3'>
-                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                        <CheckCircle className='h-4 w-4 text-black' />
-                      </div>
-                      <span className='font-medium text-black'>Exam simulation mode</span>
-                    </li>
-                    <li className='flex items-center gap-3'>
-                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                        <CheckCircle className='h-4 w-4 text-black' />
-                      </div>
-                      <span className='font-medium text-black'>No credit card required</span>
-                    </li>
+                    {[
+                      'All AWS, GCP and Azure questions',
+                      'Full exam simulation mode',
+                      'Per-domain practice drills',
+                      'No credit card, no account'
+                    ].map(item => (
+                      <li key={item} className='flex items-center gap-3'>
+                        <Check className='h-4 w-4 shrink-0 text-success' />
+                        <span className='text-sm text-foreground'>{item}</span>
+                      </li>
+                    ))}
                   </ul>
                 </CardContent>
-                <CardFooter className='p-6 pt-0'>
+                <CardFooter className='border-t border-border pt-6'>
                   <Button asChild size='lg' className='w-full'>
-                    <Link href='/dashboard'>Start Learning Now</Link>
+                    <Link href='/dashboard'>Start learning</Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -244,86 +225,94 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className='w-full py-12 md:py-24 lg:py-32 bg-white border-t-2 border-black' id='features'>
-          <div className='container px-4 md:px-6'>
-            <div className='grid gap-6 lg:grid-cols-2 lg:gap-12 items-center'>
-              <div className='space-y-6'>
-                <Badge>
-                  Why Choose CloudCertify
-                </Badge>
-                <h2 className='text-3xl font-black tracking-tight md:text-4xl text-black'>
-                  Focused on Cloud Certification Success
-                </h2>
-                <p className='text-black/70 md:text-xl font-medium'>
-                  Designed to help you pass certification exams across AWS,
-                  Google Cloud, and Azure.
-                </p>
-                <div className='space-y-4'>
-                  <div className='flex items-start gap-4 p-4 rounded-[5px] border-2 border-black bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'>
-                    <div className='h-8 w-8 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                      <CheckCircle className='h-5 w-5 text-black' />
-                    </div>
+        {/* FEATURES */}
+        <section id='features' className='w-full py-20 md:py-28'>
+          <div className='container grid items-start gap-12 lg:grid-cols-2'>
+            <div className='space-y-6'>
+              <SectionHeading index='04' title='Built for one job' />
+              <p className='max-w-md font-mono text-base leading-relaxed text-muted-foreground'>
+                Pass certification exams across AWS, Google Cloud and Azure.
+                Nothing else in the way.
+              </p>
+              <dl className='divide-y divide-border border-y border-border'>
+                {FEATURES.map(f => (
+                  <div key={f.title} className='flex gap-4 py-5'>
+                    <span className='hud-label pt-1 text-primary'>{f.id}</span>
                     <div>
-                      <h3 className='font-black text-black'>Multi-Cloud Question Bank</h3>
-                      <p className='text-black/70 font-medium'>
-                        Hundreds of practice questions covering AWS, Google
-                        Cloud, and Azure certification exams.
-                      </p>
+                      <dt className='font-display text-base uppercase tracking-tight text-foreground'>
+                        {f.title}
+                      </dt>
+                      <dd className='mt-1 text-sm text-muted-foreground'>
+                        {f.body}
+                      </dd>
                     </div>
                   </div>
-                  <div className='flex items-start gap-4 p-4 rounded-[5px] border-2 border-black bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'>
-                    <div className='h-8 w-8 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                      <CheckCircle className='h-5 w-5 text-black' />
-                    </div>
-                    <div>
-                      <h3 className='font-black text-black'>Cloud Concepts Coverage</h3>
-                      <p className='text-black/70 font-medium'>
-                        Comprehensive coverage of cloud concepts, services,
-                        security, and pricing models across all three major
-                        providers.
-                      </p>
-                    </div>
-                  </div>
-                  <div className='flex items-start gap-4 p-4 rounded-[5px] border-2 border-black bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'>
-                    <div className='h-8 w-8 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                      <CheckCircle className='h-5 w-5 text-black' />
-                    </div>
-                    <div>
-                      <h3 className='font-black text-black'>Exam-Focused Learning</h3>
-                      <p className='text-black/70 font-medium'>
-                        Questions aligned with the latest exam objectives and
-                        format.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                ))}
+              </dl>
+            </div>
+
+            <div className='border border-border bg-card p-8 lg:sticky lg:top-24'>
+              <div className='flex items-center justify-between border-b border-border pb-4'>
+                <span className='hud-label'>Unit / D-01</span>
+                <Target className='h-4 w-4 text-primary' />
               </div>
-              <div className='flex justify-center'>
-                <div className='relative w-full max-w-md overflow-hidden rounded-[5px] border-4 border-black bg-white p-2 shadow-[8px_8px_0px_0px_#000]'>
-                  <div className='bg-[#38bdf8] rounded-[5px] border-2 border-black p-8 flex flex-col items-center justify-center space-y-6'>
-                    <div className='h-20 w-20 rounded-[5px] border-2 border-black bg-[#feca57] flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'>
-                      <Award className='h-10 w-10 text-black' />
-                    </div>
-                    <div className='text-center space-y-2'>
-                      <h3 className='text-2xl font-black text-black'>
-                        Ready to get cloud certified?
-                      </h3>
-                      <p className='text-black/80 font-medium'>
-                        Take the first step towards your AWS, GCP, or Azure
-                        certification today.
-                      </p>
-                    </div>
-                    <Button asChild size='lg' variant='outline' className='w-full'>
-                      <Link href='/dashboard'>Start Learning Now</Link>
-                    </Button>
-                  </div>
+              <div className='flex flex-col items-center gap-6 py-12 text-center'>
+                <div className='flex h-20 w-20 items-center justify-center border border-primary bg-primary'>
+                  <Cloud className='h-10 w-10 text-primary-foreground' />
                 </div>
+                <h3 className='font-display text-2xl uppercase tracking-tight text-foreground'>
+                  Ready to get certified?
+                </h3>
+                <p className='max-w-xs text-sm text-muted-foreground'>
+                  Take the first step toward your AWS, GCP or Azure credential.
+                </p>
+                <Button asChild size='lg' className='w-full'>
+                  <Link href='/dashboard'>Start learning</Link>
+                </Button>
               </div>
             </div>
           </div>
         </section>
       </main>
       <Footer />
+    </div>
+  );
+}
+
+const FEATURES = [
+  {
+    id: 'A',
+    title: 'Multi-cloud question bank',
+    body: 'Hundreds of practice questions across AWS, Google Cloud and Azure exam objectives.'
+  },
+  {
+    id: 'B',
+    title: 'Full concept coverage',
+    body: 'Services, security, networking and pricing models across all three major providers.'
+  },
+  {
+    id: 'C',
+    title: 'Exam-aligned drills',
+    body: 'Questions matched to the latest exam objectives and answer formats.'
+  }
+];
+
+function SectionHeading({
+  index,
+  title,
+  note
+}: {
+  index: string;
+  title: string;
+  note?: string;
+}) {
+  return (
+    <div className='mb-10 flex flex-col gap-2 border-b border-border pb-6'>
+      <span className='hud-label text-primary'>[ {index} ]</span>
+      <h2 className='font-display text-3xl uppercase tracking-tight text-foreground md:text-4xl'>
+        {title}
+      </h2>
+      {note && <p className='text-sm text-muted-foreground'>{note}</p>}
     </div>
   );
 }
@@ -344,12 +333,10 @@ function QuizCard({
   difficulty
 }: QuizCardProps) {
   return (
-    <Card className='overflow-hidden bg-white'>
-      <CardHeader className='pb-2'>
-        <div className='flex justify-between mb-2'>
-          <Badge variant='outline'>
-            {category}
-          </Badge>
+    <Card className='gap-0 py-0'>
+      <CardHeader className='gap-3 border-b border-border py-4'>
+        <div className='flex items-center justify-between'>
+          <Badge variant='outline'>{category}</Badge>
           <Badge
             variant={
               difficulty === 'Easy'
@@ -362,44 +349,36 @@ function QuizCard({
             {difficulty}
           </Badge>
         </div>
-        <CardTitle className='text-lg'>{question}</CardTitle>
+        <p className='font-mono text-sm font-medium leading-relaxed text-foreground'>
+          {question}
+        </p>
       </CardHeader>
-      <CardContent className='pb-2'>
-        <div className='space-y-2'>
-          {options.map((option, index) => (
+      <CardContent className='space-y-2 py-4'>
+        {options.map((option, index) => {
+          const correct = index === correctAnswer;
+          return (
             <div
               key={index}
-              className={`p-3 rounded-[5px] border-2 border-black font-medium ${
-                index === correctAnswer
-                  ? 'bg-[#1dd1a1] shadow-none translate-x-[2px] translate-y-[2px]'
-                  : 'bg-white shadow-[4px_4px_0px_0px_#000]'
-              } flex items-start gap-2`}
+              className={`flex items-center gap-3 border px-3 py-2.5 text-sm transition-colors ${
+                correct
+                  ? 'border-success bg-success/10 text-foreground'
+                  : 'border-border text-muted-foreground'
+              }`}
             >
-              <div
-                className={`w-6 h-6 rounded-[5px] flex items-center justify-center border-2 border-black mt-0.5 ${
-                  index === correctAnswer
-                    ? 'bg-black text-white'
-                    : 'bg-white'
+              <span
+                className={`flex h-5 w-5 shrink-0 items-center justify-center border font-mono text-[11px] ${
+                  correct
+                    ? 'border-success bg-success text-success-foreground'
+                    : 'border-border-strong text-muted-foreground'
                 }`}
               >
-                {index === correctAnswer && <CheckCircle className='h-4 w-4' />}
-              </div>
-              <span className='text-black'>{option}</span>
+                {correct ? <Check className='h-3 w-3' /> : String.fromCharCode(65 + index)}
+              </span>
+              <span>{option}</span>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </CardContent>
-      <CardFooter className='flex justify-between'>
-        <Button variant='outline'>
-          <ArrowLeft className='mr-2 h-4 w-4' />
-          Previous
-        </Button>
-
-        <Button>
-          Next
-          <ArrowRight className='ml-2 h-4 w-4' />
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

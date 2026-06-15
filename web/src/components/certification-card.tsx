@@ -33,45 +33,42 @@ export function CertificationCard({
   href
 }: CertificationCardProps) {
   return (
-    <Card className='flex flex-col overflow-hidden relative border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] transition-all'>
-      <CardHeader className='pb-0'>
-        <div className='flex justify-center mb-4 relative'>
-          <div className='h-14 w-14 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+    <Card className='group relative flex flex-col gap-4 overflow-hidden transition-colors hover:border-primary'>
+      <CardHeader className='gap-3 pb-0'>
+        <div className='flex items-center justify-between'>
+          <div className='flex h-12 w-12 items-center justify-center border border-primary bg-primary'>
             {icon}
           </div>
-          {!available && (
-            <Badge className='bg-[#feca57] absolute top-0 right-0'>
-              Soon
-            </Badge>
-          )}
+          {!available && <Badge variant='outline'>Soon</Badge>}
         </div>
-        <CardTitle className='text-xl font-black text-black text-center text-balance'>{title}</CardTitle>
+        <CardTitle className='text-lg leading-tight text-balance'>
+          {title}
+        </CardTitle>
         {description ? (
-          <CardDescription className='mt-2 text-center text-balance'>{description}</CardDescription>
+          <CardDescription className='text-balance'>
+            {description}
+          </CardDescription>
         ) : null}
       </CardHeader>
       <CardContent className='flex-1' />
-      <CardFooter className='flex flex-col gap-3'>
-        <div className='flex justify-between items-center text-sm w-full'>
+      <CardFooter className='flex flex-col gap-3 border-t border-border pt-4'>
+        <div className='flex w-full items-center justify-between'>
           <Badge variant='outline'>{capitalize(difficulty)}</Badge>
-          <div className='flex items-center gap-1 font-medium text-black'>
-            <span>{questions} Questions</span>
-            <BookOpen className='h-4 w-4' />
-          </div>
+          <span className='hud-label flex items-center gap-1.5 text-foreground'>
+            <BookOpen className='h-3.5 w-3.5' />
+            {questions} Q
+          </span>
         </div>
         {available && href ? (
           <Button className='w-full' asChild>
-            <Link href={href}>Start Learning</Link>
+            <Link href={href}>Start</Link>
           </Button>
         ) : (
           <Button className='w-full' disabled={!available} variant='outline'>
-            Soon
+            Locked
           </Button>
         )}
       </CardFooter>
-      {!available && (
-        <div className='absolute inset-0 bg-white/60 pointer-events-none' />
-      )}
     </Card>
   );
 }

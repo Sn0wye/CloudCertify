@@ -1,17 +1,31 @@
 import { Cloud } from 'lucide-react';
+import { Link } from 'wouter';
 
 export function Footer() {
   return (
-    <footer className='w-full border-t-2 border-black py-6 md:py-0 bg-white'>
-      <div className='container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row'>
-        <div className='flex items-center gap-2 text-lg font-black'>
-          <div className='h-8 w-8 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-            <Cloud className='h-4 w-4 text-black' />
-          </div>
-          <p className='text-black'>CloudCertify</p>
+    <footer className='w-full border-t border-border bg-background'>
+      <div className='container flex flex-col items-start justify-between gap-6 py-8 md:flex-row md:items-center'>
+        <div className='flex items-center gap-2.5 font-display text-base uppercase tracking-tight text-foreground'>
+          <span className='flex h-7 w-7 items-center justify-center border border-primary bg-primary text-primary-foreground'>
+            <Cloud className='h-4 w-4' />
+          </span>
+          <span>CloudCertify</span>
         </div>
-        <p className='text-center text-sm text-black/70 font-medium md:text-left'>
-          &copy; {new Date().getFullYear()} CloudCertify. All rights reserved.
+
+        <nav className='flex flex-wrap gap-x-6 gap-y-2'>
+          <Link href='/dashboard' className='hud-label hover:text-primary'>
+            Dashboard
+          </Link>
+          <a href='#certifications' className='hud-label hover:text-primary'>
+            Certifications
+          </a>
+          <a href='#pricing' className='hud-label hover:text-primary'>
+            Pricing
+          </a>
+        </nav>
+
+        <p className='hud-label'>
+          &copy; {new Date().getFullYear()} CloudCertify · Unit D-01
         </p>
       </div>
     </footer>

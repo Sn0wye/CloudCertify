@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Cloud } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Link, useLocation, useParams } from 'wouter';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +18,13 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion';
 import { Footer } from '@/components/footer';
+import { SiteHeader } from '@/components/site-header';
+import {
+  OptionRow,
+  ReviewAnswerRow,
+  ScorePanel,
+  StatusGlyph
+} from '@/components/quiz-ui';
 import {
   postQuizQuizIdSubquizzesSubquizIdStart,
   postQuizQuizIdSubquizzesSubquizIdSubmit
@@ -47,9 +54,9 @@ export function SubquizSessionPage() {
   const [userAnswers, setUserAnswers] = useState<Record<number, number[]>>({});
   const [correctCount, setCorrectCount] = useState<number | null>(null);
   const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
-  const [resultQuestions, setResultQuestions] = useState<QuizResultQuestionDto[] | null>(
-    null
-  );
+  const [resultQuestions, setResultQuestions] = useState<
+    QuizResultQuestionDto[] | null
+  >(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
 
@@ -99,10 +106,14 @@ export function SubquizSessionPage() {
       ([questionId, answerIds]) => ({ questionId: Number(questionId), answerIds })
     );
     try {
-      const res = await postQuizQuizIdSubquizzesSubquizIdSubmit(quizId, subquizId, {
-        submissionId: subquizDetail.submissionId,
-        answers
-      });
+      const res = await postQuizQuizIdSubquizzesSubquizIdSubmit(
+        quizId,
+        subquizId,
+        {
+          submissionId: subquizDetail.submissionId,
+          answers
+        }
+      );
       setCorrectCount(res.data.correctCount);
       setTotalQuestions(res.data.totalQuestions);
       setResultQuestions(res.data.questions);
@@ -117,7 +128,11 @@ export function SubquizSessionPage() {
   const handleTryAgain = async () => {
     setIsRestarting(true);
     try {
-      const res = await postQuizQuizIdSubquizzesSubquizIdStart(quizId, subquizId, { email });
+      const res = await postQuizQuizIdSubquizzesSubquizIdStart(
+        quizId,
+        subquizId,
+        { email }
+      );
       const newData: SessionData = { subquizDetail: res.data, email };
       sessionStorage.setItem(
         `subquiz-session-${quizId}-${subquizId}`,
@@ -137,161 +152,95 @@ export function SubquizSessionPage() {
     }
   };
 
-  const pageHeader = (backLabel: string) => (
-    <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
-      <div className='container flex h-16 items-center justify-between'>
-        <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-          <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-            <Cloud className='h-5 w-5 text-black' />
-          </div>
-          <span>CloudCertify</span>
-        </Link>
-        <Button variant='outline' size='sm' asChild>
-          <Link href={`/quiz/${quizId}`}>
-            <ArrowLeft className='mr-2 h-4 w-4' />
-            {backLabel}
-          </Link>
-        </Button>
-      </div>
-    </header>
+  const backToCert = (label: string) => (
+    <Button variant='outline' size='sm' asChild>
+      <Link href={`/quiz/${quizId}`}>
+        <ArrowLeft className='h-4 w-4' />
+        {label}
+      </Link>
+    </Button>
   );
 
   if (phase === 'results') {
     const total = totalQuestions ?? 0;
     const correct = correctCount ?? 0;
     const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
-    const scoreColor =
-      percentage >= 80 ? '#1dd1a1' : percentage >= 60 ? '#ffc107' : '#ff4757';
+    const passed = percentage >= 60;
 
     return (
-      <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
-        {pageHeader('Back to Certification')}
-        <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
-          <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
-            <CardHeader className='text-center border-b-2 border-black pb-6'>
-              <CardTitle className='text-2xl md:text-3xl font-black text-black'>
-                Practice Results
+      <div className='flex min-h-dvh flex-col bg-background'>
+        <SiteHeader>{backToCert('Certification')}</SiteHeader>
+        <main className='container mx-auto max-w-4xl flex-1 py-12'>
+          <Card className='w-full gap-0'>
+            <CardHeader className='items-center gap-2 border-b border-border pb-6 text-center'>
+              <span className='hud-label text-primary'>[ PRACTICE ]</span>
+              <CardTitle className='text-2xl md:text-3xl'>
+                Practice results
               </CardTitle>
-              <p className='text-black/70 font-medium mt-1'>{subquizDetail.title}</p>
+              <p className='text-sm text-muted-foreground'>
+                {subquizDetail.title}
+              </p>
               {subquizDetail.domain && (
-                <div className='flex justify-center mt-2'>
-                  <Badge
-                    variant='outline'
-                    className='border-2 border-black font-bold'
-                  >
-                    {subquizDetail.domain}
-                  </Badge>
-                </div>
+                <Badge variant='outline'>{subquizDetail.domain}</Badge>
               )}
             </CardHeader>
             <CardContent className='space-y-8 py-8'>
-              <div className='flex flex-col items-center space-y-4'>
-                <div
-                  className='h-32 w-32 rounded-[5px] border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'
-                  style={{ backgroundColor: scoreColor }}
-                >
-                  <span className='text-5xl font-black text-black'>{percentage}%</span>
-                </div>
-                <p className='text-xl font-bold text-black'>
-                  You got <span className='font-black'>{correct}</span> out of{' '}
-                  <span className='font-black'>{total}</span> questions correct
-                </p>
-                <div className='w-full max-w-md'>
-                  <Progress value={percentage} />
-                </div>
-              </div>
+              <ScorePanel
+                percentage={percentage}
+                passed={passed}
+                correct={correct}
+                total={total}
+                showThreshold={false}
+              />
 
-              <div className='space-y-6'>
-                <h3 className='text-xl font-black text-black'>Question Review</h3>
+              <div className='space-y-4'>
+                <h3 className='font-display text-lg uppercase tracking-tight text-foreground'>
+                  Question review
+                </h3>
                 <Accordion type='single' collapsible className='w-full'>
                   {(resultQuestions ?? []).map((question, index) => {
-                    const isCorrect = question.answers.every(
-                      a => (a.isCorrect ? a.wasSelected : !a.wasSelected)
+                    const isCorrect = question.answers.every(a =>
+                      a.isCorrect ? a.wasSelected : !a.wasSelected
                     );
 
                     return (
-                      <AccordionItem key={question.id} value={`question-${question.id}`}>
+                      <AccordionItem
+                        key={question.id}
+                        value={`question-${question.id}`}
+                      >
                         <AccordionTrigger className='hover:no-underline'>
                           <div className='flex items-start gap-3 text-left'>
-                            <div
-                              className={`h-6 w-6 rounded-[5px] border-2 border-black flex items-center justify-center shrink-0 ${
-                                isCorrect ? 'bg-[#1dd1a1]' : 'bg-[#ff4757]'
-                              }`}
-                            >
-                              {isCorrect ? (
-                                <CheckCircle className='h-4 w-4 text-black' />
-                              ) : (
-                                <XCircle className='h-4 w-4 text-black' />
-                              )}
-                            </div>
+                            <StatusGlyph correct={isCorrect} />
                             <div>
-                              <p className='font-bold text-black'>
-                                Question {index + 1}: {question.text}
+                              <p className='font-semibold normal-case text-foreground'>
+                                Q{index + 1}: {question.text}
                               </p>
-                              <p className='text-sm text-black/70 font-medium mt-1'>
-                                {isCorrect ? 'Correct' : 'Incorrect'} — Click to view details
+                              <p className='hud-label mt-1'>
+                                {isCorrect ? 'Correct' : 'Incorrect'} · view detail
                               </p>
                             </div>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
-                          <div className='space-y-3 pt-2 pl-9'>
+                          <div className='space-y-2 pl-9 pt-2'>
                             {question.explanation && (
-                              <div className='p-3 rounded-[5px] border-2 border-black bg-[#f0f9ff]'>
-                                <p className='text-sm font-bold text-black mb-1'>
+                              <div className='border border-border bg-secondary/40 p-3'>
+                                <p className='hud-label mb-1 text-primary'>
                                   Explanation
                                 </p>
-                                <p className='text-sm text-black/80'>
+                                <p className='text-sm text-muted-foreground'>
                                   {question.explanation}
                                 </p>
                               </div>
                             )}
-                            {question.answers.map(answer => {
-                              const isCorrectAnswer = answer.isCorrect;
-                              const isUserAnswer = answer.wasSelected;
-
-                              let bgColor = 'bg-white';
-                              if (isUserAnswer && isCorrectAnswer) bgColor = 'bg-[#1dd1a1]';
-                              else if (isUserAnswer && !isCorrectAnswer)
-                                bgColor = 'bg-[#ff4757]';
-                              else if (!isUserAnswer && isCorrectAnswer)
-                                bgColor = 'bg-[#1dd1a1]';
-
-                              return (
-                                <div
-                                  key={answer.id}
-                                  className={`p-3 rounded-[5px] border-2 border-black flex items-start gap-2 ${bgColor}`}
-                                >
-                                  <div
-                                    className={`w-6 h-6 rounded-[5px] flex items-center justify-center border-2 border-black mt-0.5 shrink-0 ${
-                                      isCorrectAnswer || isUserAnswer
-                                        ? 'bg-black text-white'
-                                        : 'bg-white'
-                                    }`}
-                                  >
-                                    {isCorrectAnswer && <CheckCircle className='h-3 w-3' />}
-                                    {isUserAnswer && !isCorrectAnswer && (
-                                      <XCircle className='h-3 w-3' />
-                                    )}
-                                  </div>
-                                  <div className='flex-1'>
-                                    <span className='font-medium text-black'>
-                                      {answer.text}
-                                    </span>
-                                    {isUserAnswer && (
-                                      <span className='ml-2 text-sm font-bold text-black/70'>
-                                        (Your answer)
-                                      </span>
-                                    )}
-                                    {isCorrectAnswer && (
-                                      <span className='ml-2 text-sm font-bold text-black'>
-                                        (Correct)
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
+                            {question.answers.map(answer => (
+                              <ReviewAnswerRow
+                                key={answer.id}
+                                text={answer.text ?? ''}
+                                isCorrectAnswer={answer.isCorrect}
+                                isUserAnswer={answer.wasSelected}
+                              />
+                            ))}
                           </div>
                         </AccordionContent>
                       </AccordionItem>
@@ -300,12 +249,16 @@ export function SubquizSessionPage() {
                 </Accordion>
               </div>
             </CardContent>
-            <CardFooter className='flex flex-col sm:flex-row gap-4 justify-between border-t-2 border-black pt-6'>
-              <Button variant='outline' onClick={handleTryAgain} disabled={isRestarting}>
-                {isRestarting ? 'Starting...' : 'Try Again'}
+            <CardFooter className='flex flex-col justify-between gap-4 border-t border-border pt-6 sm:flex-row'>
+              <Button
+                variant='outline'
+                onClick={handleTryAgain}
+                disabled={isRestarting}
+              >
+                {isRestarting ? 'Starting...' : 'Try again'}
               </Button>
               <Button asChild>
-                <Link href={`/quiz/${quizId}`}>Back to Certification</Link>
+                <Link href={`/quiz/${quizId}`}>Back to certification</Link>
               </Button>
             </CardFooter>
           </Card>
@@ -316,89 +269,82 @@ export function SubquizSessionPage() {
   }
 
   return (
-    <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
-      {pageHeader('Back')}
-      <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
-        <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
-          <CardHeader className='border-b-2 border-black pb-6'>
-            <div className='flex justify-between items-center mb-4 flex-wrap gap-2'>
+    <div className='flex min-h-dvh flex-col bg-background'>
+      <SiteHeader>{backToCert('Back')}</SiteHeader>
+      <main className='container mx-auto max-w-4xl flex-1 py-12'>
+        <Card className='w-full gap-0'>
+          <CardHeader className='gap-0 border-b border-border pb-6'>
+            <div className='mb-4 flex flex-wrap items-center justify-between gap-2'>
               <Badge variant='outline'>
-                Question {currentIndex + 1} of {questionsCount}
+                Q {currentIndex + 1} / {questionsCount}
               </Badge>
-              <div className='flex gap-2 flex-wrap'>
+              <div className='flex flex-wrap gap-2'>
                 <Badge>{subquizDetail.title}</Badge>
                 {subquizDetail.domain && (
-                  <Badge variant='outline' className='border-2 border-black font-bold'>
-                    {subquizDetail.domain}
-                  </Badge>
+                  <Badge variant='outline'>{subquizDetail.domain}</Badge>
                 )}
               </div>
             </div>
-            <CardTitle className='text-xl md:text-2xl font-black text-black'>
+            <CardTitle className='text-xl normal-case md:text-2xl'>
               {currentQuestion?.text}
             </CardTitle>
             {currentQuestion?.type === 'multiple_response' && (
-              <p className='text-sm font-bold text-black/60 mt-2'>
+              <p className='hud-label mt-2 text-primary'>
                 Select {currentQuestion.selectCount ?? 2} answers
               </p>
             )}
-            <div className='w-full mt-6'>
+            <div className='mt-6 w-full'>
               <Progress value={progress} />
             </div>
           </CardHeader>
           <CardContent className='py-6'>
-            <div className='space-y-3'>
-              {currentQuestion?.answers?.map(answer => {
+            <div className='space-y-2'>
+              {currentQuestion?.answers?.map((answer, index) => {
                 const selected =
-                  currentQuestion.id != null ? (userAnswers[currentQuestion.id] ?? []) : [];
-                const isSelected = answer.id != null && selected.includes(answer.id);
-                const isMultiResponse = currentQuestion.type === 'multiple_response';
+                  currentQuestion.id != null
+                    ? (userAnswers[currentQuestion.id] ?? [])
+                    : [];
+                const isSelected =
+                  answer.id != null && selected.includes(answer.id);
+                const isMultiResponse =
+                  currentQuestion.type === 'multiple_response';
                 const atCap =
-                  isMultiResponse && selected.length >= (currentQuestion.selectCount ?? 1);
+                  isMultiResponse &&
+                  selected.length >= (currentQuestion.selectCount ?? 1);
                 const isDisabled = !isSelected && atCap;
 
                 return (
-                  <div
+                  <OptionRow
                     key={answer.id}
-                    className={`p-4 rounded-[5px] border-2 border-black ${
-                      isSelected
-                        ? 'bg-[#38bdf8] shadow-none translate-x-[2px] translate-y-[2px]'
-                        : 'bg-white hover:bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'
-                    } ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'} flex items-start gap-3 transition-all`}
+                    label={String.fromCharCode(65 + index)}
+                    text={answer.text ?? ''}
+                    isSelected={isSelected}
+                    disabled={isDisabled}
                     onClick={() =>
-                      !isDisabled && answer.id != null && handleAnswerSelect(answer.id)
+                      answer.id != null && handleAnswerSelect(answer.id)
                     }
-                  >
-                    <div
-                      className={`w-6 h-6 rounded-[5px] flex items-center justify-center border-2 border-black mt-0.5 shrink-0 ${
-                        isSelected ? 'bg-black text-white' : 'bg-white'
-                      }`}
-                    >
-                      {isSelected && <CheckCircle className='h-4 w-4' />}
-                    </div>
-                    <span className='font-medium text-black'>{answer.text}</span>
-                  </div>
+                  />
                 );
               })}
             </div>
           </CardContent>
-          <CardFooter className='flex justify-between border-t-2 border-black pt-6'>
+          <CardFooter className='flex justify-between border-t border-border pt-6'>
             <Button
               variant='outline'
               onClick={() => setCurrentIndex(i => i - 1)}
               disabled={currentIndex === 0}
             >
-              <ArrowLeft className='mr-2 h-4 w-4' />
+              <ArrowLeft className='h-4 w-4' />
               Previous
             </Button>
             {currentIndex < questionsCount - 1 ? (
               <Button onClick={() => setCurrentIndex(i => i + 1)}>
                 Next
-                <ArrowRight className='ml-2 h-4 w-4' />
+                <ArrowRight className='h-4 w-4' />
               </Button>
             ) : (
               <Button onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Finish Practice'}
+                {isSubmitting ? 'Submitting...' : 'Finish practice'}
               </Button>
             )}
           </CardFooter>

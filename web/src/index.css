@@ -3,37 +3,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================
+   CLOUDCERTIFY — TACTICAL TELEMETRY INTERFACE
+   Dark CRT substrate · amber phosphor accent · mono-dominant
+   ============================================================ */
+
 @theme {
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-sans: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-display: 'Archivo Black', 'Arial Black', system-ui, sans-serif;
 
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --radius-lg: 0px;
+  --radius-md: 0px;
+  --radius-sm: 0px;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -54,173 +36,198 @@
       height: 0;
     }
   }
+
+  @keyframes hud-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0.15;
+    }
+  }
 }
 
 @utility container {
   margin-inline: auto;
-  padding-inline: 2rem;
+  padding-inline: 1.5rem;
   @media (width >= --theme(--breakpoint-sm)) {
     max-width: none;
   }
   @media (width >= 1400px) {
-    max-width: 1400px;
+    max-width: 1320px;
   }
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-
-  --radius-md: calc(var(--radius) - 2px);
-
-  --radius-lg: var(--radius);
-
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
 
   --color-background: var(--background);
-
   --color-foreground: var(--foreground);
 
   --color-card: var(--card);
-
   --color-card-foreground: var(--card-foreground);
 
   --color-popover: var(--popover);
-
   --color-popover-foreground: var(--popover-foreground);
 
   --color-primary: var(--primary);
-
   --color-primary-foreground: var(--primary-foreground);
 
   --color-secondary: var(--secondary);
-
   --color-secondary-foreground: var(--secondary-foreground);
 
   --color-muted: var(--muted);
-
   --color-muted-foreground: var(--muted-foreground);
 
   --color-accent: var(--accent);
-
   --color-accent-foreground: var(--accent-foreground);
 
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
 
   --color-border: var(--border);
-
+  --color-border-strong: var(--border-strong);
   --color-input: var(--input);
-
   --color-ring: var(--ring);
-
-  --color-chart-1: var(--chart-1);
-
-  --color-chart-2: var(--chart-2);
-
-  --color-chart-3: var(--chart-3);
-
-  --color-chart-4: var(--chart-4);
-
-  --color-chart-5: var(--chart-5);
-
-  --color-sidebar: var(--sidebar);
-
-  --color-sidebar-foreground: var(--sidebar-foreground);
-
-  --color-sidebar-primary: var(--sidebar-primary);
-
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-
-  --color-sidebar-accent: var(--sidebar-accent);
-
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-
-  --color-sidebar-border: var(--sidebar-border);
-
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+:root {
+  --radius: 0px;
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+  /* Substrate — deactivated CRT, never pure black */
+  --background: #0a0a0a;
+  --foreground: #eaeaea;
+
+  /* Compartments / panels */
+  --card: #111111;
+  --card-foreground: #eaeaea;
+  --popover: #141414;
+  --popover-foreground: #eaeaea;
+
+  /* Amber phosphor — the single brand accent */
+  --primary: #ffb000;
+  --primary-foreground: #0a0a0a;
+
+  /* Inert panel surface (used for secondary buttons / chips) */
+  --secondary: #18181a;
+  --secondary-foreground: #eaeaea;
+
+  --muted: #161616;
+  --muted-foreground: #7d7d7d;
+
+  --accent: #ffb000;
+  --accent-foreground: #0a0a0a;
+
+  /* Status telemetry — GO / CAUTION reserved for amber, FAIL for red */
+  --success: #4af626;
+  --success-foreground: #0a0a0a;
+
+  --destructive: #ff2a2a;
+  --destructive-foreground: #0a0a0a;
+
+  /* Razor-thin compartment lines */
+  --border: #262626;
+  --border-strong: #3a3a3a;
+  --input: #2e2e2e;
+  --ring: #ffb000;
+}
+
 @layer base {
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: var(--border);
   }
-}
 
-:root {
-  --radius: 5px;
-
-  /* Neobrutalism colors - sky-400 based */
-  --main: #38bdf8;
-  --main-accent: #0ea5e9;
-  --bg: #f0f9ff;
-  --text: #000;
-  --nb-border: #000;
-
-  --background: #f0f9ff;
-  --foreground: #000;
-
-  --card: #fff;
-  --card-foreground: #000;
-
-  --popover: #fff;
-  --popover-foreground: #000;
-
-  --primary: #38bdf8;
-  --primary-foreground: #000;
-
-  --secondary: #feca57;
-  --secondary-foreground: #000;
-
-  --muted: #e0e0e0;
-  --muted-foreground: #555;
-
-  --accent: #ff6b6b;
-  --accent-foreground: #000;
-
-  --destructive: #ff4757;
-
-  --border: #000;
-  --input: #000;
-  --ring: #38bdf8;
-
-  --chart-1: #38bdf8;
-  --chart-2: #feca57;
-  --chart-3: #ff6b6b;
-  --chart-4: #48dbfb;
-  --chart-5: #1dd1a1;
-
-  --sidebar: #fff;
-  --sidebar-foreground: #000;
-  --sidebar-primary: #38bdf8;
-  --sidebar-primary-foreground: #000;
-  --sidebar-accent: #f0f9ff;
-  --sidebar-accent-foreground: #000;
-  --sidebar-border: #000;
-  --sidebar-ring: #38bdf8;
-
-  /* Neobrutalism box shadow */
-  --shadow-light: 4px 4px 0px 0px #000;
-  --shadow-dark: 4px 4px 0px 0px #000;
-}
-
-
-
-@layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply outline-ring/60;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-mono antialiased;
+    font-feature-settings: 'tnum' 1;
+    /* Faint CRT scanlines layered over a low-opacity static grain */
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0) 0px,
+      rgba(0, 0, 0, 0) 2px,
+      rgba(255, 255, 255, 0.014) 3px,
+      rgba(0, 0, 0, 0) 4px
+    );
+    background-attachment: fixed;
+  }
+
+  /* Global grain overlay — physical noise across the whole DOM */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Macro typography — heavy grotesque, tight, uppercase by intent */
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2e2e2e;
+    border: 2px solid #0a0a0a;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+}
+
+@layer components {
+  /* HUD metadata label — uppercase mono, generous tracking */
+  .hud-label {
+    @apply font-mono text-[11px] font-medium uppercase text-muted-foreground;
+    letter-spacing: 0.14em;
+  }
+
+  /* Razor-line compartment grid: 1px gaps via contrasting bg */
+  .grid-hairline {
+    background: var(--border);
+    gap: 1px;
+  }
+
+  .blink {
+    animation: hud-blink 1.1s steps(1) infinite;
   }
 }

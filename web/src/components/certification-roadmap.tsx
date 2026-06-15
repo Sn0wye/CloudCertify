@@ -10,40 +10,6 @@ import type {
   QuizProvider
 } from '@/http/generated/api.schemas';
 
-type TierKey = 'foundational' | 'associate' | 'specialist';
-
-type TierStyle = {
-  label: string;
-  marker: string;
-  accent: string;
-  nodeBg: string;
-  nodeIcon: string;
-};
-
-const TIER_STYLES: Record<TierKey, TierStyle> = {
-  foundational: {
-    label: 'text-black',
-    marker: 'border-black bg-[#1dd1a1] text-black',
-    accent: 'bg-[#1dd1a1]',
-    nodeBg: 'bg-[#1dd1a1]',
-    nodeIcon: 'text-black'
-  },
-  associate: {
-    label: 'text-black',
-    marker: 'border-black bg-[#38bdf8] text-black',
-    accent: 'bg-[#38bdf8]',
-    nodeBg: 'bg-[#38bdf8]',
-    nodeIcon: 'text-black'
-  },
-  specialist: {
-    label: 'text-black',
-    marker: 'border-black bg-[#a78bfa] text-black',
-    accent: 'bg-[#a78bfa]',
-    nodeBg: 'bg-[#a78bfa]',
-    nodeIcon: 'text-black'
-  }
-};
-
 type Tier = {
   number: string;
   label: string;
@@ -88,9 +54,9 @@ export function CertificationRoadmap({
 
   return (
     <div className='mx-auto max-w-5xl'>
-      {/* Provider tabs */}
-      <div className='flex items-center justify-center gap-2 mb-10'>
-        <div className='inline-flex items-center gap-2 rounded-[5px] border-2 border-black bg-white p-2 shadow-[4px_4px_0px_0px_#000]'>
+      {/* Provider selector — segmented terminal control */}
+      <div className='mb-12 flex justify-center'>
+        <div className='inline-flex border border-border'>
           {PROVIDERS.map(p => {
             const isActive = provider === p.id;
             return (
@@ -98,16 +64,16 @@ export function CertificationRoadmap({
                 key={p.id}
                 onClick={() => setProvider(p.id)}
                 className={cn(
-                  'relative flex items-center gap-2 rounded-[5px] px-4 py-2 text-sm font-bold transition-all border-2',
+                  'flex items-center gap-2 border-r border-border px-5 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] transition-colors last:border-r-0',
                   isActive
-                    ? 'bg-[#38bdf8] text-black border-black shadow-[2px_2px_0px_0px_#000]'
-                    : 'text-black border-transparent hover:bg-[#e0f2fe]'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-transparent text-muted-foreground hover:text-foreground'
                 )}
               >
                 <span>{p.short}</span>
                 {!p.available && (
-                  <span className='rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black bg-[#feca57] text-black'>
-                    Soon
+                  <span className='text-[9px] tracking-[0.1em] opacity-70'>
+                    [soon]
                   </span>
                 )}
               </button>
@@ -117,21 +83,18 @@ export function CertificationRoadmap({
       </div>
 
       {/* Roadmap body */}
-      <div className='relative'>
-        <div className='space-y-12 md:space-y-16'>
-          {grouped.map((tier, tierIndex) => (
-            <TierRow
-              key={tier.level}
-              tier={tier}
-              styles={TIER_STYLES[tier.level as TierKey]}
-              isLast={tierIndex === grouped.length - 1}
-              isLoading={isLoading}
-              providerAvailable={
-                PROVIDERS.find(p => p.id === provider)?.available ?? false
-              }
-            />
-          ))}
-        </div>
+      <div className='space-y-10 md:space-y-14'>
+        {grouped.map((tier, tierIndex) => (
+          <TierRow
+            key={tier.level}
+            tier={tier}
+            isLast={tierIndex === grouped.length - 1}
+            isLoading={isLoading}
+            providerAvailable={
+              PROVIDERS.find(p => p.id === provider)?.available ?? false
+            }
+          />
+        ))}
       </div>
     </div>
   );
@@ -139,51 +102,37 @@ export function CertificationRoadmap({
 
 type TierRowProps = {
   tier: Tier & { quizzes: QuizDto[] };
-  styles: TierStyle;
   isLast: boolean;
   isLoading?: boolean;
   providerAvailable: boolean;
 };
 
-function TierRow({
-  tier,
-  styles,
-  isLast,
-  isLoading,
-  providerAvailable
-}: TierRowProps) {
+function TierRow({ tier, isLast, isLoading, providerAvailable }: TierRowProps) {
   return (
-    <div className='relative grid grid-cols-[48px_1fr] gap-4 md:grid-cols-[64px_1fr] md:gap-8'>
-      {/* Left rail: number marker + dashed connector */}
+    <div className='relative grid grid-cols-[48px_1fr] gap-4 md:grid-cols-[72px_1fr] md:gap-8'>
+      {/* Left rail: numbered unit marker + connector */}
       <div className='relative flex flex-col items-center'>
-        <div
-          className={cn(
-            'relative z-10 flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-[5px] border-2 font-mono text-sm md:text-base font-black shadow-[4px_4px_0px_0px_#000]',
-            styles.marker
-          )}
-        >
+        <div className='relative z-10 flex h-12 w-12 items-center justify-center border border-primary bg-primary font-display text-base text-primary-foreground md:h-[72px] md:w-[72px] md:text-2xl'>
           {tier.number}
         </div>
         {!isLast && (
           <div
             aria-hidden='true'
-            className='absolute left-1/2 top-12 md:top-14 h-[calc(100%+3rem)] md:h-[calc(100%+4rem)] w-0 -translate-x-1/2 border-l-2 border-dashed border-black'
+            className='absolute left-1/2 top-12 h-[calc(100%+2.5rem)] w-px -translate-x-1/2 bg-border md:top-[72px] md:h-[calc(100%+3.5rem)]'
           />
         )}
       </div>
 
       {/* Right content */}
-      <div className='pb-2 min-w-0'>
-        <h4
-          className={cn(
-            'mb-4 text-xl md:text-2xl font-black tracking-tight',
-            styles.label
-          )}
-        >
-          {tier.label}
-        </h4>
+      <div className='min-w-0 pb-2'>
+        <div className='mb-4 flex items-baseline gap-3'>
+          <h4 className='font-display text-xl uppercase tracking-tight text-foreground md:text-2xl'>
+            {tier.label}
+          </h4>
+          <span className='hud-label'>Tier {tier.number}</span>
+        </div>
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3'>
           {isLoading ? (
             <>
               <NodeSkeleton />
@@ -192,11 +141,7 @@ function TierRow({
             </>
           ) : tier.quizzes.length > 0 ? (
             tier.quizzes.map(quiz => (
-              <CertificationNode
-                key={quiz.id}
-                quiz={quiz}
-                styles={styles}
-              />
+              <CertificationNode key={quiz.id} quiz={quiz} />
             ))
           ) : (
             <EmptyTierCard providerAvailable={providerAvailable} />
@@ -207,72 +152,60 @@ function TierRow({
   );
 }
 
-function CertificationNode({
-  quiz,
-  styles
-}: {
-  quiz: QuizDto;
-  styles: TierStyle;
-}) {
+function CertificationNode({ quiz }: { quiz: QuizDto }) {
   const available = quiz.isAvailable ?? false;
   const { code, name } = splitTitle(quiz.title ?? '');
 
   const content = (
     <>
-      {/* Tier color accent stripe */}
+      {/* Status accent stripe */}
       <div
         aria-hidden='true'
         className={cn(
-          'absolute left-0 top-0 h-full w-2 rounded-l-[3px]',
-          available ? styles.accent : 'bg-gray-300'
+          'absolute left-0 top-0 h-full w-1',
+          available ? 'bg-primary' : 'bg-border-strong'
         )}
       />
 
       <div className='flex items-start gap-3 pl-2'>
         <div
           className={cn(
-            'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[5px] border-2 border-black',
-            available ? styles.nodeBg : 'bg-gray-200'
+            'inline-flex h-10 w-10 shrink-0 items-center justify-center border',
+            available
+              ? 'border-primary bg-primary'
+              : 'border-border-strong bg-secondary'
           )}
         >
           {available ? (
             getLucideIcon(quiz.iconName, {
-              className: cn('h-5 w-5', styles.nodeIcon)
+              className: 'h-5 w-5 text-primary-foreground'
             })
           ) : (
-            <Lock className='h-4 w-4 text-black/50' />
+            <Lock className='h-4 w-4 text-muted-foreground' />
           )}
         </div>
 
         <div className='min-w-0 flex-1'>
-          {code && (
-            <div className='font-mono text-[11px] font-bold uppercase tracking-wider text-black/60'>
-              {code}
-            </div>
-          )}
-          <h5 className='text-sm font-bold leading-snug text-balance text-black'>
+          {code && <div className='hud-label'>{code}</div>}
+          <h5 className='text-sm font-semibold leading-snug text-balance text-foreground normal-case'>
             {name}
           </h5>
         </div>
 
         {available ? (
-          <ArrowRight
-            className='h-4 w-4 shrink-0 mt-3 transition-transform group-hover:translate-x-1 text-black'
-          />
+          <ArrowRight className='mt-3 h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary' />
         ) : (
-          <span className='rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black bg-[#feca57] text-black shrink-0 self-start'>
-            Soon
-          </span>
+          <span className='hud-label shrink-0 self-start text-[9px]'>[soon]</span>
         )}
       </div>
     </>
   );
 
   const baseClasses = cn(
-    'group relative flex overflow-hidden rounded-[5px] border-2 border-black bg-white p-4 transition-all',
+    'group relative flex overflow-hidden border bg-card p-4 transition-colors',
     available
-      ? 'shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] cursor-pointer'
-      : 'border-dashed opacity-70'
+      ? 'border-border hover:border-primary cursor-pointer'
+      : 'border-border opacity-60'
   );
 
   if (available) {
@@ -287,18 +220,16 @@ function CertificationNode({
 }
 
 function NodeSkeleton() {
-  return (
-    <div className='h-24 animate-pulse rounded-[5px] border-2 border-dashed border-black bg-gray-100' />
-  );
+  return <div className='h-24 animate-pulse border border-border bg-secondary' />;
 }
 
 function EmptyTierCard({ providerAvailable }: { providerAvailable: boolean }) {
   return (
-    <div className='col-span-full flex items-center gap-3 rounded-[5px] border-2 border-dashed border-black bg-white p-6 text-sm font-medium text-black/70'>
-      <Clock className='h-4 w-4 shrink-0 text-black' />
+    <div className='col-span-full flex items-center gap-3 border border-dashed border-border-strong bg-card p-6 text-sm text-muted-foreground'>
+      <Clock className='h-4 w-4 shrink-0 text-primary' />
       <span>
         {providerAvailable
-          ? 'No exams at this tier yet — check back soon.'
+          ? 'No exams at this tier yet. Check back soon.'
           : 'This provider is launching soon. Get notified when it goes live.'}
       </span>
     </div>

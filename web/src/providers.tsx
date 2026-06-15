@@ -9,13 +9,15 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       {children}
       <Toaster
         position='bottom-center'
+        theme='dark'
         toastOptions={{
           classNames: {
             toast:
-              'border-2 border-black shadow-[4px_4px_0px_0px_#000] font-bold rounded-[5px]',
-            error: 'bg-[#ff4757] text-white',
-            warning: 'bg-[#ffa502] text-black',
-          },
+              'border bg-card text-foreground font-mono text-sm rounded-none',
+            error: 'border-destructive text-destructive',
+            warning: 'border-primary text-primary',
+            success: 'border-success text-success'
+          }
         }}
       />
     </QueryClientProvider>

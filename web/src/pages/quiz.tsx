@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Cloud } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,6 +20,14 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion';
 import { Footer } from '@/components/footer';
+import { SiteHeader } from '@/components/site-header';
+import {
+  OptionRow,
+  ReviewAnswerRow,
+  ScorePanel,
+  StatusGlyph,
+  PASS_THRESHOLD
+} from '@/components/quiz-ui';
 
 // Define types based on the provided data structure
 type Answer = {
@@ -168,9 +176,6 @@ const quizData: Quiz = {
   ]
 };
 
-// Pass threshold percentage
-const PASS_THRESHOLD = 70;
-
 export function QuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
@@ -224,74 +229,49 @@ export function QuizPage() {
     };
   };
 
+  const backToDashboard = (
+    <Button variant='outline' size='sm' asChild>
+      <Link href='/dashboard'>
+        <ArrowLeft className='h-4 w-4' />
+        Dashboard
+      </Link>
+    </Button>
+  );
+
   if (quizCompleted) {
     const score = calculateScore();
     const passed = score.percentage >= PASS_THRESHOLD;
 
     return (
-      <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
-        <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
-          <div className='container flex h-16 items-center justify-between'>
-            <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-              <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-                <Cloud className='h-5 w-5 text-black' />
-              </div>
-              <span>CloudCertify</span>
-            </Link>
-            <div className='flex items-center gap-4'>
-              <Button variant='outline' size='sm' asChild>
-                <Link href='/dashboard'>
-                  <ArrowLeft className='mr-2 h-4 w-4' />
-                  Back to Dashboard
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </header>
+      <div className='flex min-h-dvh flex-col bg-background'>
+        <SiteHeader>{backToDashboard}</SiteHeader>
 
-        <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
-          <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
-            <CardHeader className='text-center border-b-2 border-black pb-6'>
-              <CardTitle className='text-2xl md:text-3xl font-black text-black'>Quiz Results</CardTitle>
-              <p className='text-black/70 font-medium mt-2'>{quizData.title}</p>
+        <main className='container mx-auto max-w-4xl flex-1 py-12'>
+          <Card className='w-full gap-0'>
+            <CardHeader className='items-center gap-2 border-b border-border pb-6 text-center'>
+              <span className='hud-label text-primary'>[ RESULTS ]</span>
+              <CardTitle className='text-2xl md:text-3xl'>Quiz results</CardTitle>
+              <p className='text-sm text-muted-foreground'>{quizData.title}</p>
             </CardHeader>
             <CardContent className='space-y-8 py-8'>
-              <div className='flex flex-col items-center justify-center space-y-4'>
-                <div className='h-32 w-32 rounded-[5px] border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'
-                  style={{ backgroundColor: passed ? '#1dd1a1' : '#ff4757' }}>
-                  <span className='text-5xl font-black text-black'>{score.percentage}%</span>
-                </div>
+              <ScorePanel
+                percentage={score.percentage}
+                passed={passed}
+                correct={score.correct}
+                total={score.total}
+              />
 
-                <Badge
-                  className={passed ? 'bg-[#1dd1a1]' : 'bg-[#ff4757]'}
-                >
-                  {passed ? 'PASS' : 'FAIL'} (Passing score: {PASS_THRESHOLD}%)
-                </Badge>
-
-                <p className='text-xl font-bold text-black'>
-                  You got <span className='font-black'>{score.correct}</span> out
-                  of <span className='font-black'>{score.total}</span> questions
-                  correct
-                </p>
-
-                <div className='w-full max-w-md mt-4'>
-                  <Progress
-                    value={score.percentage}
-                    className={passed ? 'bg-[#1dd1a1]/20' : 'bg-[#ff4757]/20'}
-                    indicatorClassName={passed ? 'bg-[#1dd1a1]' : 'bg-[#ff4757]'}
-                  />
-                </div>
-              </div>
-
-              <div className='space-y-6'>
-                <h3 className='text-xl font-black text-black'>Question Summary</h3>
+              <div className='space-y-4'>
+                <h3 className='font-display text-lg uppercase tracking-tight text-foreground'>
+                  Question summary
+                </h3>
                 <Accordion type='single' collapsible className='w-full'>
                   {quizData.questions.map((question, index) => {
                     const userAnswerId = userAnswers[question.id];
                     const correctAnswer = question.answers.find(a => a.isCorrect);
                     const isCorrect =
-                      userAnswerId &&
-                      correctAnswer &&
+                      !!userAnswerId &&
+                      !!correctAnswer &&
                       userAnswerId === correctAnswer.id;
 
                     return (
@@ -301,73 +281,27 @@ export function QuizPage() {
                       >
                         <AccordionTrigger className='hover:no-underline'>
                           <div className='flex items-start gap-3 text-left'>
-                            <div className={`h-6 w-6 rounded-[5px] border-2 border-black flex items-center justify-center shrink-0 ${isCorrect ? 'bg-[#1dd1a1]' : 'bg-[#ff4757]'}`}>
-                              {isCorrect ? (
-                                <CheckCircle className='h-4 w-4 text-black' />
-                              ) : (
-                                <XCircle className='h-4 w-4 text-black' />
-                              )}
-                            </div>
+                            <StatusGlyph correct={isCorrect} />
                             <div>
-                              <p className='font-bold text-black'>
-                                Question {index + 1}: {question.text}
+                              <p className='font-semibold normal-case text-foreground'>
+                                Q{index + 1}: {question.text}
                               </p>
-                              <p className='text-sm text-black/70 font-medium mt-1'>
-                                {isCorrect ? 'Correct' : 'Incorrect'} - Click to
-                                view details
+                              <p className='hud-label mt-1'>
+                                {isCorrect ? 'Correct' : 'Incorrect'} · view detail
                               </p>
                             </div>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
-                          <div className='space-y-3 pt-2 pl-9'>
-                            {question.answers.map(answer => {
-                              const isUserAnswer = userAnswerId === answer.id;
-                              const isCorrectAnswer = answer.isCorrect;
-
-                              let bgColor = 'bg-white';
-                              if (isUserAnswer && isCorrectAnswer) {
-                                bgColor = 'bg-[#1dd1a1]';
-                              } else if (isUserAnswer && !isCorrectAnswer) {
-                                bgColor = 'bg-[#ff4757]';
-                              } else if (!isUserAnswer && isCorrectAnswer) {
-                                bgColor = 'bg-[#1dd1a1]';
-                              }
-
-                              return (
-                                <div key={answer.id} className={`p-3 rounded-[5px] border-2 border-black flex items-start gap-2 ${bgColor}`}>
-                                  <div
-                                    className={`w-6 h-6 rounded-[5px] flex items-center justify-center border-2 border-black mt-0.5 shrink-0 ${
-                                      isCorrectAnswer
-                                        ? 'bg-black text-white'
-                                        : isUserAnswer
-                                        ? 'bg-black text-white'
-                                        : 'bg-white'
-                                    }`}
-                                  >
-                                    {isCorrectAnswer && (
-                                      <CheckCircle className='h-3 w-3' />
-                                    )}
-                                    {isUserAnswer && !isCorrectAnswer && (
-                                      <XCircle className='h-3 w-3' />
-                                    )}
-                                  </div>
-                                  <div className='flex-1'>
-                                    <span className='font-medium text-black'>{answer.text}</span>
-                                    {isUserAnswer && (
-                                      <span className='ml-2 text-sm font-bold text-black/70'>
-                                        (Your answer)
-                                      </span>
-                                    )}
-                                    {isCorrectAnswer && (
-                                      <span className='ml-2 text-sm font-bold text-black'>
-                                        (Correct answer)
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
+                          <div className='space-y-2 pl-9 pt-2'>
+                            {question.answers.map(answer => (
+                              <ReviewAnswerRow
+                                key={answer.id}
+                                text={answer.text}
+                                isCorrectAnswer={answer.isCorrect}
+                                isUserAnswer={userAnswerId === answer.id}
+                              />
+                            ))}
                           </div>
                         </AccordionContent>
                       </AccordionItem>
@@ -376,12 +310,12 @@ export function QuizPage() {
                 </Accordion>
               </div>
             </CardContent>
-            <CardFooter className='flex flex-col sm:flex-row gap-4 justify-between border-t-2 border-black pt-6'>
+            <CardFooter className='flex flex-col justify-between gap-4 border-t border-border pt-6 sm:flex-row'>
               <Button variant='outline' onClick={restartQuiz}>
-                Restart Quiz
+                Restart quiz
               </Button>
               <Button asChild>
-                <Link href='/dashboard'>Back to Dashboard</Link>
+                <Link href='/dashboard'>Back to dashboard</Link>
               </Button>
             </CardFooter>
           </Card>
@@ -392,89 +326,59 @@ export function QuizPage() {
   }
 
   return (
-    <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
-      <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
-        <div className='container flex h-16 items-center justify-between'>
-          <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-              <Cloud className='h-5 w-5 text-black' />
-            </div>
-            <span>CloudCertify</span>
-          </Link>
-          <div className='flex items-center gap-4'>
-            <Button variant='outline' size='sm' asChild>
-              <Link href='/dashboard'>
-                <ArrowLeft className='mr-2 h-4 w-4' />
-                Back to Dashboard
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className='flex min-h-dvh flex-col bg-background'>
+      <SiteHeader>{backToDashboard}</SiteHeader>
 
-      <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
-        <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
-          <CardHeader className='border-b-2 border-black pb-6'>
-            <div className='flex justify-between items-center mb-4'>
+      <main className='container mx-auto max-w-4xl flex-1 py-12'>
+        <Card className='w-full gap-0'>
+          <CardHeader className='gap-0 border-b border-border pb-6'>
+            <div className='mb-4 flex items-center justify-between'>
               <Badge variant='outline'>
-                Question {currentQuestionIndex + 1} of {totalQuestions}
+                Q {currentQuestionIndex + 1} / {totalQuestions}
               </Badge>
               <Badge>{quizData.title}</Badge>
             </div>
-            <CardTitle className='text-xl md:text-2xl font-black text-black'>
+            <CardTitle className='text-xl normal-case md:text-2xl'>
               {currentQuestion.text}
             </CardTitle>
-            <div className='w-full mt-6'>
+            <div className='mt-6 w-full'>
               <Progress value={progress} />
             </div>
           </CardHeader>
           <CardContent className='py-6'>
-            <div className='space-y-3'>
-              {currentQuestion.answers.map(answer => {
-                const isSelected = userAnswers[currentQuestion.id] === answer.id;
-
+            <div className='space-y-2'>
+              {currentQuestion.answers.map((answer, index) => {
+                const isSelected =
+                  userAnswers[currentQuestion.id] === answer.id;
                 return (
-                  <div
+                  <OptionRow
                     key={answer.id}
-                    className={`p-4 rounded-[5px] border-2 border-black ${
-                      isSelected
-                        ? 'bg-[#38bdf8] shadow-none translate-x-[2px] translate-y-[2px]'
-                        : 'bg-white hover:bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'
-                    } flex items-start gap-3 cursor-pointer transition-all`}
+                    label={String.fromCharCode(65 + index)}
+                    text={answer.text}
+                    isSelected={isSelected}
                     onClick={() => handleAnswerSelect(answer.id)}
-                  >
-                    <div
-                      className={`w-6 h-6 rounded-[5px] flex items-center justify-center border-2 border-black mt-0.5 shrink-0 ${
-                        isSelected
-                          ? 'bg-black text-white'
-                          : 'bg-white'
-                      }`}
-                    >
-                      {isSelected && <CheckCircle className='h-4 w-4' />}
-                    </div>
-                    <span className='font-medium text-black'>{answer.text}</span>
-                  </div>
+                  />
                 );
               })}
             </div>
           </CardContent>
-          <CardFooter className='flex justify-between border-t-2 border-black pt-6'>
+          <CardFooter className='flex justify-between border-t border-border pt-6'>
             <Button
               variant='outline'
               onClick={handlePreviousQuestion}
               disabled={currentQuestionIndex === 0}
             >
-              <ArrowLeft className='mr-2 h-4 w-4' />
+              <ArrowLeft className='h-4 w-4' />
               Previous
             </Button>
 
             {currentQuestionIndex < totalQuestions - 1 ? (
               <Button onClick={handleNextQuestion}>
                 Next
-                <ArrowRight className='ml-2 h-4 w-4' />
+                <ArrowRight className='h-4 w-4' />
               </Button>
             ) : (
-              <Button onClick={handleFinishQuiz}>Finish Quiz</Button>
+              <Button onClick={handleFinishQuiz}>Finish quiz</Button>
             )}
           </CardFooter>
         </Card>
