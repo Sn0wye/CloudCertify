@@ -14,7 +14,8 @@ public class SubquizServiceTests
     private readonly Mock<ISubmissionRepository> _submissions = new();
 
     private SubquizService CreateService() =>
-        new(_subquizzes.Object, _questions.Object, _submissions.Object);
+        new(_subquizzes.Object, _questions.Object, _submissions.Object,
+            new SubmissionGrader(_questions.Object, _submissions.Object));
 
     [Fact]
     public async Task StartSubquiz_ReturnsNull_WhenSubquizMissing()
