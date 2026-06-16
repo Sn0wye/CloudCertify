@@ -77,7 +77,8 @@ public class QuizServiceTests
 
         Assert.NotNull(result);
         _submissions.Verify(r => r.Create(It.Is<Submission>(s =>
-            s.QuizId == 1 && s.Email == "user@example.com" && !s.Finished)), Times.Once);
+            s.QuizId == 1 && s.Email == "user@example.com" && !s.Finished &&
+            s.ServedQuestionIds.SequenceEqual(new[] { 100 }))), Times.Once);
     }
 
     [Fact]
@@ -106,7 +107,7 @@ public class QuizServiceTests
     [Fact]
     public async Task SubmitQuiz_GradesScoresAndPersistsFinishedSubmission()
     {
-        var submission = new Submission { Id = 5, QuizId = 1, Email = "u@e.com", Finished = false };
+        var submission = new Submission { Id = 5, QuizId = 1, Email = "u@e.com", Finished = false, ServedQuestionIds = [100] };
         var quiz = new Quiz { Id = 1, Slug = "SAA-C03" }; // non-CLF -> default strategy
         var question = Question(100, "D", correctIds: [1], wrongIds: [2]);
 
@@ -125,5 +126,58 @@ public class QuizServiceTests
         Assert.True(submission.Finished);
         Assert.Equal(1000, submission.Score);
         _submissions.Verify(r => r.Update(It.Is<Submission>(s => s.Finished && s.Score == 1000)), Times.Once);
+    }
+
+    [Fact]
+    public async Task SubmitQuiz_GradesAgainstServedSet_SkippedQuestionCountsAsWrong()
+    {
+        // Two questions served; the client answers only one, omitting the other entirely.
+        var submission = new Submission { Id = 5, QuizId = 1, Email = "u@e.com", ServedQuestionIds = [100, 101] };
+        var quiz = new Quiz { Id = 1, Slug = "SAA-C03" }; // default strategy: 0-1000 scaled
+        _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
+        _quizzes.Setup(r => r.GetQuizById(1)).ReturnsAsync(quiz);
+        _questions.Setup(r => r.GetQuestionsByIds(It.Is<List<int>>(ids => ids.SequenceEqual(new[] { 100, 101 }))))
+            .ReturnsAsync(new List<Question>
+            {
+                Question(100, "D", correctIds: [1], wrongIds: [2]),
+                Question(101, "D", correctIds: [3], wrongIds: [4])
+            });
+
+        var answers = new List<QuizAnswer> { Answer(100, 1) }; // only the first, correct; 101 skipped
+
+        var response = await CreateService().SubmitQuiz(1, 5, answers);
+
+        // Denominator is the served count (2), not the answered count (1). Skipped 101 is wrong.
+        Assert.Equal(2, response.TotalQuestions);
+        Assert.Equal(1, response.CorrectCount);
+        Assert.Equal(550, response.ScaledScore); // round(100 + 0.5 * 900)
+        // Grading queried the served set, not the client-submitted ids.
+        _questions.Verify(r => r.GetQuestionsByIds(It.Is<List<int>>(ids => ids.SequenceEqual(new[] { 100, 101 }))), Times.Once);
+    }
+
+    [Fact]
+    public async Task SubmitQuiz_ClientCannotInflateScore_ByOmittingAnswers()
+    {
+        // A served question the client is unsure about: omitting it must not beat answering it wrong.
+        var served = new List<Question>
+        {
+            Question(100, "D", correctIds: [1], wrongIds: [2]),
+            Question(101, "D", correctIds: [3], wrongIds: [4])
+        };
+        var quiz = new Quiz { Id = 1, Slug = "SAA-C03" };
+
+        async Task<int> ScoreFor(List<QuizAnswer> answers)
+        {
+            var submission = new Submission { Id = 5, QuizId = 1, Email = "u@e.com", ServedQuestionIds = [100, 101] };
+            _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
+            _quizzes.Setup(r => r.GetQuizById(1)).ReturnsAsync(quiz);
+            _questions.Setup(r => r.GetQuestionsByIds(It.IsAny<List<int>>())).ReturnsAsync(served);
+            return (await CreateService().SubmitQuiz(1, 5, answers)).ScaledScore;
+        }
+
+        var omitted = await ScoreFor([Answer(100, 1)]);                       // 101 left out
+        var answeredWrong = await ScoreFor([Answer(100, 1), Answer(101, 4)]); // 101 answered incorrectly
+
+        Assert.Equal(answeredWrong, omitted); // omission buys nothing
     }
 }

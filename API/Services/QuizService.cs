@@ -78,16 +78,17 @@ public class QuizService
              throw new InvalidOperationException("Quiz is not available");
          }
 
-         var submission = new Submission
-         {
-             Email = email,
-             QuizId = quizId,
-             Finished = false,
-         };
+          var randomQuestions = quiz.Questions?.OrderBy(q => Guid.NewGuid()).Take(65).ToList() ?? new List<Question>();
+
+          var submission = new Submission
+          {
+              Email = email,
+              QuizId = quizId,
+              Finished = false,
+              ServedQuestionIds = randomQuestions.Select(q => q.Id).ToList(),
+          };
 
           await _submissionRepository.Create(submission);
-          
-          var randomQuestions = quiz.Questions?.OrderBy(q => Guid.NewGuid()).Take(65).ToList() ?? new List<Question>();
 
            return new QuizDetailDto
            {
@@ -124,8 +125,10 @@ public class QuizService
              throw new InvalidOperationException("Quiz not found");
          }
          
-         var questions = await _questionRepository.GetQuestionsByIds(answers.Select(a => a.QuestionId).ToList());
-         
+         // Grade against the question set served at start, not whatever the client echoes back:
+         // an unanswered served question stays in the denominator and counts as wrong (issue #11).
+         var questions = await _questionRepository.GetQuestionsByIds(submission.ServedQuestionIds);
+
          var strategy = GradingStrategyFactory.GetStrategy(quiz);
          var gradingResult = strategy.Grade(questions, answers);
          

@@ -40,16 +40,6 @@ public class SubquizService
             throw new InvalidOperationException("Subquiz is not available");
         }
 
-        var submission = new Submission
-        {
-            Email = email,
-            QuizId = quizId,
-            SubquizId = subquizId,
-            Finished = false,
-        };
-
-        await _submissionRepository.Create(submission);
-
         // Get parent quiz to fetch questions by domain
         var parentQuiz = await _questionRepository.GetQuestionsByQuizId(quizId);
 
@@ -58,6 +48,17 @@ public class SubquizService
             .OrderBy(q => Guid.NewGuid())
             .Take(15)
             .ToList();
+
+        var submission = new Submission
+        {
+            Email = email,
+            QuizId = quizId,
+            SubquizId = subquizId,
+            Finished = false,
+            ServedQuestionIds = randomQuestions.Select(q => q.Id).ToList(),
+        };
+
+        await _submissionRepository.Create(submission);
 
         return new SubquizDetailDto
         {
@@ -100,7 +101,8 @@ public class SubquizService
             throw new InvalidOperationException("Subquiz not found");
         }
 
-        var questions = await _questionRepository.GetQuestionsByIds(answers.Select(a => a.QuestionId).ToList());
+        // Grade against the served set so skipped questions count as wrong (issue #11).
+        var questions = await _questionRepository.GetQuestionsByIds(submission.ServedQuestionIds);
         var strategy = GradingStrategyFactory.GetSubquizStrategy();
 
         var gradingResult = strategy.Grade(questions, answers);
