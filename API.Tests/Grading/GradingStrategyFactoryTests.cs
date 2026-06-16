@@ -24,4 +24,12 @@ public class GradingStrategyFactoryTests
 
         Assert.IsType<DefaultGradingStrategy>(strategy);
     }
+
+    [Fact]
+    public void GetSubquizStrategy_SelectsDomainSubquizStrategy()
+    {
+        var strategy = GradingStrategyFactory.GetSubquizStrategy();
+
+        Assert.IsType<DomainSubquizGradingStrategy>(strategy);
+    }
 }
