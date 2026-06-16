@@ -10,21 +10,18 @@ import { Providers } from './providers';
 
 export function App() {
   useEffect(() => {
-    console.log('ran');
     const setFavicon = (isDarkMode: boolean) => {
-      const favicon = document.getElementById('icon') as HTMLLinkElement;
+      const favicon = document.getElementById('icon') as HTMLLinkElement | null;
       if (!favicon) return;
-      console.log('didnt return', isDarkMode);
       favicon.href = isDarkMode ? '/icon-dark.svg' : '/icon-light.svg';
     };
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
     setFavicon(mediaQuery.matches);
 
-    mediaQuery.addEventListener('change', e => {
-      setFavicon(e.matches);
-    });
+    const onChange = (e: MediaQueryListEvent) => setFavicon(e.matches);
+    mediaQuery.addEventListener('change', onChange);
+    return () => mediaQuery.removeEventListener('change', onChange);
   }, []);
 
   return (

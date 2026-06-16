@@ -35,10 +35,10 @@ const emailSchema = z.email('Please enter a valid email address.');
 
 // --- Constants ---
 const LEVEL_COLORS: Record<string, string> = {
-  foundational: 'bg-[#1dd1a1]',
-  associate: 'bg-[#38bdf8]',
-  professional: 'bg-[#a78bfa]',
-  specialist: 'bg-[#a78bfa]'
+  foundational: 'bg-success',
+  associate: 'bg-primary',
+  professional: 'bg-secondary',
+  specialist: 'bg-secondary'
 };
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -66,7 +66,9 @@ export function QuizDetailPage() {
     try {
       const raw = sessionStorage.getItem(`quiz-session-${quizId}`);
       if (raw) return JSON.parse(raw).email ?? '';
-    } catch {}
+    } catch {
+      /* no saved session */
+    }
     return '';
   });
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -131,20 +133,22 @@ export function QuizDetailPage() {
   };
 
   const levelColor = quiz?.quizLevel
-    ? (LEVEL_COLORS[quiz.quizLevel] ?? 'bg-[#38bdf8]')
-    : 'bg-[#38bdf8]';
+    ? (LEVEL_COLORS[quiz.quizLevel] ?? 'bg-primary')
+    : 'bg-primary';
+  // Amber reads with black ink; the darker cobalt/green need white.
+  const levelInk = levelColor === 'bg-secondary' ? 'text-black' : 'text-white';
   const subquizzes = quiz?.subQuizzes ?? [];
   const providerQuestionCount = quiz?.quizProvider
     ? (PROVIDER_QUESTION_COUNT[quiz.quizProvider] ?? null)
     : null;
 
   return (
-    <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
+    <div className='flex min-h-dvh flex-col bg-background'>
       <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
         <div className='container flex h-16 items-center justify-between'>
           <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-              <Cloud className='h-5 w-5 text-black' />
+            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-primary flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+              <Cloud className='h-5 w-5 text-white' />
             </div>
             <span>CloudCertify</span>
           </Link>
@@ -168,7 +172,7 @@ export function QuizDetailPage() {
                 className={`h-20 w-20 rounded-[5px] border-2 border-black ${levelColor} flex items-center justify-center shadow-[4px_4px_0px_0px_#000]`}
               >
                 {getLucideIcon(quiz.iconName, {
-                  className: 'h-10 w-10 text-black'
+                  className: `h-10 w-10 ${levelInk}`
                 })}
               </div>
               <h1 className='text-3xl md:text-4xl font-black text-black text-balance'>
@@ -181,14 +185,14 @@ export function QuizDetailPage() {
               )}
               <div className='flex justify-center gap-3 flex-wrap'>
                 {quiz.quizProvider && (
-                  <Badge className='bg-[#38bdf8] border-2 border-black text-black font-bold'>
+                  <Badge className='bg-primary border-2 border-black text-white font-bold'>
                     {PROVIDER_LABELS[quiz.quizProvider] ??
                       quiz.quizProvider.toUpperCase()}
                   </Badge>
                 )}
                 {quiz.quizLevel && (
                   <Badge
-                    className={`${levelColor} border-2 border-black text-black font-bold`}
+                    className={`${levelColor} border-2 border-black ${levelInk} font-bold`}
                   >
                     {capitalize(quiz.quizLevel)}
                   </Badge>
@@ -227,21 +231,21 @@ export function QuizDetailPage() {
                 placeholder='you@example.com'
                 className={`w-full rounded-[5px] border-2 px-4 py-3 text-black font-medium placeholder:text-black/40 focus:outline-none bg-white transition-shadow ${
                   emailError
-                    ? 'border-[#ff4757] shadow-[2px_2px_0px_0px_#ff4757] focus:shadow-[4px_4px_0px_0px_#ff4757]'
+                    ? 'border-destructive shadow-[2px_2px_0px_0px_#e23b48] focus:shadow-[4px_4px_0px_0px_#e23b48]'
                     : 'border-black shadow-[2px_2px_0px_0px_#000] focus:shadow-[4px_4px_0px_0px_#000]'
                 }`}
               />
               {emailError && (
-                <p className='text-sm font-bold text-[#ff4757]'>{emailError}</p>
+                <p className='text-sm font-bold text-destructive'>{emailError}</p>
               )}
             </div>
 
-            {/* Full Simulation Exam */}
+            {/* Full simulation exam */}
             <section className='space-y-3'>
               <div className='flex items-center gap-2'>
                 <Target className='h-5 w-5 text-black' />
                 <h2 className='text-xl font-black text-black'>
-                  Full Simulation Exam
+                  Full simulation exam
                 </h2>
               </div>
               <Card className='border-4 border-black shadow-[6px_6px_0px_0px_#000]'>
@@ -314,7 +318,7 @@ export function QuizDetailPage() {
                 <div className='flex items-center gap-2'>
                   <Zap className='h-5 w-5 text-black' />
                   <h2 className='text-xl font-black text-black'>
-                    Domain Practice
+                    Domain practice
                   </h2>
                 </div>
                 <p className='text-sm text-black/70 font-medium -mt-2'>

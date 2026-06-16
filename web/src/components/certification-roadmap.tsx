@@ -23,23 +23,23 @@ type TierStyle = {
 const TIER_STYLES: Record<TierKey, TierStyle> = {
   foundational: {
     label: 'text-black',
-    marker: 'border-black bg-[#1dd1a1] text-black',
-    accent: 'bg-[#1dd1a1]',
-    nodeBg: 'bg-[#1dd1a1]',
-    nodeIcon: 'text-black'
+    marker: 'border-black bg-success text-white',
+    accent: 'bg-success',
+    nodeBg: 'bg-success',
+    nodeIcon: 'text-white'
   },
   associate: {
     label: 'text-black',
-    marker: 'border-black bg-[#38bdf8] text-black',
-    accent: 'bg-[#38bdf8]',
-    nodeBg: 'bg-[#38bdf8]',
-    nodeIcon: 'text-black'
+    marker: 'border-black bg-primary text-white',
+    accent: 'bg-primary',
+    nodeBg: 'bg-primary',
+    nodeIcon: 'text-white'
   },
   specialist: {
     label: 'text-black',
-    marker: 'border-black bg-[#a78bfa] text-black',
-    accent: 'bg-[#a78bfa]',
-    nodeBg: 'bg-[#a78bfa]',
+    marker: 'border-black bg-secondary text-black',
+    accent: 'bg-secondary',
+    nodeBg: 'bg-secondary',
     nodeIcon: 'text-black'
   }
 };
@@ -100,13 +100,13 @@ export function CertificationRoadmap({
                 className={cn(
                   'relative flex items-center gap-2 rounded-[5px] px-4 py-2 text-sm font-bold transition-all border-2',
                   isActive
-                    ? 'bg-[#38bdf8] text-black border-black shadow-[2px_2px_0px_0px_#000]'
-                    : 'text-black border-transparent hover:bg-[#e0f2fe]'
+                    ? 'bg-primary text-white border-black shadow-[2px_2px_0px_0px_#000]'
+                    : 'text-black border-transparent hover:bg-background'
                 )}
               >
                 <span>{p.short}</span>
                 {!p.available && (
-                  <span className='rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black bg-[#feca57] text-black'>
+                  <span className='rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black bg-secondary text-black'>
                     Soon
                   </span>
                 )}
@@ -260,7 +260,7 @@ function CertificationNode({
             className='h-4 w-4 shrink-0 mt-3 transition-transform group-hover:translate-x-1 text-black'
           />
         ) : (
-          <span className='rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black bg-[#feca57] text-black shrink-0 self-start'>
+          <span className='rounded-[5px] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border border-black bg-secondary text-black shrink-0 self-start'>
             Soon
           </span>
         )}

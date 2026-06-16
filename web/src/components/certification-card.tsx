@@ -36,11 +36,11 @@ export function CertificationCard({
     <Card className='flex flex-col overflow-hidden relative border-2 border-black shadow-[4px_4px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] transition-all'>
       <CardHeader className='pb-0'>
         <div className='flex justify-center mb-4 relative'>
-          <div className='h-14 w-14 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+          <div className='h-14 w-14 rounded-[5px] border-2 border-black bg-primary flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
             {icon}
           </div>
           {!available && (
-            <Badge className='bg-[#feca57] absolute top-0 right-0'>
+            <Badge variant='secondary' className='absolute top-0 right-0'>
               Soon
             </Badge>
           )}

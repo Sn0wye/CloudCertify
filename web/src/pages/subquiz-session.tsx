@@ -141,8 +141,8 @@ export function SubquizSessionPage() {
     <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
       <div className='container flex h-16 items-center justify-between'>
         <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-          <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-            <Cloud className='h-5 w-5 text-black' />
+          <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-primary flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+            <Cloud className='h-5 w-5 text-white' />
           </div>
           <span>CloudCertify</span>
         </Link>
@@ -161,16 +161,18 @@ export function SubquizSessionPage() {
     const correct = correctCount ?? 0;
     const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
     const scoreColor =
-      percentage >= 80 ? '#1dd1a1' : percentage >= 60 ? '#ffc107' : '#ff4757';
+      percentage >= 80 ? '#15a06e' : percentage >= 60 ? '#ffb020' : '#e23b48';
+    // Amber reads with black ink; the darker green/red bands take white.
+    const scoreInk = percentage >= 60 && percentage < 80 ? 'text-black' : 'text-white';
 
     return (
-      <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
+      <div className='flex min-h-dvh flex-col bg-background'>
         {pageHeader('Back to Certification')}
         <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
           <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
             <CardHeader className='text-center border-b-2 border-black pb-6'>
               <CardTitle className='text-2xl md:text-3xl font-black text-black'>
-                Practice Results
+                Practice results
               </CardTitle>
               <p className='text-black/70 font-medium mt-1'>{subquizDetail.title}</p>
               {subquizDetail.domain && (
@@ -190,7 +192,7 @@ export function SubquizSessionPage() {
                   className='h-32 w-32 rounded-[5px] border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'
                   style={{ backgroundColor: scoreColor }}
                 >
-                  <span className='text-5xl font-black text-black'>{percentage}%</span>
+                  <span className={`text-5xl font-black ${scoreInk}`}>{percentage}%</span>
                 </div>
                 <p className='text-xl font-bold text-black'>
                   You got <span className='font-black'>{correct}</span> out of{' '}
@@ -202,7 +204,7 @@ export function SubquizSessionPage() {
               </div>
 
               <div className='space-y-6'>
-                <h3 className='text-xl font-black text-black'>Question Review</h3>
+                <h3 className='text-xl font-black text-black'>Question review</h3>
                 <Accordion type='single' collapsible className='w-full'>
                   {(resultQuestions ?? []).map((question, index) => {
                     const isCorrect = question.answers.every(
@@ -215,7 +217,7 @@ export function SubquizSessionPage() {
                           <div className='flex items-start gap-3 text-left'>
                             <div
                               className={`h-6 w-6 rounded-[5px] border-2 border-black flex items-center justify-center shrink-0 ${
-                                isCorrect ? 'bg-[#1dd1a1]' : 'bg-[#ff4757]'
+                                isCorrect ? 'bg-success' : 'bg-destructive'
                               }`}
                             >
                               {isCorrect ? (
@@ -237,7 +239,7 @@ export function SubquizSessionPage() {
                         <AccordionContent>
                           <div className='space-y-3 pt-2 pl-9'>
                             {question.explanation && (
-                              <div className='p-3 rounded-[5px] border-2 border-black bg-[#f0f9ff]'>
+                              <div className='p-3 rounded-[5px] border-2 border-black bg-background'>
                                 <p className='text-sm font-bold text-black mb-1'>
                                   Explanation
                                 </p>
@@ -251,11 +253,11 @@ export function SubquizSessionPage() {
                               const isUserAnswer = answer.wasSelected;
 
                               let bgColor = 'bg-white';
-                              if (isUserAnswer && isCorrectAnswer) bgColor = 'bg-[#1dd1a1]';
+                              if (isUserAnswer && isCorrectAnswer) bgColor = 'bg-success/15';
                               else if (isUserAnswer && !isCorrectAnswer)
-                                bgColor = 'bg-[#ff4757]';
+                                bgColor = 'bg-destructive/15';
                               else if (!isUserAnswer && isCorrectAnswer)
-                                bgColor = 'bg-[#1dd1a1]';
+                                bgColor = 'bg-success/15';
 
                               return (
                                 <div
@@ -316,7 +318,7 @@ export function SubquizSessionPage() {
   }
 
   return (
-    <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
+    <div className='flex min-h-dvh flex-col bg-background'>
       {pageHeader('Back')}
       <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
         <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
@@ -362,8 +364,8 @@ export function SubquizSessionPage() {
                     key={answer.id}
                     className={`p-4 rounded-[5px] border-2 border-black ${
                       isSelected
-                        ? 'bg-[#38bdf8] shadow-none translate-x-[2px] translate-y-[2px]'
-                        : 'bg-white hover:bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'
+                        ? 'bg-primary shadow-none translate-x-[2px] translate-y-[2px]'
+                        : 'bg-white hover:bg-background shadow-[4px_4px_0px_0px_#000]'
                     } ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'} flex items-start gap-3 transition-all`}
                     onClick={() =>
                       !isDisabled && answer.id != null && handleAnswerSelect(answer.id)
@@ -376,7 +378,11 @@ export function SubquizSessionPage() {
                     >
                       {isSelected && <CheckCircle className='h-4 w-4' />}
                     </div>
-                    <span className='font-medium text-black'>{answer.text}</span>
+                    <span
+                      className={`font-medium ${isSelected ? 'text-white' : 'text-black'}`}
+                    >
+                      {answer.text}
+                    </span>
                   </div>
                 );
               })}
