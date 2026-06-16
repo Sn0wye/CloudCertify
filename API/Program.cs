@@ -71,11 +71,22 @@ builder.Services.AddScoped<ISubquizRepository, SubquizRepository>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
-builder.Services.AddScoped<QuestionService>();
+builder.Services.AddScoped<QuizCatalogSeeder>();
 builder.Services.AddScoped<QuizService>();
 builder.Services.AddScoped<SubquizService>();
 
 var app = builder.Build();
+
+// Apply pending migrations, then seed the quiz catalog so a fresh database
+// self-populates on first boot. Both steps are idempotent on later boots.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+
+    var seeder = scope.ServiceProvider.GetRequiredService<QuizCatalogSeeder>();
+    await seeder.SeedCatalog();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -87,9 +98,8 @@ if (app.Environment.IsDevelopment())
     });
 }
     
-app.UseCors();
+app.UseHttpsRedirection();
 app.UseCors();
 app.MapControllers();
-app.UseHttpsRedirection();
 
 app.Run();

@@ -1,5 +1,4 @@
 using API.Dto;
-using API.External;
 using API.Entities;
 using API.Model.Request;
 using API.Model.Response;
@@ -12,16 +11,12 @@ namespace API.Controllers;
 [Route("quiz")]
 public class QuizController: ControllerBase
 {
-    public QuizController(QuizService quizService,
-        QuestionService questionService
-    )
+    public QuizController(QuizService quizService)
     {
         _quizService = quizService;
-        _questionService = questionService;
     }
-    
+
     private readonly QuizService _quizService;
-    private readonly QuestionService _questionService;
     
     [HttpGet]
     public async Task<ActionResult<IEnumerable<QuizDto>>> GetQuizzes()
@@ -65,11 +60,5 @@ public class QuizController: ControllerBase
         var result = await _quizService.SubmitQuiz(quizId, request.SubmissionId, answers);
         
         return Ok(result);
-    }
-    
-    [HttpPost("process")]
-    public async Task ProcessQuestions()
-    {
-        await _questionService.ProcessQuestions();
     }
 }
