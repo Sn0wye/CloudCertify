@@ -101,7 +101,7 @@ public class SubquizService
         }
 
         var questions = await _questionRepository.GetQuestionsByIds(answers.Select(a => a.QuestionId).ToList());
-        var strategy = GradingStrategyFactory.GetStrategy(new Quiz { Slug = "SUBQUIZ" });
+        var strategy = GradingStrategyFactory.GetSubquizStrategy();
 
         var gradingResult = strategy.Grade(questions, answers);
 

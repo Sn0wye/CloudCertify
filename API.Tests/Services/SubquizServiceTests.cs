@@ -109,9 +109,34 @@ public class SubquizServiceTests
 
         var response = await CreateService().SubmitSubquiz(1, 2, 5, answers);
 
-        Assert.Equal(1000, response.ScaledScore); // SUBQUIZ slug -> default strategy
+        Assert.Equal(100, response.ScaledScore); // subquiz -> 0-100 percentage
+        Assert.True(response.Passed);
         Assert.True(submission.Finished);
-        Assert.Equal(1000, submission.Score);
-        _submissions.Verify(r => r.Update(It.Is<Submission>(s => s.Finished && s.Score == 1000)), Times.Once);
+        Assert.Equal(100, submission.Score);
+        _submissions.Verify(r => r.Update(It.Is<Submission>(s => s.Finished && s.Score == 100)), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(7, 70, true)]  // exactly at the pass threshold
+    [InlineData(6, 60, false)] // just below
+    public async Task SubmitSubquiz_ScoresPercentage_AndPassesAtSeventy(int correctCount, int expectedScore, bool expectedPass)
+    {
+        var submission = new Submission { Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com" };
+        _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
+        _subquizzes.Setup(r => r.GetSubquizById(2)).ReturnsAsync(new Subquiz { Id = 2, QuizId = 1, Domain = "D" });
+
+        var questions = Enumerable.Range(1, 10)
+            .Select(i => Question(i, "D", correctIds: [i * 10], wrongIds: [i * 10 + 1]))
+            .ToList();
+        _questions.Setup(r => r.GetQuestionsByIds(It.IsAny<List<int>>())).ReturnsAsync(questions);
+
+        var answers = questions
+            .Select((q, idx) => Answer(q.Id, idx < correctCount ? (idx + 1) * 10 : (idx + 1) * 10 + 1))
+            .ToList();
+
+        var response = await CreateService().SubmitSubquiz(1, 2, 5, answers);
+
+        Assert.Equal(expectedScore, response.ScaledScore);
+        Assert.Equal(expectedPass, response.Passed);
     }
 }
