@@ -68,7 +68,8 @@ public class SubquizServiceTests
         var question = Assert.Single(result!.Questions);
         Assert.Equal(10, question.Id); // only the matching-domain question is included
         _submissions.Verify(r => r.Create(It.Is<Submission>(s =>
-            s.QuizId == 1 && s.SubquizId == 2 && s.Email == "u@e.com")), Times.Once);
+            s.QuizId == 1 && s.SubquizId == 2 && s.Email == "u@e.com" &&
+            s.ServedQuestionIds.SequenceEqual(new[] { 10 }))), Times.Once);
     }
 
     [Fact]
@@ -98,7 +99,7 @@ public class SubquizServiceTests
     [Fact]
     public async Task SubmitSubquiz_GradesScoresAndPersistsFinishedSubmission()
     {
-        var submission = new Submission { Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com" };
+        var submission = new Submission { Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com", ServedQuestionIds = [10] };
         _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
         _subquizzes.Setup(r => r.GetSubquizById(2)).ReturnsAsync(new Subquiz { Id = 2, QuizId = 1, Domain = "D" });
         var question = Question(10, "D", correctIds: [1], wrongIds: [2]);
@@ -121,13 +122,16 @@ public class SubquizServiceTests
     [InlineData(6, 60, false)] // just below
     public async Task SubmitSubquiz_ScoresPercentage_AndPassesAtSeventy(int correctCount, int expectedScore, bool expectedPass)
     {
-        var submission = new Submission { Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com" };
-        _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
-        _subquizzes.Setup(r => r.GetSubquizById(2)).ReturnsAsync(new Subquiz { Id = 2, QuizId = 1, Domain = "D" });
-
         var questions = Enumerable.Range(1, 10)
             .Select(i => Question(i, "D", correctIds: [i * 10], wrongIds: [i * 10 + 1]))
             .ToList();
+        var submission = new Submission
+        {
+            Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com",
+            ServedQuestionIds = questions.Select(q => q.Id).ToList()
+        };
+        _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
+        _subquizzes.Setup(r => r.GetSubquizById(2)).ReturnsAsync(new Subquiz { Id = 2, QuizId = 1, Domain = "D" });
         _questions.Setup(r => r.GetQuestionsByIds(It.IsAny<List<int>>())).ReturnsAsync(questions);
 
         var answers = questions
@@ -138,5 +142,33 @@ public class SubquizServiceTests
 
         Assert.Equal(expectedScore, response.ScaledScore);
         Assert.Equal(expectedPass, response.Passed);
+    }
+
+    [Fact]
+    public async Task SubmitSubquiz_GradesAgainstServedSet_SkippedQuestionCountsAsWrong()
+    {
+        // Two questions served; client answers only one. The skipped one stays in the denominator.
+        var submission = new Submission
+        {
+            Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com",
+            ServedQuestionIds = [10, 11]
+        };
+        _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
+        _subquizzes.Setup(r => r.GetSubquizById(2)).ReturnsAsync(new Subquiz { Id = 2, QuizId = 1, Domain = "D" });
+        _questions.Setup(r => r.GetQuestionsByIds(It.Is<List<int>>(ids => ids.SequenceEqual(new[] { 10, 11 }))))
+            .ReturnsAsync(new List<Question>
+            {
+                Question(10, "D", correctIds: [1], wrongIds: [2]),
+                Question(11, "D", correctIds: [3], wrongIds: [4])
+            });
+
+        var answers = new List<QuizAnswer> { Answer(10, 1) }; // 11 omitted
+
+        var response = await CreateService().SubmitSubquiz(1, 2, 5, answers);
+
+        Assert.Equal(2, response.TotalQuestions); // served count, not answered count
+        Assert.Equal(1, response.CorrectCount);
+        Assert.Equal(50, response.ScaledScore);   // 1/2 -> 50%
+        Assert.False(response.Passed);
     }
 }

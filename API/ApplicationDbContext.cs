@@ -93,6 +93,7 @@ public class ApplicationDbContext: DbContext
             entity.HasKey(s => s.Id);
             entity.Property(s => s.Email).IsRequired().HasMaxLength(255);
             entity.Property(s => s.Finished).IsRequired();
+            entity.Property(s => s.ServedQuestionIds).HasColumnType("integer[]").IsRequired();
             entity.Property(s => s.Score).IsRequired();
             entity.Property(s => s.CreatedAt).IsRequired();
 

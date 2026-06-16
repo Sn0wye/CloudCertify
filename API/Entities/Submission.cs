@@ -13,7 +13,14 @@ public class Submission
     public int? SubquizId { get; set; }
     
     public bool Finished { get; set; }
-    
+
+    /// <summary>
+    /// Question IDs served to the client at StartQuiz/StartSubquiz time. Grading runs
+    /// against this fixed set so skipped questions count as wrong and the denominator is
+    /// stable regardless of what the client submits. See docs/adr/0001-server-authoritative-attempts.md.
+    /// </summary>
+    public List<int> ServedQuestionIds { get; set; } = new();
+
     public int Score { get; set; }
     
     public string Email { get; set; }
