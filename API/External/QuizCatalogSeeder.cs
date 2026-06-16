@@ -150,6 +150,8 @@ public class QuizCatalogSeeder
             QuizLevel = QuizLevel.Foundational,
             Slug = "CLF-C02",
             QuestionsFileName = "clf-c02.json",
+            MinQuestions = 65, // real CLF-C02 exam is a fixed 65 questions
+            MaxQuestions = 65,
             IsAvailable = true
         },
         new()
@@ -328,6 +330,10 @@ public class QuizSeed
     public string? Domain { get; init; }
     public string QuestionsFileName { get; init; }
 
+    // Default to the ranged 40/60 the entity uses; fixed exams override both (CLF-C02 = 65/65).
+    public int MinQuestions { get; init; } = 40;
+    public int MaxQuestions { get; init; } = 60;
+
     public Quiz ToQuiz(int? parentId = null)
     {
         return new Quiz
@@ -338,7 +344,9 @@ public class QuizSeed
             IsAvailable = IsAvailable,
             QuizProvider = QuizProvider,
             QuizLevel = QuizLevel,
-            Slug = Slug
+            Slug = Slug,
+            MinQuestions = MinQuestions,
+            MaxQuestions = MaxQuestions
         };
     }
 }

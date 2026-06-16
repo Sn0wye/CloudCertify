@@ -15,7 +15,13 @@ public class Quiz
     public string IconName { get; set; }
 
     public bool IsAvailable { get; set; } = false;
-    
+
+    // Per-quiz served-question count. A fixed exam sets both equal (CLF-C02 = 65/65);
+    // a ranged quiz sets e.g. 40/60 and a count in [Min, Max] is picked at start (issue #13).
+    public int MinQuestions { get; set; } = 40;
+
+    public int MaxQuestions { get; set; } = 60;
+
     public QuizProvider QuizProvider { get; set; }
     
      public QuizLevel QuizLevel { get; set; }
