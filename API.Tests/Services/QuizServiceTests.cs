@@ -2,6 +2,7 @@ using API.Entities;
 using API.Model.Request;
 using API.Repositories;
 using API.Services;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using static API.Tests.QuizBuilder;
 
@@ -14,7 +15,9 @@ public class QuizServiceTests
     private readonly Mock<ISubmissionRepository> _submissions = new();
 
     private QuizService CreateService() =>
-        new(_quizzes.Object, _submissions.Object, new SubmissionGrader(_questions.Object, _submissions.Object));
+        new(_quizzes.Object, _submissions.Object,
+            new SubmissionGrader(_questions.Object, _submissions.Object),
+            NullLogger<QuizService>.Instance);
 
     [Fact]
     public async Task GetQuizById_ReturnsNull_WhenQuizMissing()
@@ -79,6 +82,67 @@ public class QuizServiceTests
         _submissions.Verify(r => r.Create(It.Is<Submission>(s =>
             s.QuizId == 1 && s.Email == "user@example.com" && !s.Finished &&
             s.ServedQuestionIds.SequenceEqual(new[] { 100 }))), Times.Once);
+    }
+
+    [Fact]
+    public async Task StartQuiz_ServesFixedCount_WhenMinEqualsMax()
+    {
+        // A fixed exam (Min == Max == 2) must serve exactly that many, never the whole bank.
+        var quiz = AvailableQuizWithQuestions(min: 2, max: 2, bankSize: 5);
+        _quizzes.Setup(r => r.GetQuizById(1)).ReturnsAsync(quiz);
+
+        var served = await CaptureServedCount();
+
+        Assert.Equal(2, served);
+    }
+
+    [Fact]
+    public async Task StartQuiz_ServesCountWithinRange_WhenRanged()
+    {
+        // A ranged quiz (2..4) must pick a count inside the inclusive bounds.
+        var quiz = AvailableQuizWithQuestions(min: 2, max: 4, bankSize: 10);
+        _quizzes.Setup(r => r.GetQuizById(1)).ReturnsAsync(quiz);
+
+        var served = await CaptureServedCount();
+
+        Assert.InRange(served, 2, 4);
+    }
+
+    [Fact]
+    public async Task StartQuiz_ServesAllAvailable_WhenBankSmallerThanConfiguredCount()
+    {
+        // Bank holds 3 but the exam wants 5: serve all 3 instead of silently under-serving.
+        var quiz = AvailableQuizWithQuestions(min: 5, max: 5, bankSize: 3);
+        _quizzes.Setup(r => r.GetQuizById(1)).ReturnsAsync(quiz);
+
+        var served = await CaptureServedCount();
+
+        Assert.Equal(3, served);
+    }
+
+    private static Quiz AvailableQuizWithQuestions(int min, int max, int bankSize)
+    {
+        var bank = Enumerable.Range(1, bankSize)
+            .Select(i => Question(i, "D", correctIds: [i * 10], wrongIds: [i * 10 + 1]))
+            .ToList();
+        return new Quiz
+        {
+            Id = 1, Title = "Quiz", Slug = "q", IsAvailable = true,
+            MinQuestions = min, MaxQuestions = max, Questions = bank
+        };
+    }
+
+    private async Task<int> CaptureServedCount()
+    {
+        Submission? captured = null;
+        _submissions.Setup(r => r.Create(It.IsAny<Submission>()))
+            .Callback<Submission>(s => captured = s)
+            .ReturnsAsync((Submission s) => s);
+
+        await CreateService().StartQuiz(1, "user@example.com");
+
+        Assert.NotNull(captured);
+        return captured!.ServedQuestionIds.Count;
     }
 
     [Fact]

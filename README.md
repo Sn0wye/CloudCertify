@@ -8,18 +8,18 @@
 
 ## V0 — Functional Exam Simulator (MVP)
 
-**Goal:** Ship fast. Validate demand. Collect behavioral data.
+**Goal:** Ship fast to validate demand. V0 persists score + email only.
 
 **Core Features:**
 
 - [x] CLF-C02
-- [x] Random 40-60 question selection
+- [x] Per-quiz question count (AWS CLF-C02 is a fixed 65; ranged quizzes pick a count within a configured range)
 - [x] AWS-style multiple choice
 - [x] Shuffled answer options
 - [x] AWS Matching grading system for CLF-C02
 - [x] End-of-quiz summary: score, pass/fail, percentage
 - [x] Future-proof question schema (domain, concepts, services, categories)
-- [x] Domain based subquizzes (for focused practice)
+- [x] Domain based subquizzes (scored as a 0-100 percentage, for focused practice)
 
 **UX Priorities:**
 
@@ -33,7 +33,7 @@
 **V1 — Real Learning Platform**
 
 - [ ] Domain grouped tests (focused on user weaknesses)
-- [ ] Analytics tracking (success rate, most failed, answer time, abandonment, score distribution)
+- [ ] Behavioral data capture + analytics tracking (success rate, most failed, answer time, abandonment, score distribution)
 - [ ] Detailed explanations (why correct/wrong, exam strategy, common traps)
 - [ ] Domain performance tracking by service/concept
 - [ ] Review modes (retry incorrect, flagged, guessed)

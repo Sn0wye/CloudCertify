@@ -9,16 +9,18 @@ namespace API.Services;
 
 public class QuizService
 {
-    public QuizService(IQuizRepository quizRepository, ISubmissionRepository submissionRepository, SubmissionGrader submissionGrader)
+    public QuizService(IQuizRepository quizRepository, ISubmissionRepository submissionRepository, SubmissionGrader submissionGrader, ILogger<QuizService> logger)
     {
         _quizRepository = quizRepository;
         _submissionRepository = submissionRepository;
         _submissionGrader = submissionGrader;
+        _logger = logger;
     }
 
     private readonly IQuizRepository _quizRepository;
     private readonly ISubmissionRepository _submissionRepository;
     private readonly SubmissionGrader _submissionGrader;
+    private readonly ILogger<QuizService> _logger;
     
     public async Task<IEnumerable<QuizDto>> GetQuizzes()
     {
@@ -78,7 +80,9 @@ public class QuizService
              throw new InvalidOperationException("Quiz is not available");
          }
 
-          var randomQuestions = quiz.Questions?.OrderBy(q => Guid.NewGuid()).Take(65).ToList() ?? new List<Question>();
+          var pool = quiz.Questions?.ToList() ?? new List<Question>();
+          var count = ResolveQuestionCount(quiz, pool.Count);
+          var randomQuestions = pool.OrderBy(q => Guid.NewGuid()).Take(count).ToList();
 
           var submission = new Submission
           {
@@ -109,6 +113,34 @@ public class QuizService
                }).ToList()
            };
       }
+
+     /// <summary>
+     /// Picks how many questions to serve from the quiz's [Min, Max] range (fixed when Min == Max).
+     /// If the quiz bank is too small, serves all available and logs a warning rather than
+     /// silently under-serving the configured count (issue #13).
+     /// </summary>
+     /// <example>ResolveQuestionCount(clfC02, available: 70) // 65 (fixed)</example>
+     private int ResolveQuestionCount(Quiz quiz, int available)
+     {
+         if (quiz.MinQuestions <= 0 || quiz.MaxQuestions < quiz.MinQuestions)
+         {
+             throw new InvalidOperationException(
+                 $"Quiz {quiz.Id} has invalid question range Min={quiz.MinQuestions}, Max={quiz.MaxQuestions}; expected 0 < Min <= Max");
+         }
+
+         var target = quiz.MinQuestions == quiz.MaxQuestions
+             ? quiz.MinQuestions
+             : Random.Shared.Next(quiz.MinQuestions, quiz.MaxQuestions + 1);
+
+         if (available >= target)
+         {
+             return target;
+         }
+
+         _logger.LogWarning("Quiz {QuizId} bank has {Available} questions but {Target} requested; serving all available",
+             quiz.Id, available, target);
+         return available;
+     }
 
      public async Task<SubmitQuizResponseDto> SubmitQuiz(int quizId, int submissionId, List<QuizAnswer> answers)
      {
