@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories;
 
-public class SubmissionRepository(ApplicationDbContext context)
+public class SubmissionRepository(ApplicationDbContext context) : ISubmissionRepository
 {
     public async Task<Submission> Create(Submission submission)
     {
