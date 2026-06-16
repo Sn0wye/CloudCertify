@@ -13,8 +13,8 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           classNames: {
             toast:
               'border-2 border-black shadow-[4px_4px_0px_0px_#000] font-bold rounded-[5px]',
-            error: 'bg-[#ff4757] text-white',
-            warning: 'bg-[#ffa502] text-black',
+            error: 'bg-destructive text-white',
+            warning: 'bg-[#ffb020] text-black',
           },
         }}
       />

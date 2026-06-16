@@ -1,4 +1,3 @@
-'use client';
 import { ArrowLeft, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -29,12 +28,12 @@ export function DashboardPage() {
   const comingSoonQuizzes = quizzes.filter(q => !q.isAvailable);
 
   return (
-    <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
+    <div className='flex min-h-dvh flex-col bg-background'>
       <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
         <div className='container flex h-16 items-center justify-between'>
           <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-              <Cloud className='h-5 w-5 text-black' />
+            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-primary flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+              <Cloud className='h-5 w-5 text-white' />
             </div>
             <span>CloudCertify</span>
           </Link>
@@ -70,7 +69,7 @@ export function DashboardPage() {
             <>
               <section>
                 <h2 className='text-xl font-black mb-4 text-black'>
-                  Available Certifications
+                  Available certifications
                 </h2>
 
                 {isLoading ? (
@@ -92,7 +91,9 @@ export function DashboardPage() {
                         key={quiz.id}
                         title={quiz.title ?? ''}
                         description={quiz.description}
-                        icon={getLucideIcon(quiz.iconName)}
+                        icon={getLucideIcon(quiz.iconName, {
+                          className: 'h-6 w-6 text-white'
+                        })}
                         difficulty={quiz.quizLevel ?? ''}
                         questions={quiz.questionCount ?? 0}
                         available={quiz.isAvailable}
@@ -104,7 +105,7 @@ export function DashboardPage() {
               </section>
 
               <section className='mt-8'>
-                <h2 className='text-xl font-black mb-4 text-black'>Coming Soon</h2>
+                <h2 className='text-xl font-black mb-4 text-black'>Coming soon</h2>
 
                 {isLoading ? (
                   <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
@@ -119,7 +120,9 @@ export function DashboardPage() {
                         key={quiz.id}
                         title={quiz.title ?? ''}
                         description={quiz.description}
-                        icon={getLucideIcon(quiz.iconName)}
+                        icon={getLucideIcon(quiz.iconName, {
+                          className: 'h-6 w-6 text-white'
+                        })}
                         difficulty={String(quiz.quizLevel ?? '')}
                         questions={quiz.questionCount ?? 0}
                         available={quiz.isAvailable}

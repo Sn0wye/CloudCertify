@@ -67,6 +67,53 @@
   }
 }
 
+/* Printed-blueprint dot texture for flat sections */
+@utility bg-dotgrid {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, #000 12%, transparent) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 22px 22px;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/*
+  Marquee track. Duration/direction come from inline CSS vars so they stay
+  configurable, but the `animation` itself lives in a class — that way the
+  reduced-motion override below can actually win (an inline `animation`
+  shorthand would beat any class and silently ignore the user's preference).
+*/
+.marquee-track {
+  animation: marquee var(--marquee-duration, 28s) linear infinite;
+  animation-direction: var(--marquee-direction, normal);
+}
+
+.marquee-root:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
 
@@ -105,6 +152,14 @@
   --color-accent-foreground: var(--accent-foreground);
 
   --color-destructive: var(--destructive);
+
+  --color-success: var(--success);
+
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+
+  --color-warning-foreground: var(--warning-foreground);
 
   --color-border: var(--border);
 
@@ -160,14 +215,18 @@
 :root {
   --radius: 5px;
 
+  /* Emil-strength easing curves — the built-in CSS easings lack punch */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
   /* Neobrutalism colors - sky-400 based */
-  --main: #38bdf8;
-  --main-accent: #0ea5e9;
-  --bg: #f0f9ff;
+  --main: #2347d9;
+  --main-accent: #1b39b3;
+  --bg: #f5f3ec;
   --text: #000;
   --nb-border: #000;
 
-  --background: #f0f9ff;
+  --background: #f5f3ec;
   --foreground: #000;
 
   --card: #fff;
@@ -176,38 +235,45 @@
   --popover: #fff;
   --popover-foreground: #000;
 
-  --primary: #38bdf8;
-  --primary-foreground: #000;
+  --primary: #2347d9;
+  --primary-foreground: #fff;
 
-  --secondary: #feca57;
+  --secondary: #ffb020;
   --secondary-foreground: #000;
 
-  --muted: #e0e0e0;
-  --muted-foreground: #555;
+  --muted: #e8e4d8;
+  --muted-foreground: #5a554a;
 
-  --accent: #ff6b6b;
+  --accent: #ffb020;
   --accent-foreground: #000;
 
-  --destructive: #ff4757;
+  --success: #15a06e;
+  --success-foreground: #fff;
+
+  --warning: #ffb020;
+  --warning-foreground: #000;
+
+  --destructive: #e23b48;
+  --destructive-foreground: #fff;
 
   --border: #000;
   --input: #000;
-  --ring: #38bdf8;
+  --ring: #2347d9;
 
-  --chart-1: #38bdf8;
-  --chart-2: #feca57;
-  --chart-3: #ff6b6b;
+  --chart-1: #2347d9;
+  --chart-2: #ffb020;
+  --chart-3: #ffb020;
   --chart-4: #48dbfb;
-  --chart-5: #1dd1a1;
+  --chart-5: #15a06e;
 
   --sidebar: #fff;
   --sidebar-foreground: #000;
-  --sidebar-primary: #38bdf8;
-  --sidebar-primary-foreground: #000;
-  --sidebar-accent: #f0f9ff;
+  --sidebar-primary: #2347d9;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #f5f3ec;
   --sidebar-accent-foreground: #000;
   --sidebar-border: #000;
-  --sidebar-ring: #38bdf8;
+  --sidebar-ring: #2347d9;
 
   /* Neobrutalism box shadow */
   --shadow-light: 4px 4px 0px 0px #000;
@@ -218,9 +284,26 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Visible keyboard focus — replaces the removed default outline */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: #fff;
   }
 }

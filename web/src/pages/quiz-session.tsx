@@ -139,8 +139,8 @@ export function QuizSessionPage() {
     <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
       <div className='container flex h-16 items-center justify-between'>
         <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-          <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-            <Cloud className='h-5 w-5 text-black' />
+          <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-primary flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+            <Cloud className='h-5 w-5 text-white' />
           </div>
           <span>CloudCertify</span>
         </Link>
@@ -162,13 +162,13 @@ export function QuizSessionPage() {
     const passed = percentage >= PASS_THRESHOLD;
 
     return (
-      <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
+      <div className='flex min-h-dvh flex-col bg-background'>
         {header('/dashboard', 'Back to Dashboard')}
         <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
           <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
             <CardHeader className='text-center border-b-2 border-black pb-6'>
               <CardTitle className='text-2xl md:text-3xl font-black text-black'>
-                Quiz Results
+                Quiz results
               </CardTitle>
               <p className='text-black/70 font-medium mt-2'>{quizDetail.title}</p>
             </CardHeader>
@@ -176,12 +176,12 @@ export function QuizSessionPage() {
               <div className='flex flex-col items-center justify-center space-y-4'>
                 <div
                   className='h-32 w-32 rounded-[5px] border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'
-                  style={{ backgroundColor: passed ? '#1dd1a1' : '#ff4757' }}
+                  style={{ backgroundColor: passed ? '#15a06e' : '#e23b48' }}
                 >
-                  <span className='text-5xl font-black text-black'>{percentage}%</span>
+                  <span className='text-5xl font-black text-white'>{percentage}%</span>
                 </div>
 
-                <Badge className={passed ? 'bg-[#1dd1a1]' : 'bg-[#ff4757]'}>
+                <Badge className={passed ? 'bg-success' : 'bg-destructive'}>
                   {passed ? 'PASS' : 'FAIL'} (Passing score: {PASS_THRESHOLD}%)
                 </Badge>
 
@@ -193,14 +193,14 @@ export function QuizSessionPage() {
                 <div className='w-full max-w-md mt-4'>
                   <Progress
                     value={percentage}
-                    className={passed ? 'bg-[#1dd1a1]/20' : 'bg-[#ff4757]/20'}
-                    indicatorClassName={passed ? 'bg-[#1dd1a1]' : 'bg-[#ff4757]'}
+                    className={passed ? 'bg-success/20' : 'bg-destructive/20'}
+                    indicatorClassName={passed ? 'bg-success' : 'bg-destructive'}
                   />
                 </div>
               </div>
 
               <div className='space-y-6'>
-                <h3 className='text-xl font-black text-black'>Question Summary</h3>
+                <h3 className='text-xl font-black text-black'>Question summary</h3>
                 <Accordion type='single' collapsible className='w-full'>
                    {(resultQuestions ?? []).map((question, index) => {
                      const isCorrect = question.answers.every(
@@ -213,7 +213,7 @@ export function QuizSessionPage() {
                           <div className='flex items-start gap-3 text-left'>
                             <div
                               className={`h-6 w-6 rounded-[5px] border-2 border-black flex items-center justify-center shrink-0 ${
-                                isCorrect ? 'bg-[#1dd1a1]' : 'bg-[#ff4757]'
+                                isCorrect ? 'bg-success' : 'bg-destructive'
                               }`}
                             >
                               {isCorrect ? (
@@ -240,11 +240,11 @@ export function QuizSessionPage() {
 
                               let bgColor = 'bg-white';
                               if (isUserAnswer && isCorrectAnswer) {
-                                bgColor = 'bg-[#1dd1a1]';
+                                bgColor = 'bg-success/15';
                               } else if (isUserAnswer && !isCorrectAnswer) {
-                                bgColor = 'bg-[#ff4757]';
+                                bgColor = 'bg-destructive/15';
                               } else if (!isUserAnswer && isCorrectAnswer) {
-                                bgColor = 'bg-[#1dd1a1]';
+                                bgColor = 'bg-success/15';
                               }
 
                               return (
@@ -308,7 +308,7 @@ export function QuizSessionPage() {
   }
 
   return (
-    <div className='flex min-h-screen flex-col bg-[#f0f9ff]'>
+    <div className='flex min-h-dvh flex-col bg-background'>
       {header(`/quiz/${quizId}`, 'Back')}
       <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
         <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
@@ -344,8 +344,8 @@ export function QuizSessionPage() {
                     key={answer.id}
                     className={`p-4 rounded-[5px] border-2 border-black ${
                       isSelected
-                        ? 'bg-[#38bdf8] shadow-none translate-x-[2px] translate-y-[2px]'
-                        : 'bg-white hover:bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'
+                        ? 'bg-primary shadow-none translate-x-[2px] translate-y-[2px]'
+                        : 'bg-white hover:bg-background shadow-[4px_4px_0px_0px_#000]'
                     } ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'} flex items-start gap-3 transition-all`}
                     onClick={() => !isDisabled && answer.id != null && handleAnswerSelect(answer.id)}
                   >
@@ -356,7 +356,11 @@ export function QuizSessionPage() {
                     >
                       {isSelected && <CheckCircle className='h-4 w-4' />}
                     </div>
-                    <span className='font-medium text-black'>{answer.text}</span>
+                    <span
+                      className={`font-medium ${isSelected ? 'text-white' : 'text-black'}`}
+                    >
+                      {answer.text}
+                    </span>
                   </div>
                 );
               })}

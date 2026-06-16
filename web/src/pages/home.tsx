@@ -1,5 +1,12 @@
-'use client';
-import { ArrowLeft, ArrowRight, Award, CheckCircle, Cloud } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Award,
+  CheckCircle,
+  Cloud,
+  Sparkles
+} from 'lucide-react';
+import { motion } from 'motion/react';
 import RotatingText from '@/components/RotatingText';
 
 import { Button } from '@/components/ui/button';
@@ -13,34 +20,39 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Footer } from '@/components/footer';
 import { CertificationRoadmap } from '@/components/certification-roadmap';
+import { Reveal, CountUp } from '@/components/reveal';
+import { Marquee } from '@/components/marquee';
 import { Link } from 'wouter';
+import { cn } from '@/lib/utils';
 import { useGetQuiz } from '@/http/generated/api';
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function HomePage() {
   const { data, isLoading } = useGetQuiz();
   const quizzes = data?.data ?? [];
 
   return (
-    <div className='flex min-h-screen flex-col bg-[#dfe5f2]'>
+    <div className='flex min-h-dvh flex-col bg-background'>
       <header className='sticky top-0 z-50 w-full border-b-2 border-black bg-white'>
         <div className='container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0'>
           <Link href='/' className='flex gap-2 items-center text-xl font-black'>
-            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-[#38bdf8] flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
-              <Cloud className='h-5 w-5 text-black' />
+            <div className='h-10 w-10 rounded-[5px] border-2 border-black bg-primary flex items-center justify-center shadow-[2px_2px_0px_0px_#000]'>
+              <Cloud className='h-5 w-5 text-white' />
             </div>
             <span>CloudCertify</span>
           </Link>
           <div className='flex flex-1 items-center justify-end'>
             <nav className='flex items-center space-x-6'>
               <a
-                href='#features'
-                className='text-sm font-bold text-black transition-colors hover:underline'
+                href='#certifications'
+                className='hidden text-sm font-bold text-black transition-colors hover:underline sm:inline'
               >
-                Features
+                Certifications
               </a>
               <a
                 href='#pricing'
-                className='text-sm font-bold text-black transition-colors hover:underline'
+                className='hidden text-sm font-bold text-black transition-colors hover:underline sm:inline'
               >
                 Pricing
               </a>
@@ -51,274 +63,270 @@ export function HomePage() {
           </div>
         </div>
       </header>
+
       <main className='flex-1'>
+        {/* ---------------------------------------------------------------- HERO */}
         <section
-          className='w-full py-12 md:py-24 lg:py-32 bg-white border-b-2 border-black'
           id='hero'
+          className='relative w-full overflow-hidden border-b-2 border-black bg-white bg-dotgrid'
         >
-          <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center space-y-6 text-center'>
-              <div className='space-y-4'>
-                <Badge className='bg-[#38bdf8]'>
-                  100% Free - No Credit Card Required
-                </Badge>
-                <h1 className='mx-auto max-w-4xl text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-black text-balance'>
-                  <span className='inline-flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1'>
-                    <span>Master</span>
-                    <span className='inline-block rounded-[5px] border-2 border-black bg-[#38bdf8] px-3 shadow-[4px_4px_0px_0px_#000]'>
-                      <RotatingText
-                        texts={['AWS', 'GCP', 'Azure']}
-                        mainClassName='text-black'
-                        splitLevelClassName='overflow-hidden'
-                        staggerFrom='last'
-                        staggerDuration={0.025}
-                        initial={{ y: '100%' }}
-                        animate={{ y: 0 }}
-                        exit={{ y: '-120%' }}
-                        transition={{
-                          type: 'spring',
-                          damping: 30,
-                          stiffness: 400
-                        }}
-                        rotationInterval={2000}
-                        splitBy='characters'
-                        auto
-                        loop
-                      />
+          <div
+            aria-hidden='true'
+            className='pointer-events-none absolute -right-40 -top-40 h-[28rem] w-[28rem] rounded-full bg-primary/20 blur-3xl'
+          />
+          <div className='container relative px-4 py-16 md:px-6 md:py-24 lg:py-28'>
+            <div className='grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]'>
+              {/* copy */}
+              <div className='max-w-2xl'>
+                <Reveal>
+                  <span className='inline-flex items-center gap-2 rounded-[5px] border-2 border-black bg-secondary px-3 py-1 text-xs font-black uppercase tracking-wide shadow-[3px_3px_0px_0px_#000]'>
+                    <Sparkles className='h-3.5 w-3.5' />
+                    Free — no card, no account
+                  </span>
+                </Reveal>
+
+                <Reveal delay={0.08}>
+                  <h1 className='mt-6 text-5xl font-black leading-[0.92] tracking-tight text-black sm:text-6xl lg:text-7xl'>
+                    Pass your
+                    <span className='mt-3 flex flex-wrap items-center gap-x-3 gap-y-2'>
+                      <span className='inline-block -rotate-1 rounded-[6px] border-2 border-black bg-primary px-3 py-1 text-white shadow-[5px_5px_0px_0px_#000]'>
+                        <RotatingText
+                          texts={['AWS', 'GCP', 'Azure']}
+                          mainClassName='text-white'
+                          splitLevelClassName='overflow-hidden'
+                          staggerFrom='last'
+                          staggerDuration={0.025}
+                          initial={{ y: '100%' }}
+                          animate={{ y: 0 }}
+                          exit={{ y: '-120%' }}
+                          transition={{
+                            type: 'spring',
+                            damping: 30,
+                            stiffness: 400
+                          }}
+                          rotationInterval={2000}
+                          splitBy='characters'
+                          auto
+                          loop
+                        />
+                      </span>
+                      <span>cert</span>
                     </span>
-                    <span>Certifications</span>
-                  </span>{' '}
-                  <span className='block mt-2'>with Confidence</span>
-                </h1>
-                <p className='mx-auto max-w-175 text-black/80 md:text-xl font-medium'>
-                  Interactive quizzes and practice exams designed to help you
-                  ace your AWS, GCP, and Azure certification exams.
-                </p>
+                    <span className='mt-3 block'>the first time.</span>
+                  </h1>
+                </Reveal>
+
+                <Reveal delay={0.16}>
+                  <p className='mt-6 max-w-md text-lg font-medium text-black/70'>
+                    Real exam-style questions, focused domain drills and
+                    full-length simulations for AWS, Google Cloud and Azure.
+                    Built to get you certified — not to upsell you.
+                  </p>
+                </Reveal>
+
+                <Reveal delay={0.24}>
+                  <div className='mt-8 flex flex-col gap-3 sm:flex-row'>
+                    <Button asChild size='lg'>
+                      <Link href='/dashboard'>
+                        Start learning <ArrowRight className='ml-2 h-4 w-4' />
+                      </Link>
+                    </Button>
+                    <Button size='lg' variant='outline' asChild>
+                      <a href='#certifications'>Browse certifications</a>
+                    </Button>
+                  </div>
+                </Reveal>
               </div>
-              <div className='flex flex-col gap-3 min-[400px]:flex-row'>
-                <Button asChild size='lg'>
-                  <Link href='/dashboard'>
-                    Start Learning <ArrowRight className='ml-2 h-4 w-4' />
-                  </Link>
-                </Button>
-                <Button size='lg' variant='outline' asChild>
-                  <a href='#certifications'>View Certifications</a>
-                </Button>
-              </div>
+
+              {/* animated sticker cluster */}
+              <HeroCluster />
             </div>
           </div>
         </section>
 
+        {/* ------------------------------------------------------------- MARQUEE */}
+        <Marquee
+          className='bg-secondary py-3 text-black'
+          items={[
+            'AWS Certified',
+            'Google Cloud',
+            'Microsoft Azure',
+            'Practice Exams',
+            'Domain Drills',
+            'Pass First Try'
+          ]}
+        />
+
+        {/* --------------------------------------------------------------- STATS */}
+        <section className='w-full border-b-2 border-black bg-primary'>
+          <div className='container grid grid-cols-2 divide-x-2 divide-y-2 divide-black border-x-0 md:grid-cols-4 md:divide-y-0'>
+            <Stat value={500} suffix='+' label='practice questions' />
+            <Stat value={9} label='certification paths' />
+            <Stat value={3} label='cloud providers' />
+            <Stat value={0} prefix='$' label='forever, no upsell' />
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------ CERTIFICATIONS */}
         <section
-          className='w-full py-12 md:py-24 lg:py-32 relative overflow-hidden bg-[#f0f9ff]'
+          className='w-full py-12 md:py-24 lg:py-28 relative overflow-hidden bg-background'
           id='certifications'
         >
           <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center justify-center text-center mb-10'>
-              <h2 className='text-3xl font-black tracking-tight md:text-4xl text-balance text-black'>
+            <Reveal className='mb-10 max-w-xl'>
+              <span className='text-xs font-black uppercase tracking-widest text-primary'>
+                The roadmap
+              </span>
+              <h2 className='mt-2 text-3xl font-black tracking-tight md:text-4xl text-balance text-black'>
                 Pick your path
               </h2>
-            </div>
+              <p className='mt-2 font-medium text-black/60'>
+                Start at the foundations and work up to the specialty exams —
+                one provider at a time.
+              </p>
+            </Reveal>
             <CertificationRoadmap quizzes={quizzes} isLoading={isLoading} />
           </div>
         </section>
 
-        <section className='w-full py-12 md:py-24 lg:py-32 bg-[#38bdf8]'>
+        {/* --------------------------------------------------------- SAMPLE QUIZ */}
+        <section className='w-full border-y-2 border-black bg-white bg-dotgrid py-12 md:py-24 lg:py-28'>
           <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center justify-center space-y-4 text-center'>
-              <div className='space-y-2'>
-                <h2 className='text-3xl font-black tracking-tight md:text-4xl text-black'>
-                  Sample Quiz Questions
-                </h2>
-                <p className='mx-auto max-w-175 text-black/80 md:text-xl font-medium'>
-                  Get a taste of our interactive quizzes designed to test your
-                  knowledge.
-                </p>
-              </div>
-            </div>
-            <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 mt-8'>
-              <QuizCard
-                question='Which AWS service would you use to run containers without managing servers or clusters?'
-                options={[
-                  'Amazon ECS',
-                  'Amazon EKS',
-                  'AWS Fargate',
-                  'AWS Lambda'
-                ]}
-                correctAnswer={2}
-                category='AWS Solutions Architect'
-                difficulty='Medium'
-              />
-              <QuizCard
-                question='Which AWS service allows you to run code without provisioning or managing servers?'
-                options={[
-                  'AWS Elastic Beanstalk',
-                  'Amazon EC2',
-                  'AWS Lambda',
-                  'Amazon ECS'
-                ]}
-                correctAnswer={2}
-                category='AWS Developer'
-                difficulty='Medium'
-              />
-              <QuizCard
-                question='Which Google Cloud service is used to store unstructured objects, similar to Amazon S3?'
-                options={[
-                  'Cloud Filestore',
-                  'Cloud SQL',
-                  'Cloud Storage',
-                  'Persistent Disk'
-                ]}
-                correctAnswer={2}
-                category='Google Cloud'
-                difficulty='Easy'
-              />
-              <QuizCard
-                question='Which Azure service provides serverless compute to run event-driven code without managing infrastructure?'
-                options={[
-                  'Azure App Service',
-                  'Azure Functions',
-                  'Azure Logic Apps',
-                  'Azure Container Instances'
-                ]}
-                correctAnswer={1}
-                category='Azure'
-                difficulty='Easy'
-              />
+            <Reveal className='mb-8 max-w-xl'>
+              <h2 className='text-3xl font-black tracking-tight md:text-4xl text-black'>
+                Try a question
+              </h2>
+              <p className='mt-2 font-medium text-black/60'>
+                The real thing: exam-style stems, plausible distractors,
+                instant feedback.
+              </p>
+            </Reveal>
+            <div className='mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2'>
+              {SAMPLE_QUESTIONS.map((q, i) => (
+                <Reveal key={q.question} delay={i * 0.08} y={36}>
+                  <QuizCard {...q} />
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
-        <section className='w-full py-12 md:py-24 lg:py-32 bg-[#f0f9ff]' id='pricing'>
+        {/* ------------------------------------------------------------- PRICING */}
+        <section
+          className='w-full py-12 md:py-24 lg:py-28 bg-background'
+          id='pricing'
+        >
           <div className='container px-4 md:px-6'>
-            <div className='flex flex-col items-center justify-center space-y-4 text-center'>
-              <div className='space-y-2'>
-                <h2 className='text-3xl font-black tracking-tight md:text-4xl text-black'>
-                  Simple Pricing
-                </h2>
-                <p className='mx-auto max-w-175 text-black/70 md:text-xl font-medium'>
-                  No subscriptions. No premium tiers. Just free cloud
-                  certification training.
-                </p>
-              </div>
-            </div>
-            <div className='mx-auto max-w-md mt-8'>
+            <Reveal className='mb-8 text-center'>
+              <h2 className='text-3xl font-black tracking-tight md:text-4xl text-black'>
+                Simple pricing
+              </h2>
+              <p className='mx-auto mt-2 max-w-175 font-medium text-black/60 md:text-lg'>
+                No subscriptions. No premium tiers. Just free cloud
+                certification training.
+              </p>
+            </Reveal>
+            <Reveal className='mx-auto max-w-md' y={36}>
               <Card className='overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_#000] bg-white'>
                 <CardHeader className='pb-4 pt-8 text-center'>
-                  <div className='flex justify-center mb-4'>
-                    <span className='text-6xl font-black text-black'>$0</span>
+                  <div className='flex items-end justify-center gap-1'>
+                    <span className='text-7xl font-black leading-none text-black'>
+                      $0
+                    </span>
+                    <span className='mb-2 text-sm font-bold text-black/50'>
+                      / forever
+                    </span>
                   </div>
-                  <p className='text-black/70 font-bold'>Forever free. No catches.</p>
+                  <p className='mt-2 font-bold text-black/70'>
+                    No catches. Seriously.
+                  </p>
                 </CardHeader>
                 <CardContent className='p-6'>
                   <ul className='space-y-3'>
-                    <li className='flex items-center gap-3'>
-                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                        <CheckCircle className='h-4 w-4 text-black' />
-                      </div>
-                      <span className='font-medium text-black'>
-                        All AWS, GCP, and Azure questions
-                      </span>
-                    </li>
-                    <li className='flex items-center gap-3'>
-                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                        <CheckCircle className='h-4 w-4 text-black' />
-                      </div>
-                      <span className='font-medium text-black'>Exam simulation mode</span>
-                    </li>
-                    <li className='flex items-center gap-3'>
-                      <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                        <CheckCircle className='h-4 w-4 text-black' />
-                      </div>
-                      <span className='font-medium text-black'>No credit card required</span>
-                    </li>
+                    {PRICING_PERKS.map(perk => (
+                      <li key={perk} className='flex items-center gap-3'>
+                        <div className='h-6 w-6 rounded-[5px] border-2 border-black bg-success flex items-center justify-center shrink-0'>
+                          <CheckCircle className='h-4 w-4 text-white' />
+                        </div>
+                        <span className='font-medium text-black'>{perk}</span>
+                      </li>
+                    ))}
                   </ul>
                 </CardContent>
                 <CardFooter className='p-6 pt-0'>
                   <Button asChild size='lg' className='w-full'>
-                    <Link href='/dashboard'>Start Learning Now</Link>
+                    <Link href='/dashboard'>Start learning now</Link>
                   </Button>
                 </CardFooter>
               </Card>
-            </div>
+            </Reveal>
           </div>
         </section>
 
-        <section className='w-full py-12 md:py-24 lg:py-32 bg-white border-t-2 border-black' id='features'>
+        {/* ------------------------------------------------------------ FEATURES */}
+        <section
+          className='w-full py-12 md:py-24 lg:py-28 bg-white border-t-2 border-black'
+          id='features'
+        >
           <div className='container px-4 md:px-6'>
-            <div className='grid gap-6 lg:grid-cols-2 lg:gap-12 items-center'>
+            <div className='grid gap-10 lg:grid-cols-2 lg:gap-16 items-center'>
               <div className='space-y-6'>
-                <Badge>
-                  Why Choose CloudCertify
-                </Badge>
-                <h2 className='text-3xl font-black tracking-tight md:text-4xl text-black'>
-                  Focused on Cloud Certification Success
-                </h2>
-                <p className='text-black/70 md:text-xl font-medium'>
-                  Designed to help you pass certification exams across AWS,
-                  Google Cloud, and Azure.
-                </p>
+                <Reveal>
+                  <Badge>Why CloudCertify</Badge>
+                  <h2 className='mt-4 text-3xl font-black tracking-tight md:text-4xl text-black'>
+                    Focused on cloud certification success
+                  </h2>
+                  <p className='mt-3 font-medium text-black/70 md:text-lg'>
+                    Designed to help you pass certification exams across AWS,
+                    Google Cloud and Azure.
+                  </p>
+                </Reveal>
                 <div className='space-y-4'>
-                  <div className='flex items-start gap-4 p-4 rounded-[5px] border-2 border-black bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'>
-                    <div className='h-8 w-8 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                      <CheckCircle className='h-5 w-5 text-black' />
-                    </div>
-                    <div>
-                      <h3 className='font-black text-black'>Multi-Cloud Question Bank</h3>
-                      <p className='text-black/70 font-medium'>
-                        Hundreds of practice questions covering AWS, Google
-                        Cloud, and Azure certification exams.
-                      </p>
-                    </div>
-                  </div>
-                  <div className='flex items-start gap-4 p-4 rounded-[5px] border-2 border-black bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'>
-                    <div className='h-8 w-8 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                      <CheckCircle className='h-5 w-5 text-black' />
-                    </div>
-                    <div>
-                      <h3 className='font-black text-black'>Cloud Concepts Coverage</h3>
-                      <p className='text-black/70 font-medium'>
-                        Comprehensive coverage of cloud concepts, services,
-                        security, and pricing models across all three major
-                        providers.
-                      </p>
-                    </div>
-                  </div>
-                  <div className='flex items-start gap-4 p-4 rounded-[5px] border-2 border-black bg-[#f0f9ff] shadow-[4px_4px_0px_0px_#000]'>
-                    <div className='h-8 w-8 rounded-[5px] border-2 border-black bg-[#1dd1a1] flex items-center justify-center shrink-0'>
-                      <CheckCircle className='h-5 w-5 text-black' />
-                    </div>
-                    <div>
-                      <h3 className='font-black text-black'>Exam-Focused Learning</h3>
-                      <p className='text-black/70 font-medium'>
-                        Questions aligned with the latest exam objectives and
-                        format.
-                      </p>
-                    </div>
-                  </div>
+                  {FEATURES.map((f, i) => (
+                    <Reveal key={f.title} delay={i * 0.08}>
+                      <div className='group flex items-start gap-4 rounded-[5px] border-2 border-black bg-background p-4 shadow-[4px_4px_0px_0px_#000] transition-transform duration-200 hover:-translate-y-1'>
+                        <div className='h-9 w-9 shrink-0 rounded-[5px] border-2 border-black bg-success flex items-center justify-center transition-transform duration-200 group-hover:-rotate-6'>
+                          <CheckCircle className='h-5 w-5 text-white' />
+                        </div>
+                        <div>
+                          <h3 className='font-black text-black'>{f.title}</h3>
+                          <p className='font-medium text-black/70'>{f.body}</p>
+                        </div>
+                      </div>
+                    </Reveal>
+                  ))}
                 </div>
               </div>
-              <div className='flex justify-center'>
-                <div className='relative w-full max-w-md overflow-hidden rounded-[5px] border-4 border-black bg-white p-2 shadow-[8px_8px_0px_0px_#000]'>
-                  <div className='bg-[#38bdf8] rounded-[5px] border-2 border-black p-8 flex flex-col items-center justify-center space-y-6'>
-                    <div className='h-20 w-20 rounded-[5px] border-2 border-black bg-[#feca57] flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'>
+
+              <Reveal y={40} rotate={2} className='flex justify-center'>
+                <div className='relative w-full max-w-md rounded-[5px] border-4 border-black bg-white p-2 shadow-[8px_8px_0px_0px_#000]'>
+                  <div className='flex flex-col items-center justify-center space-y-6 rounded-[5px] border-2 border-black bg-primary p-8'>
+                    <motion.div
+                      animate={{ rotate: [0, -6, 6, 0] }}
+                      transition={{
+                        duration: 5,
+                        repeat: Infinity,
+                        ease: 'easeInOut'
+                      }}
+                      className='flex h-20 w-20 items-center justify-center rounded-[5px] border-2 border-black bg-secondary shadow-[4px_4px_0px_0px_#000]'
+                    >
                       <Award className='h-10 w-10 text-black' />
-                    </div>
-                    <div className='text-center space-y-2'>
-                      <h3 className='text-2xl font-black text-black'>
+                    </motion.div>
+                    <div className='space-y-2 text-center'>
+                      <h3 className='text-2xl font-black text-white'>
                         Ready to get cloud certified?
                       </h3>
-                      <p className='text-black/80 font-medium'>
-                        Take the first step towards your AWS, GCP, or Azure
+                      <p className='font-medium text-white/80'>
+                        Take the first step towards your AWS, GCP or Azure
                         certification today.
                       </p>
                     </div>
                     <Button asChild size='lg' variant='outline' className='w-full'>
-                      <Link href='/dashboard'>Start Learning Now</Link>
+                      <Link href='/dashboard'>Start learning now</Link>
                     </Button>
                   </div>
                 </div>
-              </div>
+              </Reveal>
             </div>
           </div>
         </section>
@@ -327,6 +335,233 @@ export function HomePage() {
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ HERO ART */
+
+function HeroCluster() {
+  const answers = [
+    { text: 'Amazon EC2', ok: false },
+    { text: 'AWS Fargate', ok: true },
+    { text: 'Amazon EKS', ok: false }
+  ];
+
+  return (
+    <div className='relative mx-auto h-[400px] w-full max-w-sm lg:h-[440px] lg:max-w-md'>
+      {/* back accent card */}
+      <motion.div
+        aria-hidden='true'
+        initial={{ opacity: 0, y: 40, rotate: -10 }}
+        whileInView={{ opacity: 1, y: 0, rotate: -6 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className='absolute inset-x-8 top-12 h-72 rounded-[8px] border-2 border-black bg-secondary shadow-[8px_8px_0px_0px_#000]'
+      />
+
+      {/* main mock quiz card */}
+      <motion.div
+        initial={{ opacity: 0, y: 56, rotate: 6 }}
+        whileInView={{ opacity: 1, y: 0, rotate: -2 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
+        className='absolute inset-x-0 top-2 rounded-[8px] border-2 border-black bg-white p-5 shadow-[12px_12px_0px_0px_#000]'
+      >
+        <div className='flex items-center justify-between'>
+          <span className='rounded-[5px] border-2 border-black bg-primary px-2 py-0.5 text-[11px] font-black uppercase text-white'>
+            AWS · SAA
+          </span>
+          <span className='font-mono text-xs font-bold tabular-nums text-black/50'>
+            Q 07 / 65
+          </span>
+        </div>
+        <p className='mt-4 text-sm font-bold leading-snug text-black'>
+          Which service runs containers without managing servers or clusters?
+        </p>
+        <div className='mt-4 space-y-2'>
+          {answers.map((a, i) => (
+            <motion.div
+              key={a.text}
+              initial={{ opacity: 0, x: 12 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 + i * 0.1, duration: 0.4, ease: EASE }}
+              className={cn(
+                'flex items-center gap-2 rounded-[5px] border-2 border-black px-3 py-2 text-xs font-bold',
+                a.ok
+                  ? 'bg-primary text-white shadow-none'
+                  : 'bg-white text-black shadow-[3px_3px_0px_0px_#000]'
+              )}
+            >
+              <span
+                className={cn(
+                  'flex h-4 w-4 items-center justify-center rounded-[3px] border-2 border-black',
+                  a.ok ? 'bg-black text-white' : 'bg-white'
+                )}
+              >
+                {a.ok && <CheckCircle className='h-3 w-3' />}
+              </span>
+              {a.text}
+            </motion.div>
+          ))}
+        </div>
+        <div className='mt-4 h-2.5 w-full overflow-hidden rounded-[4px] border-2 border-black bg-white'>
+          <motion.div
+            initial={{ width: 0 }}
+            whileInView={{ width: '62%' }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.7, duration: 0.8, ease: EASE }}
+            className='h-full bg-success'
+          />
+        </div>
+      </motion.div>
+
+      {/* floating stickers */}
+      <FloatSticker position='-left-3 top-4' className='bg-primary text-white -rotate-12' delay={0}>
+        AWS
+      </FloatSticker>
+      <FloatSticker position='-right-2 top-28' className='bg-white text-black rotate-6' delay={0.6}>
+        Azure
+      </FloatSticker>
+      <FloatSticker position='-left-1 bottom-6' className='bg-success text-white rotate-3' delay={0.3}>
+        GCP
+      </FloatSticker>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.4, rotate: -20 }}
+        whileInView={{ opacity: 1, scale: 1, rotate: 12 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.7, type: 'spring', stiffness: 260, damping: 12 }}
+        className='absolute -right-4 -top-3 z-20 flex h-20 w-20 items-center justify-center rounded-full border-2 border-black bg-secondary text-center text-[11px] font-black uppercase leading-tight shadow-[4px_4px_0px_0px_#000]'
+      >
+        100%
+        <br />
+        free
+      </motion.div>
+    </div>
+  );
+}
+
+function FloatSticker({
+  children,
+  position,
+  className,
+  delay = 0
+}: {
+  children: React.ReactNode;
+  position: string;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      className={cn('absolute z-20', position)}
+      initial={{ opacity: 0, scale: 0.5 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ delay: 0.4 + delay, type: 'spring', stiffness: 280, damping: 14 }}
+    >
+      <motion.div
+        animate={{ y: [0, -9, 0] }}
+        transition={{
+          duration: 3.2,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay
+        }}
+        className={cn(
+          'rounded-[6px] border-2 border-black px-3 py-1.5 text-sm font-black shadow-[4px_4px_0px_0px_#000]',
+          className
+        )}
+      >
+        {children}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function Stat({
+  value,
+  label,
+  prefix,
+  suffix
+}: {
+  value: number;
+  label: string;
+  prefix?: string;
+  suffix?: string;
+}) {
+  return (
+    <Reveal className='px-6 py-8 text-center md:py-10'>
+      <div className='text-4xl font-black text-white md:text-5xl'>
+        <CountUp to={value} prefix={prefix} suffix={suffix} />
+      </div>
+      <div className='mt-1 text-xs font-bold uppercase tracking-wide text-white/70'>
+        {label}
+      </div>
+    </Reveal>
+  );
+}
+
+/* -------------------------------------------------------------------- DATA */
+
+const PRICING_PERKS = [
+  'All AWS, GCP and Azure questions',
+  'Full exam simulation mode',
+  'No credit card required'
+];
+
+const FEATURES = [
+  {
+    title: 'Multi-cloud question bank',
+    body: 'Hundreds of practice questions covering AWS, Google Cloud and Azure certification exams.'
+  },
+  {
+    title: 'Cloud concepts coverage',
+    body: 'Concepts, services, security and pricing models across all three major providers.'
+  },
+  {
+    title: 'Exam-focused learning',
+    body: 'Questions aligned with the latest exam objectives and question formats.'
+  }
+];
+
+const SAMPLE_QUESTIONS: QuizCardProps[] = [
+  {
+    question:
+      'Which AWS service would you use to run containers without managing servers or clusters?',
+    options: ['Amazon ECS', 'Amazon EKS', 'AWS Fargate', 'AWS Lambda'],
+    correctAnswer: 2,
+    category: 'AWS Solutions Architect',
+    difficulty: 'Medium'
+  },
+  {
+    question:
+      'Which AWS service allows you to run code without provisioning or managing servers?',
+    options: ['AWS Elastic Beanstalk', 'Amazon EC2', 'AWS Lambda', 'Amazon ECS'],
+    correctAnswer: 2,
+    category: 'AWS Developer',
+    difficulty: 'Medium'
+  },
+  {
+    question:
+      'Which Google Cloud service is used to store unstructured objects, similar to Amazon S3?',
+    options: ['Cloud Filestore', 'Cloud SQL', 'Cloud Storage', 'Persistent Disk'],
+    correctAnswer: 2,
+    category: 'Google Cloud',
+    difficulty: 'Easy'
+  },
+  {
+    question:
+      'Which Azure service provides serverless compute to run event-driven code without managing infrastructure?',
+    options: [
+      'Azure App Service',
+      'Azure Functions',
+      'Azure Logic Apps',
+      'Azure Container Instances'
+    ],
+    correctAnswer: 1,
+    category: 'Azure',
+    difficulty: 'Easy'
+  }
+];
 
 type QuizCardProps = {
   question: string;
@@ -344,12 +579,10 @@ function QuizCard({
   difficulty
 }: QuizCardProps) {
   return (
-    <Card className='overflow-hidden bg-white'>
+    <Card className='h-full overflow-hidden bg-white transition-transform duration-200 hover:-translate-y-1 hover:rotate-[-0.5deg] hover:shadow-[8px_8px_0px_0px_#000]'>
       <CardHeader className='pb-2'>
         <div className='flex justify-between mb-2'>
-          <Badge variant='outline'>
-            {category}
-          </Badge>
+          <Badge variant='outline'>{category}</Badge>
           <Badge
             variant={
               difficulty === 'Easy'
@@ -371,20 +604,20 @@ function QuizCard({
               key={index}
               className={`p-3 rounded-[5px] border-2 border-black font-medium ${
                 index === correctAnswer
-                  ? 'bg-[#1dd1a1] shadow-none translate-x-[2px] translate-y-[2px]'
+                  ? 'bg-success shadow-none translate-x-[2px] translate-y-[2px]'
                   : 'bg-white shadow-[4px_4px_0px_0px_#000]'
               } flex items-start gap-2`}
             >
               <div
                 className={`w-6 h-6 rounded-[5px] flex items-center justify-center border-2 border-black mt-0.5 ${
-                  index === correctAnswer
-                    ? 'bg-black text-white'
-                    : 'bg-white'
+                  index === correctAnswer ? 'bg-black text-white' : 'bg-white'
                 }`}
               >
                 {index === correctAnswer && <CheckCircle className='h-4 w-4' />}
               </div>
-              <span className='text-black'>{option}</span>
+              <span className={index === correctAnswer ? 'text-white' : 'text-black'}>
+                {option}
+              </span>
             </div>
           ))}
         </div>
@@ -394,7 +627,6 @@ function QuizCard({
           <ArrowLeft className='mr-2 h-4 w-4' />
           Previous
         </Button>
-
         <Button>
           Next
           <ArrowRight className='ml-2 h-4 w-4' />
