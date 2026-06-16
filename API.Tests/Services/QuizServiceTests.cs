@@ -14,7 +14,7 @@ public class QuizServiceTests
     private readonly Mock<ISubmissionRepository> _submissions = new();
 
     private QuizService CreateService() =>
-        new(_quizzes.Object, _questions.Object, _submissions.Object);
+        new(_quizzes.Object, _submissions.Object, new SubmissionGrader(_questions.Object, _submissions.Object));
 
     [Fact]
     public async Task GetQuizById_ReturnsNull_WhenQuizMissing()
@@ -84,12 +84,60 @@ public class QuizServiceTests
     [Fact]
     public async Task SubmitQuiz_Throws_WhenSubmissionMissing()
     {
+        _quizzes.Setup(r => r.GetQuizById(1)).ReturnsAsync(new Quiz { Id = 1, Slug = "SAA-C03" });
         _submissions.Setup(r => r.GetById(5)).ReturnsAsync((Submission?)null);
 
         var service = CreateService();
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             () => service.SubmitQuiz(1, 5, new List<QuizAnswer>()));
+    }
+
+    [Fact]
+    public async Task SubmitQuiz_Throws_WhenSubmissionBelongsToDifferentQuiz()
+    {
+        // Submission was started for quiz 2 but is being submitted to quiz 1: reject, don't grade.
+        _quizzes.Setup(r => r.GetQuizById(1)).ReturnsAsync(new Quiz { Id = 1, Slug = "SAA-C03" });
+        _submissions.Setup(r => r.GetById(5))
+            .ReturnsAsync(new Submission { Id = 5, QuizId = 2, Email = "u@e.com" });
+
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.SubmitQuiz(1, 5, new List<QuizAnswer>()));
+        _submissions.Verify(r => r.Update(It.IsAny<Submission>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitQuiz_Throws_WhenSubmissionBelongsToSubquiz()
+    {
+        // A subquiz submission must not be replayable through the full-quiz path (SubquizId mismatch).
+        _quizzes.Setup(r => r.GetQuizById(1)).ReturnsAsync(new Quiz { Id = 1, Slug = "SAA-C03" });
+        _submissions.Setup(r => r.GetById(5))
+            .ReturnsAsync(new Submission { Id = 5, QuizId = 1, SubquizId = 2, Email = "u@e.com" });
+
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.SubmitQuiz(1, 5, new List<QuizAnswer>()));
+        _submissions.Verify(r => r.Update(It.IsAny<Submission>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitQuiz_Throws_AndDoesNotOverwriteScore_WhenAlreadyFinished()
+    {
+        // Replay of a finished full-quiz attempt must be rejected without re-grading (issue #12).
+        var finished = new Submission { Id = 5, QuizId = 1, Email = "u@e.com", Finished = true, Score = 720 };
+        _quizzes.Setup(r => r.GetQuizById(1)).ReturnsAsync(new Quiz { Id = 1, Slug = "SAA-C03" });
+        _submissions.Setup(r => r.GetById(5)).ReturnsAsync(finished);
+
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.SubmitQuiz(1, 5, new List<QuizAnswer> { Answer(100, 1) }));
+        Assert.Equal(720, finished.Score); // original score untouched
+        _submissions.Verify(r => r.Update(It.IsAny<Submission>()), Times.Never);
+        _questions.Verify(r => r.GetQuestionsByIds(It.IsAny<List<int>>()), Times.Never);
     }
 
     [Fact]

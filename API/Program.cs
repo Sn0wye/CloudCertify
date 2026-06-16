@@ -72,6 +72,7 @@ builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
 builder.Services.AddScoped<QuizCatalogSeeder>();
+builder.Services.AddScoped<SubmissionGrader>();
 builder.Services.AddScoped<QuizService>();
 builder.Services.AddScoped<SubquizService>();
 
