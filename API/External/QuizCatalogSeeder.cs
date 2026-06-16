@@ -5,22 +5,27 @@ namespace API.External;
 using Newtonsoft.Json;
 using Entities;
 
-public class QuestionService
+/// <summary>
+/// Idempotently seeds the quiz catalog (parent quizzes, their question banks, and
+/// domain-scoped subquizzes) at startup. Existing quizzes are skipped by title, so
+/// repeat boots are no-ops that never re-read the questions files.
+/// </summary>
+/// <example>await seeder.SeedCatalog();</example>
+public class QuizCatalogSeeder
 {
-    private readonly QuizRepository _quizRepository;
-    private readonly SubquizRepository _subquizRepository;
+    private readonly IQuizRepository _quizRepository;
+    private readonly ISubquizRepository _subquizRepository;
 
-    public QuestionService(QuizRepository quizRepository, SubquizRepository subquizRepository)
+    public QuizCatalogSeeder(IQuizRepository quizRepository, ISubquizRepository subquizRepository)
     {
         _quizRepository = quizRepository;
         _subquizRepository = subquizRepository;
     }
 
-    public async Task ProcessQuestions()
+    public async Task SeedCatalog()
     {
         var existingQuizzes = await _quizRepository.GetQuizzes();
         var existingTitles = existingQuizzes.Select(q => q.Title).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var existingSlugs = existingQuizzes.Select(q => q.Slug).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         // First pass: create parent quizzes (ParentSlug == null)
         var parentQuizzesToCreate = new List<Quiz>();
@@ -59,10 +64,15 @@ public class QuestionService
             var allQuizzes = await _quizRepository.GetQuizzes();
             var slugToId = allQuizzes.ToDictionary(q => q.Slug, q => q.Id, StringComparer.OrdinalIgnoreCase);
 
+            // Subquizzes live in their own table, so their idempotency check must read
+            // existing subquiz slugs — not parent-quiz titles, which never match here.
+            var existingSubquizSlugs = (await _subquizRepository.GetAllSubquizzes())
+                .Select(s => s.Slug).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
             var subquizzesToCreate = new List<Subquiz>();
             foreach (var subquizSeed in subquizSeeds)
             {
-                if (existingTitles.Contains(subquizSeed.Title))
+                if (existingSubquizSlugs.Contains(subquizSeed.Slug))
                 {
                     continue;
                 }
