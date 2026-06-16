@@ -9,16 +9,16 @@ namespace API.Services;
 
 public class SubquizService
 {
-    public SubquizService(SubquizRepository subquizRepository, QuestionRepository questionRepository, SubmissionRepository submissionRepository)
+    public SubquizService(ISubquizRepository subquizRepository, IQuestionRepository questionRepository, ISubmissionRepository submissionRepository)
     {
         _subquizRepository = subquizRepository;
         _questionRepository = questionRepository;
         _submissionRepository = submissionRepository;
     }
 
-    private readonly SubquizRepository _subquizRepository;
-    private readonly QuestionRepository _questionRepository;
-    private readonly SubmissionRepository _submissionRepository;
+    private readonly ISubquizRepository _subquizRepository;
+    private readonly IQuestionRepository _questionRepository;
+    private readonly ISubmissionRepository _submissionRepository;
 
     public async Task<List<SubquizDto>> GetSubquizzesByQuizId(int quizId)
     {

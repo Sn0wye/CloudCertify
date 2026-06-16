@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories;
 
-public class QuizRepository(ApplicationDbContext context)
+public class QuizRepository(ApplicationDbContext context) : IQuizRepository
 {
     public async Task Create(Quiz quiz)
     {

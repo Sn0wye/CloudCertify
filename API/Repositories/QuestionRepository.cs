@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories;
 
-public class QuestionRepository(ApplicationDbContext context)
+public class QuestionRepository(ApplicationDbContext context) : IQuestionRepository
 {
     public async Task<List<Question>> GetQuestionsByIds(List<int> ids)
     {

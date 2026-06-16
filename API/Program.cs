@@ -66,10 +66,10 @@ builder.Services.AddControllers()
             new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
     });
 
-builder.Services.AddScoped<QuizRepository>();
-builder.Services.AddScoped<SubquizRepository>();
-builder.Services.AddScoped<QuestionRepository>();
-builder.Services.AddScoped<SubmissionRepository>();
+builder.Services.AddScoped<IQuizRepository, QuizRepository>();
+builder.Services.AddScoped<ISubquizRepository, SubquizRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
 builder.Services.AddScoped<QuestionService>();
 builder.Services.AddScoped<QuizService>();

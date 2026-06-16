@@ -9,16 +9,16 @@ namespace API.Services;
 
 public class QuizService
 {
-    public QuizService(QuizRepository quizRepository, QuestionRepository questionRepository, SubmissionRepository submissionRepository)
+    public QuizService(IQuizRepository quizRepository, IQuestionRepository questionRepository, ISubmissionRepository submissionRepository)
     {
         _quizRepository = quizRepository;
         _questionRepository = questionRepository;
         _submissionRepository = submissionRepository;
     }
-        
-    private readonly QuizRepository _quizRepository;
-    private readonly QuestionRepository _questionRepository;
-    private readonly SubmissionRepository _submissionRepository;
+
+    private readonly IQuizRepository _quizRepository;
+    private readonly IQuestionRepository _questionRepository;
+    private readonly ISubmissionRepository _submissionRepository;
     
     public async Task<IEnumerable<QuizDto>> GetQuizzes()
     {
