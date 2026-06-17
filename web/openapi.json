@@ -557,6 +557,14 @@
             "type": "integer",
             "format": "int32"
           },
+          "minQuestions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxQuestions": {
+            "type": "integer",
+            "format": "int32"
+          },
           "subQuizzes": {
             "type": "array",
             "items": {

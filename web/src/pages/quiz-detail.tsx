@@ -47,11 +47,16 @@ const PROVIDER_LABELS: Record<string, string> = {
   azure: 'Microsoft Azure'
 };
 
-const PROVIDER_QUESTION_COUNT: Record<string, string> = {
-  aws: '65',
-  azure: '40–60',
-  gcp: '50'
-};
+// --- Helpers ---
+// The per-exam count comes from the quiz's own [min, max] range: a single number
+// when fixed (min === max), else "min–max". Falls back to null if unset (issue #24).
+function formatExamQuestionRange(
+  min: number | undefined,
+  max: number | undefined
+): string | null {
+  if (min == null || max == null || min <= 0 || max < min) return null;
+  return min === max ? `${min}` : `${min}–${max}`;
+}
 
 // --- Page ---
 export function QuizDetailPage() {
@@ -138,9 +143,10 @@ export function QuizDetailPage() {
   // Amber reads with black ink; the darker cobalt/green need white.
   const levelInk = levelColor === 'bg-secondary' ? 'text-black' : 'text-white';
   const subquizzes = quiz?.subQuizzes ?? [];
-  const providerQuestionCount = quiz?.quizProvider
-    ? (PROVIDER_QUESTION_COUNT[quiz.quizProvider] ?? null)
-    : null;
+  const examQuestionCount = formatExamQuestionRange(
+    quiz?.minQuestions,
+    quiz?.maxQuestions
+  );
 
   return (
     <div className='flex min-h-dvh flex-col bg-background'>
@@ -270,13 +276,13 @@ export function QuizDetailPage() {
                         {quiz.questionCount} Questions in pool
                       </Badge>
                     )}
-                    {providerQuestionCount && (
+                    {examQuestionCount && (
                       <Badge
                         variant='outline'
                         className='border-2 border-black font-bold flex items-center gap-1'
                       >
-                        <Target className='h-3 w-3' />~{providerQuestionCount}{' '}
-                        per exam
+                        <Target className='h-3 w-3' />~{examQuestionCount} per
+                        exam
                       </Badge>
                     )}
                     <Badge

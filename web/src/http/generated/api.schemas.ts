@@ -91,6 +91,8 @@ export interface QuizDto {
   slug?: string;
   createdAt?: string;
   questionCount?: number;
+  minQuestions?: number;
+  maxQuestions?: number;
   /** @nullable */
   subQuizzes?: SubquizDto[] | null;
 }
