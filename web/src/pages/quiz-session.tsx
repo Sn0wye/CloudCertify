@@ -18,14 +18,17 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion';
 import { Footer } from '@/components/footer';
+import { toast } from 'sonner';
 import { postQuizQuizIdStart, postQuizQuizIdSubmit } from '@/http/generated/api';
 import type {
   QuizDetailDto,
   QuizAnswer,
-  QuizResultQuestionDto
+  QuizResultQuestionDto,
+  DomainResult
 } from '@/http/generated/api.schemas';
 
-const PASS_THRESHOLD = 70;
+// Full-quiz attempts report an AWS-style scaled score (100–1000); pass is server-decided.
+const PASSING_SCALED_SCORE = 700;
 
 type SessionData = {
   quizDetail: QuizDetailDto;
@@ -43,9 +46,11 @@ export function QuizSessionPage() {
   const [phase, setPhase] = useState<Phase>('quiz');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<number, number[]>>({});
-  const [score, setScore] = useState<number | null>(null);
+  const [scaledScore, setScaledScore] = useState<number | null>(null);
+  const [passed, setPassed] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
   const [correctCount, setCorrectCount] = useState<number | null>(null);
+  const [domainBreakdown, setDomainBreakdown] = useState<DomainResult[]>([]);
   const [resultQuestions, setResultQuestions] = useState<QuizResultQuestionDto[] | null>(
     null
   );
@@ -102,13 +107,19 @@ export function QuizSessionPage() {
         submissionId: quizDetail.submissionId,
         answers
       });
-      setScore(res.data.score);
+      setScaledScore(res.data.scaledScore);
+      setPassed(res.data.passed);
       setTotalQuestions(res.data.totalQuestions);
       setCorrectCount(res.data.correctCount);
+      setDomainBreakdown(res.data.domainBreakdown ?? []);
       setResultQuestions(res.data.questions);
       setPhase('results');
     } catch {
-      // stay on quiz phase
+      // A finished submission can't be re-graded (server-authoritative, issue #12):
+      // surface it instead of silently re-enabling the button on a dead-ended attempt.
+      toast.error(
+        'Could not submit this attempt. It may already be finished — use "Try Again" to start a new one.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -123,13 +134,15 @@ export function QuizSessionPage() {
       setSessionData(newData);
       setCurrentIndex(0);
       setUserAnswers({});
-      setScore(null);
+      setScaledScore(null);
+      setPassed(false);
       setTotalQuestions(null);
       setCorrectCount(null);
+      setDomainBreakdown([]);
       setResultQuestions(null);
       setPhase('quiz');
     } catch {
-      // stay on results
+      toast.error('Could not start a new attempt. Please try again.');
     } finally {
       setIsRestarting(false);
     }
@@ -155,11 +168,11 @@ export function QuizSessionPage() {
   );
 
   if (phase === 'results') {
-    const percentage =
-      totalQuestions && totalQuestions > 0
-        ? Math.round(((score ?? 0) / totalQuestions) * 100)
+    // Scaled score runs 100–1000; map onto the 0–100 progress bar.
+    const barValue =
+      scaledScore != null
+        ? Math.max(0, Math.min(100, Math.round(((scaledScore - 100) / 900) * 100)))
         : 0;
-    const passed = percentage >= PASS_THRESHOLD;
 
     return (
       <div className='flex min-h-dvh flex-col bg-background'>
@@ -178,11 +191,11 @@ export function QuizSessionPage() {
                   className='h-32 w-32 rounded-[5px] border-4 border-black flex items-center justify-center shadow-[4px_4px_0px_0px_#000]'
                   style={{ backgroundColor: passed ? '#15a06e' : '#e23b48' }}
                 >
-                  <span className='text-5xl font-black text-white'>{percentage}%</span>
+                  <span className='text-4xl font-black text-white'>{scaledScore}</span>
                 </div>
 
                 <Badge className={passed ? 'bg-success' : 'bg-destructive'}>
-                  {passed ? 'PASS' : 'FAIL'} (Passing score: {PASS_THRESHOLD}%)
+                  {passed ? 'PASS' : 'FAIL'} (Passing score: {PASSING_SCALED_SCORE})
                 </Badge>
 
                 <p className='text-xl font-bold text-black'>
@@ -192,12 +205,41 @@ export function QuizSessionPage() {
 
                 <div className='w-full max-w-md mt-4'>
                   <Progress
-                    value={percentage}
+                    value={barValue}
                     className={passed ? 'bg-success/20' : 'bg-destructive/20'}
                     indicatorClassName={passed ? 'bg-success' : 'bg-destructive'}
                   />
                 </div>
               </div>
+
+              {domainBreakdown.length > 0 && (
+                <div className='space-y-3'>
+                  <h3 className='text-xl font-black text-black'>Domain breakdown</h3>
+                  <div className='space-y-2'>
+                    {domainBreakdown.map(domain => {
+                      const pct =
+                        domain.total > 0
+                          ? Math.round((domain.correct / domain.total) * 100)
+                          : 0;
+                      return (
+                        <div
+                          key={domain.domain}
+                          className='rounded-[5px] border-2 border-black p-3'
+                        >
+                          <div className='flex items-center justify-between mb-2'>
+                            <span className='font-bold text-black'>{domain.domain}</span>
+                            <span className='text-sm font-bold text-black/70'>
+                              {domain.correct}/{domain.total} ({pct}%) · weight{' '}
+                              {Math.round(domain.weight * 100)}%
+                            </span>
+                          </div>
+                          <Progress value={pct} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className='space-y-6'>
                 <h3 className='text-xl font-black text-black'>Question summary</h3>

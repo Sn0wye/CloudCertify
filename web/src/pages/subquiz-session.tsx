@@ -18,10 +18,14 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion';
 import { Footer } from '@/components/footer';
+import { toast } from 'sonner';
 import {
   postQuizQuizIdSubquizzesSubquizIdStart,
   postQuizQuizIdSubquizzesSubquizIdSubmit
 } from '@/http/generated/api';
+
+// Subquiz attempts are scored as a 0–100 percentage; pass is server-decided (issue #10).
+const PASS_THRESHOLD = 70;
 import type {
   SubquizDetailDto,
   QuizAnswer,
@@ -45,6 +49,8 @@ export function SubquizSessionPage() {
   const [phase, setPhase] = useState<Phase>('quiz');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<number, number[]>>({});
+  const [score, setScore] = useState<number | null>(null);
+  const [passed, setPassed] = useState(false);
   const [correctCount, setCorrectCount] = useState<number | null>(null);
   const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
   const [resultQuestions, setResultQuestions] = useState<QuizResultQuestionDto[] | null>(
@@ -103,12 +109,18 @@ export function SubquizSessionPage() {
         submissionId: subquizDetail.submissionId,
         answers
       });
+      setScore(res.data.score);
+      setPassed(res.data.passed);
       setCorrectCount(res.data.correctCount);
       setTotalQuestions(res.data.totalQuestions);
       setResultQuestions(res.data.questions);
       setPhase('results');
     } catch {
-      // stay on quiz phase
+      // A finished submission can't be re-graded (server-authoritative, issue #12):
+      // surface it instead of silently re-enabling the button on a dead-ended attempt.
+      toast.error(
+        'Could not submit this practice. It may already be finished — use "Try Again" to start a new one.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -126,12 +138,14 @@ export function SubquizSessionPage() {
       setSessionData(newData);
       setCurrentIndex(0);
       setUserAnswers({});
+      setScore(null);
+      setPassed(false);
       setCorrectCount(null);
       setTotalQuestions(null);
       setResultQuestions(null);
       setPhase('quiz');
     } catch {
-      // stay on results
+      toast.error('Could not start a new attempt. Please try again.');
     } finally {
       setIsRestarting(false);
     }
@@ -159,7 +173,9 @@ export function SubquizSessionPage() {
   if (phase === 'results') {
     const total = totalQuestions ?? 0;
     const correct = correctCount ?? 0;
-    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+    // Server-authoritative 0–100 score; fall back to a local ratio only if absent.
+    const percentage =
+      score ?? (total > 0 ? Math.round((correct / total) * 100) : 0);
     const scoreColor =
       percentage >= 80 ? '#15a06e' : percentage >= 60 ? '#ffb020' : '#e23b48';
     // Amber reads with black ink; the darker green/red bands take white.
@@ -194,6 +210,9 @@ export function SubquizSessionPage() {
                 >
                   <span className={`text-5xl font-black ${scoreInk}`}>{percentage}%</span>
                 </div>
+                <Badge className={passed ? 'bg-success' : 'bg-destructive'}>
+                  {passed ? 'PASS' : 'FAIL'} (Passing score: {PASS_THRESHOLD}%)
+                </Badge>
                 <p className='text-xl font-bold text-black'>
                   You got <span className='font-black'>{correct}</span> out of{' '}
                   <span className='font-black'>{total}</span> questions correct
