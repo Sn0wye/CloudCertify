@@ -14,5 +14,7 @@ public class QuizDto
       public string Slug { get; set; }
       public DateTime CreatedAt { get; init; }
       public int QuestionCount { get; set; }
+      public int MinQuestions { get; set; }
+      public int MaxQuestions { get; set; }
       public List<SubquizDto>? SubQuizzes { get; set; }
 }

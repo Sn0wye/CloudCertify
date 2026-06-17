@@ -43,6 +43,8 @@ public class QuizService
             Slug = q.Slug,
             CreatedAt = q.CreatedAt,
             QuestionCount = q.Questions?.Count ?? 0,
+            MinQuestions = q.MinQuestions,
+            MaxQuestions = q.MaxQuestions,
             SubQuizzes = q.SubQuizzes?.Select(sq => new SubquizDto
             {
                 Id = sq.Id,
