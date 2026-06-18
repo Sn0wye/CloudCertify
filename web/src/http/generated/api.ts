@@ -327,60 +327,6 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       return useMutation(getPostQuizQuizIdSubmitMutationOptions(options), queryClient);
     }
 
-export const postQuizProcess = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-
-
-    return axios.default.post(
-      `https://api-cloudcertify.snowye.dev/quiz/process`,undefined,options
-    );
-  }
-
-
-
-export const getPostQuizProcessMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postQuizProcess>>, TError,void, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof postQuizProcess>>, TError,void, TContext> => {
-
-const mutationKey = ['postQuizProcess'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postQuizProcess>>, void> = () => {
-
-
-          return  postQuizProcess(axiosOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostQuizProcessMutationResult = NonNullable<Awaited<ReturnType<typeof postQuizProcess>>>
-
-    export type PostQuizProcessMutationError = AxiosError<unknown>
-
-    export const usePostQuizProcess = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postQuizProcess>>, TError,void, TContext>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postQuizProcess>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getPostQuizProcessMutationOptions(options), queryClient);
-    }
-
 export const getQuizQuizIdSubquizzes = (
     quizId: number, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<SubquizDto[]>> => {
