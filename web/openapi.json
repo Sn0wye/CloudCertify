@@ -205,16 +205,6 @@
         }
       }
     },
-    "/quiz/process": {
-      "post": {
-        "tags": ["Quiz"],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/quiz/{quizId}/subquizzes": {
       "get": {
         "tags": ["Subquiz"],
