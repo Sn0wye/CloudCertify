@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Cloud } from 'lucide-react';
+import { ArrowLeft, Cloud } from 'lucide-react';
 import { Link, useLocation, useParams } from 'wouter';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,12 +11,8 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '@/components/ui/accordion';
+import { QuestionCard } from '@/components/question-card';
+import { QuestionReview } from '@/components/question-review';
 import { Footer } from '@/components/footer';
 import { toast } from 'sonner';
 import {
@@ -78,7 +74,6 @@ export function SubquizSessionPage() {
   const questions = subquizDetail.questions ?? [];
   const questionsCount = questions.length;
   const currentQuestion = questions[currentIndex];
-  const progress = ((currentIndex + 1) / questionsCount) * 100;
 
   const handleAnswerSelect = (answerId: number) => {
     if (currentQuestion.id == null) return;
@@ -222,104 +217,10 @@ export function SubquizSessionPage() {
                 </div>
               </div>
 
-              <div className='space-y-6'>
-                <h3 className='text-xl font-black text-black'>Question review</h3>
-                <Accordion type='single' collapsible className='w-full'>
-                  {(resultQuestions ?? []).map((question, index) => {
-                    const isCorrect = question.answers.every(
-                      a => (a.isCorrect ? a.wasSelected : !a.wasSelected)
-                    );
-
-                    return (
-                      <AccordionItem key={question.id} value={`question-${question.id}`}>
-                        <AccordionTrigger className='hover:no-underline'>
-                          <div className='flex items-start gap-3 text-left'>
-                            <div
-                              className={`h-6 w-6 rounded-[5px] border-2 border-black flex items-center justify-center shrink-0 ${
-                                isCorrect ? 'bg-success' : 'bg-destructive'
-                              }`}
-                            >
-                              {isCorrect ? (
-                                <CheckCircle className='h-4 w-4 text-black' />
-                              ) : (
-                                <XCircle className='h-4 w-4 text-black' />
-                              )}
-                            </div>
-                            <div>
-                              <p className='font-bold text-black'>
-                                Question {index + 1}: {question.text}
-                              </p>
-                              <p className='text-sm text-black/70 font-medium mt-1'>
-                                {isCorrect ? 'Correct' : 'Incorrect'} — Click to view details
-                              </p>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className='space-y-3 pt-2 pl-9'>
-                            {question.explanation && (
-                              <div className='p-3 rounded-[5px] border-2 border-black bg-background'>
-                                <p className='text-sm font-bold text-black mb-1'>
-                                  Explanation
-                                </p>
-                                <p className='text-sm text-black/80'>
-                                  {question.explanation}
-                                </p>
-                              </div>
-                            )}
-                            {question.answers.map(answer => {
-                              const isCorrectAnswer = answer.isCorrect;
-                              const isUserAnswer = answer.wasSelected;
-
-                              let bgColor = 'bg-white';
-                              if (isUserAnswer && isCorrectAnswer) bgColor = 'bg-success/15';
-                              else if (isUserAnswer && !isCorrectAnswer)
-                                bgColor = 'bg-destructive/15';
-                              else if (!isUserAnswer && isCorrectAnswer)
-                                bgColor = 'bg-success/15';
-
-                              return (
-                                <div
-                                  key={answer.id}
-                                  className={`p-3 rounded-[5px] border-2 border-black flex items-start gap-2 ${bgColor}`}
-                                >
-                                  <div
-                                    className={`w-6 h-6 rounded-[5px] flex items-center justify-center border-2 border-black mt-0.5 shrink-0 ${
-                                      isCorrectAnswer || isUserAnswer
-                                        ? 'bg-black text-white'
-                                        : 'bg-white'
-                                    }`}
-                                  >
-                                    {isCorrectAnswer && <CheckCircle className='h-3 w-3' />}
-                                    {isUserAnswer && !isCorrectAnswer && (
-                                      <XCircle className='h-3 w-3' />
-                                    )}
-                                  </div>
-                                  <div className='flex-1'>
-                                    <span className='font-medium text-black'>
-                                      {answer.text}
-                                    </span>
-                                    {isUserAnswer && (
-                                      <span className='ml-2 text-sm font-bold text-black/70'>
-                                        (Your answer)
-                                      </span>
-                                    )}
-                                    {isCorrectAnswer && (
-                                      <span className='ml-2 text-sm font-bold text-black'>
-                                        (Correct)
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    );
-                  })}
-                </Accordion>
-              </div>
+              <QuestionReview
+                questions={resultQuestions ?? []}
+                heading='Question review'
+              />
             </CardContent>
             <CardFooter className='flex flex-col sm:flex-row gap-4 justify-between border-t-2 border-black pt-6'>
               <Button variant='outline' onClick={handleTryAgain} disabled={isRestarting}>
@@ -340,94 +241,30 @@ export function SubquizSessionPage() {
     <div className='flex min-h-dvh flex-col bg-background'>
       {pageHeader('Back')}
       <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
-        <Card className='w-full border-4 border-black shadow-[8px_8px_0px_0px_#000]'>
-          <CardHeader className='border-b-2 border-black pb-6'>
-            <div className='flex justify-between items-center mb-4 flex-wrap gap-2'>
-              <Badge variant='outline'>
-                Question {currentIndex + 1} of {questionsCount}
-              </Badge>
-              <div className='flex gap-2 flex-wrap'>
-                <Badge>{subquizDetail.title}</Badge>
-                {subquizDetail.domain && (
-                  <Badge variant='outline' className='border-2 border-black font-bold'>
-                    {subquizDetail.domain}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            <CardTitle className='text-xl md:text-2xl font-black text-black'>
-              {currentQuestion?.text}
-            </CardTitle>
-            {currentQuestion?.type === 'multiple_response' && (
-              <p className='text-sm font-bold text-black/60 mt-2'>
-                Select {currentQuestion.selectCount ?? 2} answers
-              </p>
-            )}
-            <div className='w-full mt-6'>
-              <Progress value={progress} />
-            </div>
-          </CardHeader>
-          <CardContent className='py-6'>
-            <div className='space-y-3'>
-              {currentQuestion?.answers?.map(answer => {
-                const selected =
-                  currentQuestion.id != null ? (userAnswers[currentQuestion.id] ?? []) : [];
-                const isSelected = answer.id != null && selected.includes(answer.id);
-                const isMultiResponse = currentQuestion.type === 'multiple_response';
-                const atCap =
-                  isMultiResponse && selected.length >= (currentQuestion.selectCount ?? 1);
-                const isDisabled = !isSelected && atCap;
-
-                return (
-                  <div
-                    key={answer.id}
-                    className={`p-4 rounded-[5px] border-2 border-black ${
-                      isSelected
-                        ? 'bg-primary shadow-none translate-x-[2px] translate-y-[2px]'
-                        : 'bg-white hover:bg-background shadow-[4px_4px_0px_0px_#000]'
-                    } ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'} flex items-start gap-3 transition-all`}
-                    onClick={() =>
-                      !isDisabled && answer.id != null && handleAnswerSelect(answer.id)
-                    }
-                  >
-                    <div
-                      className={`w-6 h-6 rounded-[5px] flex items-center justify-center border-2 border-black mt-0.5 shrink-0 ${
-                        isSelected ? 'bg-black text-white' : 'bg-white'
-                      }`}
-                    >
-                      {isSelected && <CheckCircle className='h-4 w-4' />}
-                    </div>
-                    <span
-                      className={`font-medium ${isSelected ? 'text-white' : 'text-black'}`}
-                    >
-                      {answer.text}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-          <CardFooter className='flex justify-between border-t-2 border-black pt-6'>
-            <Button
-              variant='outline'
-              onClick={() => setCurrentIndex(i => i - 1)}
-              disabled={currentIndex === 0}
-            >
-              <ArrowLeft className='mr-2 h-4 w-4' />
-              Previous
-            </Button>
-            {currentIndex < questionsCount - 1 ? (
-              <Button onClick={() => setCurrentIndex(i => i + 1)}>
-                Next
-                <ArrowRight className='ml-2 h-4 w-4' />
-              </Button>
-            ) : (
-              <Button onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Finish Practice'}
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
+        <QuestionCard
+          index={currentIndex}
+          total={questionsCount}
+          question={currentQuestion}
+          meta={
+            <>
+              <Badge>{subquizDetail.title}</Badge>
+              {subquizDetail.domain && (
+                <Badge variant='outline' className='border-2 border-black font-bold'>
+                  {subquizDetail.domain}
+                </Badge>
+              )}
+            </>
+          }
+          selectedIds={
+            currentQuestion?.id != null ? userAnswers[currentQuestion.id] ?? [] : []
+          }
+          onSelect={handleAnswerSelect}
+          onPrev={() => setCurrentIndex(i => i - 1)}
+          onNext={() => setCurrentIndex(i => i + 1)}
+          onFinish={handleSubmit}
+          finishLabel='Finish Practice'
+          isSubmitting={isSubmitting}
+        />
       </main>
       <Footer />
     </div>
