@@ -13,15 +13,31 @@ _Avoid_: Exam, Test, Simulation
 
 **Subquiz**:
 A focused, single-Domain practice drill carved out of a parent Quiz's
-questions. Scored as a simple 0-100 percentage (pass ≥ 70), distinct from a
-full Quiz attempt's scaled score.
+questions. Answered one Question at a time with instant feedback (Check),
+unlike a full Quiz. Scored as a simple 0-100 percentage (pass ≥ 70), distinct
+from a full Quiz attempt's scaled score.
 _Avoid_: Mini-quiz, Practice test, Section
+
+**Check**:
+The act of committing a single Question's selected answers during a Subquiz to
+get back immediate correctness, the correct answers, and the Question's
+explanation. A Check is per-Question and final — once checked a Question is not
+re-answered. Distinct from Submit, which finishes a whole attempt.
+_Avoid_: Submit (one question), Grade, Reveal, Try
 
 **Submission**:
 One attempt at a Quiz or Subquiz by an email-identified visitor. Holds the
-score and finished state. There is no User entity; a Submission is the only
-record of who did what.
+finished state and final score; a Subquiz Submission also accumulates the
+visitor's Recorded Answers as they are checked. There is no User entity; a
+Submission is the only record of who did what.
 _Avoid_: Attempt, Session, Result, Try
+
+**Recorded Answer**:
+One Question's selected answers committed to a Subquiz Submission at Check time.
+Immutable once recorded; the set of Recorded Answers is what a Subquiz's final
+score is computed from at finish. Full Quiz attempts have no Recorded Answers —
+they are graded from the answers sent in one batch at Submit.
+_Avoid_: Response, Choice, Pick
 
 **Domain**:
 An exam content area defined by the certification body (e.g. "Security and
