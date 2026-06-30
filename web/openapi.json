@@ -319,7 +319,7 @@
         }
       }
     },
-    "/quiz/{quizId}/subquizzes/{subquizId}/submit": {
+    "/quiz/{quizId}/subquizzes/{subquizId}/check": {
       "post": {
         "tags": ["Subquiz"],
         "parameters": [
@@ -346,17 +346,84 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SubmitQuizRequestDto"
+                "$ref": "#/components/schemas/CheckAnswerRequestDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/SubmitQuizRequestDto"
+                "$ref": "#/components/schemas/CheckAnswerRequestDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/SubmitQuizRequestDto"
+                "$ref": "#/components/schemas/CheckAnswerRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckAnswerResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckAnswerResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckAnswerResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz/{quizId}/subquizzes/{subquizId}/finish": {
+      "post": {
+        "tags": ["Subquiz"],
+        "parameters": [
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "subquizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinishSubquizRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinishSubquizRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinishSubquizRequestDto"
               }
             }
           },
@@ -406,6 +473,53 @@
           }
         }
       },
+      "CheckAnswerRequestDto": {
+        "type": "object",
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "answerIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "CheckAnswerResponseDto": {
+        "required": ["isCorrect", "correctAnswerIds", "selectedAnswerIds"],
+        "type": "object",
+        "properties": {
+          "isCorrect": {
+            "type": "boolean"
+          },
+          "correctAnswerIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "selectedAnswerIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "explanation": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "DomainResult": {
         "required": ["domain", "correct", "total", "weight"],
         "type": "object",
@@ -424,6 +538,15 @@
           "weight": {
             "type": "number",
             "format": "double"
+          }
+        }
+      },
+      "FinishSubquizRequestDto": {
+        "type": "object",
+        "properties": {
+          "submissionId": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
