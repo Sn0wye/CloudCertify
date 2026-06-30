@@ -11,20 +11,22 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { QuestionCard } from '@/components/question-card';
+import { PracticeQuestionCard } from '@/components/practice-question-card';
+import type { PracticePhase } from '@/components/practice-question-card';
 import { QuestionReview } from '@/components/question-review';
 import { Footer } from '@/components/footer';
 import { toast } from 'sonner';
 import {
   postQuizQuizIdSubquizzesSubquizIdStart,
-  postQuizQuizIdSubquizzesSubquizIdSubmit
+  postQuizQuizIdSubquizzesSubquizIdCheck,
+  postQuizQuizIdSubquizzesSubquizIdFinish
 } from '@/http/generated/api';
 
 // Subquiz attempts are scored as a 0–100 percentage; pass is server-decided (issue #10).
 const PASS_THRESHOLD = 70;
 import type {
   SubquizDetailDto,
-  QuizAnswer,
+  CheckAnswerResponseDto,
   QuizResultQuestionDto
 } from '@/http/generated/api.schemas';
 
@@ -44,7 +46,10 @@ export function SubquizSessionPage() {
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [phase, setPhase] = useState<Phase>('quiz');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Record<number, number[]>>({});
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  // Per-question reveal state machine: `answering` until Check, then `revealed`.
+  const [questionPhase, setQuestionPhase] = useState<PracticePhase>('answering');
+  const [reveal, setReveal] = useState<CheckAnswerResponseDto | null>(null);
   const [score, setScore] = useState<number | null>(null);
   const [passed, setPassed] = useState(false);
   const [correctCount, setCorrectCount] = useState<number | null>(null);
@@ -52,7 +57,8 @@ export function SubquizSessionPage() {
   const [resultQuestions, setResultQuestions] = useState<QuizResultQuestionDto[] | null>(
     null
   );
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
 
   useEffect(() => {
@@ -75,34 +81,50 @@ export function SubquizSessionPage() {
   const questionsCount = questions.length;
   const currentQuestion = questions[currentIndex];
 
+  const isLast = currentIndex >= questionsCount - 1;
+
   const handleAnswerSelect = (answerId: number) => {
-    if (currentQuestion.id == null) return;
-    const qId = currentQuestion.id;
+    // Options lock once Checked; ignore any clicks while revealed.
+    if (questionPhase === 'revealed') return;
     const type = currentQuestion.type;
     const selectCount = currentQuestion.selectCount ?? 1;
 
-    setUserAnswers(prev => {
-      const current = prev[qId] ?? [];
+    setSelectedIds(current => {
       if (type === 'multiple_response') {
         if (current.includes(answerId)) {
-          return { ...prev, [qId]: current.filter(id => id !== answerId) };
+          return current.filter(id => id !== answerId);
         }
-        if (current.length >= selectCount) return prev;
-        return { ...prev, [qId]: [...current, answerId] };
+        if (current.length >= selectCount) return current;
+        return [...current, answerId];
       }
-      return { ...prev, [qId]: [answerId] };
+      return [answerId];
     });
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    const answers: QuizAnswer[] = Object.entries(userAnswers).map(
-      ([questionId, answerIds]) => ({ questionId: Number(questionId), answerIds })
-    );
+  const handleCheck = async () => {
+    if (currentQuestion.id == null) return;
+    setIsChecking(true);
     try {
-      const res = await postQuizQuizIdSubquizzesSubquizIdSubmit(quizId, subquizId, {
+      const res = await postQuizQuizIdSubquizzesSubquizIdCheck(quizId, subquizId, {
         submissionId: subquizDetail.submissionId,
-        answers
+        questionId: currentQuestion.id,
+        answerIds: selectedIds
+      });
+      setReveal(res.data);
+      setQuestionPhase('revealed');
+    } catch {
+      // Leave the question in `answering` so the learner can retry the Check.
+      toast.error('Could not check this answer. Please try again.');
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  const finishSubquiz = async () => {
+    setIsFinishing(true);
+    try {
+      const res = await postQuizQuizIdSubquizzesSubquizIdFinish(quizId, subquizId, {
+        submissionId: subquizDetail.submissionId
       });
       setScore(res.data.score);
       setPassed(res.data.passed);
@@ -111,14 +133,23 @@ export function SubquizSessionPage() {
       setResultQuestions(res.data.questions);
       setPhase('results');
     } catch {
-      // A finished submission can't be re-graded (server-authoritative, issue #12):
-      // surface it instead of silently re-enabling the button on a dead-ended attempt.
-      toast.error(
-        'Could not submit this practice. It may already be finished — use "Try Again" to start a new one.'
-      );
+      // Keep the session intact so Continue can be retried.
+      toast.error('Could not finish this practice. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setIsFinishing(false);
     }
+  };
+
+  const handleContinue = () => {
+    if (isLast) {
+      finishSubquiz();
+      return;
+    }
+    // Advance to the next question and reset its reveal state. No going back.
+    setCurrentIndex(i => i + 1);
+    setSelectedIds([]);
+    setReveal(null);
+    setQuestionPhase('answering');
   };
 
   const handleTryAgain = async () => {
@@ -132,7 +163,9 @@ export function SubquizSessionPage() {
       );
       setSessionData(newData);
       setCurrentIndex(0);
-      setUserAnswers({});
+      setSelectedIds([]);
+      setReveal(null);
+      setQuestionPhase('answering');
       setScore(null);
       setPassed(false);
       setCorrectCount(null);
@@ -241,7 +274,7 @@ export function SubquizSessionPage() {
     <div className='flex min-h-dvh flex-col bg-background'>
       {pageHeader('Back')}
       <main className='flex-1 container max-w-4xl mx-auto py-12 px-4'>
-        <QuestionCard
+        <PracticeQuestionCard
           index={currentIndex}
           total={questionsCount}
           question={currentQuestion}
@@ -255,15 +288,15 @@ export function SubquizSessionPage() {
               )}
             </>
           }
-          selectedIds={
-            currentQuestion?.id != null ? userAnswers[currentQuestion.id] ?? [] : []
-          }
+          selectedIds={selectedIds}
           onSelect={handleAnswerSelect}
-          onPrev={() => setCurrentIndex(i => i - 1)}
-          onNext={() => setCurrentIndex(i => i + 1)}
-          onFinish={handleSubmit}
-          finishLabel='Finish Practice'
-          isSubmitting={isSubmitting}
+          phase={questionPhase}
+          reveal={reveal}
+          onCheck={handleCheck}
+          onContinue={handleContinue}
+          isChecking={isChecking}
+          isFinishing={isFinishing}
+          isLast={isLast}
         />
       </main>
       <Footer />
