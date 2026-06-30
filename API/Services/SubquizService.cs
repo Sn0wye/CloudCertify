@@ -82,13 +82,74 @@ public class SubquizService
         };
     }
 
-    public async Task<SubmitQuizResponseDto> SubmitSubquiz(int quizId, int subquizId, int submissionId, List<QuizAnswer> answers)
+    /// <summary>
+    /// Commits one Question's answer (a Check) and returns instant feedback. Records an immutable
+    /// Recorded Answer; rejects a Submission for the wrong quiz/subquiz, an already-finished one,
+    /// and a Question already Checked. Reachable only via the Subquiz path (ADR 0002): the full
+    /// Quiz never reveals per-Question correctness.
+    /// </summary>
+    public async Task<CheckAnswerResponseDto> CheckAnswer(int quizId, int subquizId, int submissionId, int questionId, List<int> answerIds)
     {
-        var strategy = GradingStrategyFactory.GetSubquizStrategy();
+        var submission = await _submissionRepository.GetById(submissionId);
 
-        // Lifecycle guards (ownership + finished) and the grade-and-map flow live in the shared
-        // grader so the full-quiz and subquiz paths cannot diverge again (issue #12).
-        return await _submissionGrader.GradeAndFinish(submissionId, quizId, subquizId, strategy, answers);
+        if (submission == null)
+        {
+            throw new InvalidOperationException($"Submission {submissionId} not found");
+        }
+
+        SubmissionGrader.EnsureBelongsTo(submission, quizId, subquizId);
+        SubmissionGrader.EnsureNotFinished(submission);
+
+        if (submission.RecordedAnswers.Any(r => r.QuestionId == questionId))
+        {
+            throw new InvalidOperationException(
+                $"Question {questionId} is already checked on submission {submissionId}; a Recorded Answer is immutable");
+        }
+
+        var question = (await _questionRepository.GetQuestionsByIds(new List<int> { questionId })).FirstOrDefault();
+
+        if (question == null)
+        {
+            throw new InvalidOperationException($"Question {questionId} not found for submission {submissionId}");
+        }
+
+        await _submissionRepository.RecordAnswer(new RecordedAnswer
+        {
+            SubmissionId = submissionId,
+            QuestionId = questionId,
+            SelectedAnswerIds = answerIds,
+        });
+
+        return new CheckAnswerResponseDto
+        {
+            IsCorrect = QuestionCorrectness.IsCorrect(question, answerIds),
+            CorrectAnswerIds = question.Answers.Where(a => a.IsCorrect).Select(a => a.Id).ToList(),
+            SelectedAnswerIds = answerIds,
+            Explanation = question.Explanation,
+        };
+    }
+
+    /// <summary>
+    /// Finishes a Subquiz attempt: grades the accumulated Recorded Answers through the shared
+    /// grader and subquiz Grading Strategy against the served set, so unchecked served Questions
+    /// count as wrong (ADR 0001) and the Submission is marked Finished. The grade-and-finish flow
+    /// stays in the shared grader so full-quiz and subquiz paths cannot diverge (issue #12).
+    /// </summary>
+    public async Task<SubmitQuizResponseDto> FinishSubquiz(int quizId, int subquizId, int submissionId)
+    {
+        var submission = await _submissionRepository.GetById(submissionId);
+
+        if (submission == null)
+        {
+            throw new InvalidOperationException($"Submission {submissionId} not found");
+        }
+
+        var recordedAnswers = submission.RecordedAnswers
+            .Select(r => new QuizAnswer { QuestionId = r.QuestionId, AnswerIds = r.SelectedAnswerIds })
+            .ToList();
+
+        var strategy = GradingStrategyFactory.GetSubquizStrategy();
+        return await _submissionGrader.GradeAndFinish(submissionId, quizId, subquizId, strategy, recordedAnswers);
     }
 
     private static SubquizDto MapSubquizToDto(Subquiz sq)

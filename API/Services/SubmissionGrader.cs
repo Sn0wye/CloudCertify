@@ -1,3 +1,4 @@
+using API.Entities;
 using API.Model.Request;
 using API.Model.Response;
 using API.Repositories;
@@ -41,18 +42,8 @@ public class SubmissionGrader
             throw new InvalidOperationException($"Submission {submissionId} not found");
         }
 
-        if (submission.QuizId != expectedQuizId || submission.SubquizId != expectedSubquizId)
-        {
-            throw new InvalidOperationException(
-                $"Submission {submissionId} belongs to quiz {submission.QuizId}/subquiz {Describe(submission.SubquizId)}, " +
-                $"but was submitted to quiz {expectedQuizId}/subquiz {Describe(expectedSubquizId)}");
-        }
-
-        if (submission.Finished)
-        {
-            throw new InvalidOperationException(
-                $"Submission {submissionId} is already finished (Score {submission.Score}); cannot resubmit");
-        }
+        EnsureBelongsTo(submission, expectedQuizId, expectedSubquizId);
+        EnsureNotFinished(submission);
 
         // Grade against the question set served at start, not whatever the client echoes back:
         // an unanswered served question stays in the denominator and counts as wrong (issue #11).
@@ -96,6 +87,35 @@ public class SubmissionGrader
             DomainBreakdown = gradingResult.DomainBreakdown,
             Questions = resultQuestions
         };
+    }
+
+    /// <summary>
+    /// Rejects a Submission addressed to the wrong quiz/subquiz, so a Submission id from one
+    /// attempt cannot be replayed against another (issue #12). Shared by the full-quiz finish,
+    /// the subquiz finish, and subquiz Check so the ownership rule has one definition.
+    /// </summary>
+    public static void EnsureBelongsTo(Submission submission, int expectedQuizId, int? expectedSubquizId)
+    {
+        if (submission.QuizId == expectedQuizId && submission.SubquizId == expectedSubquizId)
+        {
+            return;
+        }
+
+        throw new InvalidOperationException(
+            $"Submission {submission.Id} belongs to quiz {submission.QuizId}/subquiz {Describe(submission.SubquizId)}, " +
+            $"but was addressed to quiz {expectedQuizId}/subquiz {Describe(expectedSubquizId)}");
+    }
+
+    /// <summary>Rejects an already-finished Submission so a completed attempt cannot be replayed (issue #12).</summary>
+    public static void EnsureNotFinished(Submission submission)
+    {
+        if (!submission.Finished)
+        {
+            return;
+        }
+
+        throw new InvalidOperationException(
+            $"Submission {submission.Id} is already finished (Score {submission.Score}); cannot resubmit");
     }
 
     private static string Describe(int? subquizId) => subquizId?.ToString() ?? "none";

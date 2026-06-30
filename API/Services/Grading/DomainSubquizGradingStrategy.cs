@@ -18,15 +18,7 @@ public class DomainSubquizGradingStrategy : IGradingStrategy
                 .SelectMany(a => a.AnswerIds)
                 .ToList();
 
-            var correctAnswerIds = question.Answers
-                .Where(a => a.IsCorrect)
-                .Select(a => a.Id)
-                .ToList();
-
-            bool isCorrect = userAnswerIds.Count == correctAnswerIds.Count && 
-                             !userAnswerIds.Except(correctAnswerIds).Any();
-
-            if (isCorrect)
+            if (QuestionCorrectness.IsCorrect(question, userAnswerIds))
                 totalCorrect++;
 
             totalQuestions++;

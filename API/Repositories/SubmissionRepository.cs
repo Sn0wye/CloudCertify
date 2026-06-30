@@ -22,6 +22,13 @@ public class SubmissionRepository(ApplicationDbContext context) : ISubmissionRep
     public async Task<Submission?> GetById(int submissionId)
     {
         return await context.Submission
+            .Include(s => s.RecordedAnswers)
             .FirstOrDefaultAsync(s => s.Id == submissionId);
+    }
+
+    public async Task RecordAnswer(RecordedAnswer recordedAnswer)
+    {
+        context.Set<RecordedAnswer>().Add(recordedAnswer);
+        await context.SaveChangesAsync();
     }
 }

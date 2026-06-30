@@ -15,6 +15,7 @@ public class ApplicationDbContext: DbContext
     public DbSet<Question> Question { get; set; }
     public DbSet<Answer> Answer { get; set; }
     public DbSet<Submission> Submission { get; set; }
+    public DbSet<RecordedAnswer> RecordedAnswer { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -104,6 +105,19 @@ public class ApplicationDbContext: DbContext
             entity.HasOne<Subquiz>()
                 .WithMany()
                 .HasForeignKey(s => s.SubquizId);
+
+            // Recorded Answers belong to the Submission: one row per (Submission, Question),
+            // so a Question can be Checked at most once. See docs/adr/0002-incremental-subquiz-feedback.md.
+            entity.HasMany(s => s.RecordedAnswers)
+                .WithOne()
+                .HasForeignKey(r => r.SubmissionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RecordedAnswer>(entity =>
+        {
+            entity.HasKey(r => new { r.SubmissionId, r.QuestionId });
+            entity.Property(r => r.SelectedAnswerIds).HasColumnType("integer[]").IsRequired();
         });
     }
 }
