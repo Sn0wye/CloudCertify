@@ -13,11 +13,29 @@ export interface AnswerDto {
   image?: string | null;
 }
 
+export interface CheckAnswerRequestDto {
+  submissionId?: number;
+  questionId?: number;
+  answerIds?: number[];
+}
+
+export interface CheckAnswerResponseDto {
+  isCorrect: boolean;
+  correctAnswerIds: number[];
+  selectedAnswerIds: number[];
+  /** @nullable */
+  explanation?: string | null;
+}
+
 export interface DomainResult {
   domain: string;
   correct: number;
   total: number;
   weight: number;
+}
+
+export interface FinishSubquizRequestDto {
+  submissionId?: number;
 }
 
 export type QuestionType = typeof QuestionType[keyof typeof QuestionType];
