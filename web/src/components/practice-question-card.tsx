@@ -109,24 +109,31 @@ export function PracticeQuestionCard({
             // revealed, every option is locked.
             const isDisabled = isRevealed || (!isSelected && atCap);
 
+            // Light tinted reveal fills (consistent with QuestionReview) keep
+            // the answer text on a near-cream wash so it stays legible — a full
+            // saturated green/red fill muddies the text.
             let optionClass: string;
             let boxClass: string;
+            // Default span colour is black; only the selected blue tile needs white.
+            let textClass = 'text-black';
             if (isRevealed && isCorrectAnswer) {
-              optionClass = 'bg-success shadow-none';
-              boxClass = 'bg-black text-white';
+              optionClass = 'bg-success/15 shadow-none';
+              boxClass = 'bg-success text-black';
             } else if (isRevealed && isWrongPick) {
-              optionClass = 'bg-destructive shadow-none';
-              boxClass = 'bg-black text-white';
+              optionClass = 'bg-destructive/15 shadow-none';
+              boxClass = 'bg-destructive text-black';
             } else if (isRevealed) {
-              optionClass = 'bg-white shadow-none opacity-60';
+              optionClass = 'bg-white shadow-none opacity-55';
               boxClass = 'bg-white';
             } else if (isSelected) {
               optionClass =
                 'bg-primary shadow-none translate-x-[2px] translate-y-[2px]';
-              boxClass = 'bg-black text-white';
+              boxClass = 'bg-white text-primary';
+              // Deep-blue tile: black text fails contrast, so go white.
+              textClass = 'text-white';
             } else {
               optionClass =
-                'bg-white hover:bg-background shadow-[4px_4px_0px_0px_#000]';
+                'bg-white hover:bg-background shadow-[4px_4px_0px_0px_#000] active:scale-[0.99]';
               boxClass = 'bg-white';
             }
 
@@ -151,18 +158,33 @@ export function PracticeQuestionCard({
                     isSelected && <CheckCircle className='h-4 w-4' />
                   )}
                 </div>
-                <span className='font-medium text-black'>{answer.text}</span>
+                <span className={`font-medium ${textClass}`}>{answer.text}</span>
               </div>
             );
           })}
         </div>
 
-        {isRevealed && reveal?.explanation && (
-          <div className='mt-6 p-4 rounded-[5px] border-2 border-black bg-background'>
-            <p className='text-sm font-black text-black mb-1'>
-              {reveal.isCorrect ? 'Correct!' : 'Not quite'}
-            </p>
-            <p className='text-sm text-black/80'>{reveal.explanation}</p>
+        {isRevealed && (
+          <div className='mt-6 rounded-[5px] border-2 border-black bg-background overflow-hidden motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-1 motion-safe:duration-200'>
+            <div
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 border-black ${
+                reveal?.isCorrect ? 'bg-success' : 'bg-destructive'
+              }`}
+            >
+              {reveal?.isCorrect ? (
+                <CheckCircle className='h-4 w-4 text-black' />
+              ) : (
+                <XCircle className='h-4 w-4 text-black' />
+              )}
+              <p className='text-sm font-black text-black'>
+                {reveal?.isCorrect ? 'Correct' : 'Not quite'}
+              </p>
+            </div>
+            {reveal?.explanation && (
+              <p className='px-4 py-3 text-sm text-black/80'>
+                {reveal.explanation}
+              </p>
+            )}
           </div>
         )}
       </CardContent>
