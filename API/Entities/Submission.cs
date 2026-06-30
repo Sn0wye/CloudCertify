@@ -21,6 +21,13 @@ public class Submission
     /// </summary>
     public List<int> ServedQuestionIds { get; set; } = new();
 
+    /// <summary>
+    /// Per-Question answers committed via Check, in order. Immutable once written: a
+    /// Question already present here cannot be re-Checked. Empty for full-Quiz attempts,
+    /// which batch-grade from the submit body. See docs/adr/0002-incremental-subquiz-feedback.md.
+    /// </summary>
+    public List<RecordedAnswer> RecordedAnswers { get; set; } = new();
+
     public int Score { get; set; }
     
     public string Email { get; set; }

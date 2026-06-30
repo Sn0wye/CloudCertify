@@ -11,17 +11,24 @@ namespace API.Tests;
 internal static class QuizBuilder
 {
     /// <summary>A question whose correct answers are <paramref name="correctIds"/> and distractors <paramref name="wrongIds"/>.</summary>
-    public static Question Question(int id, string? domain, int[] correctIds, int[] wrongIds)
+    public static Question Question(int id, string? domain, int[] correctIds, int[] wrongIds,
+        string? explanation = null, QuestionType type = QuestionType.MultipleChoice)
     {
         var answers = correctIds.Select(aid => new Answer { Id = aid, IsCorrect = true })
             .Concat(wrongIds.Select(aid => new Answer { Id = aid, IsCorrect = false }))
             .ToList();
-        return new Question { Id = id, Domain = domain, Answers = answers };
+        return new Question { Id = id, Domain = domain, Answers = answers, Explanation = explanation, Type = type };
     }
 
     /// <summary>The user selecting <paramref name="answerIds"/> for question <paramref name="questionId"/>.</summary>
     public static QuizAnswer Answer(int questionId, params int[] answerIds)
     {
         return new QuizAnswer { QuestionId = questionId, AnswerIds = answerIds.ToList() };
+    }
+
+    /// <summary>A Recorded Answer already committed (Checked) for <paramref name="questionId"/>.</summary>
+    public static RecordedAnswer Recorded(int questionId, params int[] answerIds)
+    {
+        return new RecordedAnswer { QuestionId = questionId, SelectedAnswerIds = answerIds.ToList() };
     }
 }

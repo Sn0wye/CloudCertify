@@ -47,12 +47,25 @@ public class SubquizController : ControllerBase
     }
 
     /// <summary>
-    /// Submit subquiz answers
+    /// Check a single subquiz question: commit its answer and get instant feedback
+    /// (correctness, the correct answer ids, and the explanation). The Recorded Answer is
+    /// immutable — a checked question cannot be re-answered. Subquiz-only (ADR 0002).
     /// </summary>
-    [HttpPost("{subquizId}/submit")]
-    public async Task<ActionResult<SubmitQuizResponseDto>> SubmitSubquiz(int quizId, int subquizId, [FromBody] SubmitQuizRequestDto request)
+    [HttpPost("{subquizId}/check")]
+    public async Task<ActionResult<CheckAnswerResponseDto>> CheckAnswer(int quizId, int subquizId, [FromBody] CheckAnswerRequestDto request)
     {
-        var result = await _subquizService.SubmitSubquiz(quizId, subquizId, request.SubmissionId, request.Answers);
+        var result = await _subquizService.CheckAnswer(quizId, subquizId, request.SubmissionId, request.QuestionId, request.AnswerIds);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Finish a subquiz attempt: grade the accumulated checked answers and return the
+    /// final 0-100 result. Unchecked served questions count as wrong (ADR 0001).
+    /// </summary>
+    [HttpPost("{subquizId}/finish")]
+    public async Task<ActionResult<SubmitQuizResponseDto>> FinishSubquiz(int quizId, int subquizId, [FromBody] FinishSubquizRequestDto request)
+    {
+        var result = await _subquizService.FinishSubquiz(quizId, subquizId, request.SubmissionId);
         return Ok(result);
     }
 }

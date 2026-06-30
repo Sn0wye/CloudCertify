@@ -74,42 +74,116 @@ public class SubquizServiceTests
     }
 
     [Fact]
-    public async Task SubmitSubquiz_Throws_WhenSubmissionDoesNotMatch()
+    public async Task CheckAnswer_CorrectSelection_ReturnsCorrectnessAndExplanation_AndRecordsAnswer()
+    {
+        var submission = new Submission { Id = 5, QuizId = 1, SubquizId = 2, Email = "u@e.com", ServedQuestionIds = [10] };
+        _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
+        var question = Question(10, "D", correctIds: [1], wrongIds: [2], explanation: "because AWS");
+        _questions.Setup(r => r.GetQuestionsByIds(It.Is<List<int>>(ids => ids.SequenceEqual(new[] { 10 }))))
+            .ReturnsAsync(new List<Question> { question });
+
+        var result = await CreateService().CheckAnswer(1, 2, 5, 10, new List<int> { 1 });
+
+        Assert.True(result.IsCorrect);
+        Assert.Equal(new[] { 1 }, result.CorrectAnswerIds);
+        Assert.Equal(new[] { 1 }, result.SelectedAnswerIds);
+        Assert.Equal("because AWS", result.Explanation);
+        _submissions.Verify(r => r.RecordAnswer(It.Is<RecordedAnswer>(ra =>
+            ra.SubmissionId == 5 && ra.QuestionId == 10 && ra.SelectedAnswerIds.SequenceEqual(new[] { 1 }))), Times.Once);
+    }
+
+    [Fact]
+    public async Task CheckAnswer_MultipleResponse_PartialSelectionIsIncorrect_ButStillRecorded()
+    {
+        // multiple_response needs an exact match: both correct ids, no incorrect id. Picking only one is wrong.
+        var submission = new Submission { Id = 5, QuizId = 1, SubquizId = 2, Email = "u@e.com", ServedQuestionIds = [10] };
+        _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
+        var question = Question(10, "D", correctIds: [1, 2], wrongIds: [3], type: QuestionType.MultipleResponse);
+        _questions.Setup(r => r.GetQuestionsByIds(It.IsAny<List<int>>()))
+            .ReturnsAsync(new List<Question> { question });
+
+        var result = await CreateService().CheckAnswer(1, 2, 5, 10, new List<int> { 1 }); // only one of two correct
+
+        Assert.False(result.IsCorrect);
+        Assert.Equal(new[] { 1, 2 }, result.CorrectAnswerIds);
+        _submissions.Verify(r => r.RecordAnswer(It.Is<RecordedAnswer>(ra => ra.QuestionId == 10)), Times.Once);
+    }
+
+    [Fact]
+    public async Task CheckAnswer_Throws_WhenQuestionAlreadyChecked_AndDoesNotRecordAgain()
+    {
+        var submission = new Submission
+        {
+            Id = 5, QuizId = 1, SubquizId = 2, Email = "u@e.com", ServedQuestionIds = [10],
+            RecordedAnswers = [Recorded(10, 1)] // already checked
+        };
+        _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
+
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.CheckAnswer(1, 2, 5, 10, new List<int> { 2 }));
+        _submissions.Verify(r => r.RecordAnswer(It.IsAny<RecordedAnswer>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CheckAnswer_Throws_WhenSubmissionBelongsToDifferentQuiz()
     {
         _submissions.Setup(r => r.GetById(5))
             .ReturnsAsync(new Submission { Id = 5, QuizId = 99, SubquizId = 2 });
 
         var service = CreateService();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => service.SubmitSubquiz(1, 2, 5, new List<QuizAnswer>()));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.CheckAnswer(1, 2, 5, 10, new List<int> { 1 }));
+        _submissions.Verify(r => r.RecordAnswer(It.IsAny<RecordedAnswer>()), Times.Never);
     }
 
     [Fact]
-    public async Task SubmitSubquiz_Throws_WhenAlreadyFinished()
+    public async Task CheckAnswer_Throws_WhenSubmissionAlreadyFinished()
     {
         _submissions.Setup(r => r.GetById(5))
             .ReturnsAsync(new Submission { Id = 5, QuizId = 1, SubquizId = 2, Finished = true });
 
         var service = CreateService();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => service.SubmitSubquiz(1, 2, 5, new List<QuizAnswer>()));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.CheckAnswer(1, 2, 5, 10, new List<int> { 1 }));
+        _submissions.Verify(r => r.RecordAnswer(It.IsAny<RecordedAnswer>()), Times.Never);
     }
 
     [Fact]
-    public async Task SubmitSubquiz_GradesScoresAndPersistsFinishedSubmission()
+    public async Task FinishSubquiz_Throws_WhenSubmissionDoesNotMatch()
     {
-        var submission = new Submission { Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com", ServedQuestionIds = [10] };
+        _submissions.Setup(r => r.GetById(5))
+            .ReturnsAsync(new Submission { Id = 5, QuizId = 99, SubquizId = 2 });
+
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.FinishSubquiz(1, 2, 5));
+    }
+
+    [Fact]
+    public async Task FinishSubquiz_Throws_WhenAlreadyFinished()
+    {
+        _submissions.Setup(r => r.GetById(5))
+            .ReturnsAsync(new Submission { Id = 5, QuizId = 1, SubquizId = 2, Finished = true });
+
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.FinishSubquiz(1, 2, 5));
+    }
+
+    [Fact]
+    public async Task FinishSubquiz_GradesRecordedAnswers_ScoresAndPersistsFinishedSubmission()
+    {
+        var submission = new Submission
+        {
+            Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com",
+            ServedQuestionIds = [10], RecordedAnswers = [Recorded(10, 1)] // checked correctly
+        };
         _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
-        _subquizzes.Setup(r => r.GetSubquizById(2)).ReturnsAsync(new Subquiz { Id = 2, QuizId = 1, Domain = "D" });
-        var question = Question(10, "D", correctIds: [1], wrongIds: [2]);
         _questions.Setup(r => r.GetQuestionsByIds(It.IsAny<List<int>>()))
-            .ReturnsAsync(new List<Question> { question });
+            .ReturnsAsync(new List<Question> { Question(10, "D", correctIds: [1], wrongIds: [2]) });
 
-        var answers = new List<QuizAnswer> { Answer(10, 1) }; // fully correct
-
-        var response = await CreateService().SubmitSubquiz(1, 2, 5, answers);
+        var response = await CreateService().FinishSubquiz(1, 2, 5);
 
         Assert.Equal(100, response.ScaledScore); // subquiz -> 0-100 percentage
         Assert.True(response.Passed);
@@ -121,41 +195,38 @@ public class SubquizServiceTests
     [Theory]
     [InlineData(7, 70, true)]  // exactly at the pass threshold
     [InlineData(6, 60, false)] // just below
-    public async Task SubmitSubquiz_ScoresPercentage_AndPassesAtSeventy(int correctCount, int expectedScore, bool expectedPass)
+    public async Task FinishSubquiz_ScoresPercentage_AndPassesAtSeventy(int correctCount, int expectedScore, bool expectedPass)
     {
         var questions = Enumerable.Range(1, 10)
             .Select(i => Question(i, "D", correctIds: [i * 10], wrongIds: [i * 10 + 1]))
             .ToList();
+        var recorded = questions
+            .Select((q, idx) => Recorded(q.Id, idx < correctCount ? (idx + 1) * 10 : (idx + 1) * 10 + 1))
+            .ToList();
         var submission = new Submission
         {
             Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com",
-            ServedQuestionIds = questions.Select(q => q.Id).ToList()
+            ServedQuestionIds = questions.Select(q => q.Id).ToList(), RecordedAnswers = recorded
         };
         _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
-        _subquizzes.Setup(r => r.GetSubquizById(2)).ReturnsAsync(new Subquiz { Id = 2, QuizId = 1, Domain = "D" });
         _questions.Setup(r => r.GetQuestionsByIds(It.IsAny<List<int>>())).ReturnsAsync(questions);
 
-        var answers = questions
-            .Select((q, idx) => Answer(q.Id, idx < correctCount ? (idx + 1) * 10 : (idx + 1) * 10 + 1))
-            .ToList();
-
-        var response = await CreateService().SubmitSubquiz(1, 2, 5, answers);
+        var response = await CreateService().FinishSubquiz(1, 2, 5);
 
         Assert.Equal(expectedScore, response.ScaledScore);
         Assert.Equal(expectedPass, response.Passed);
     }
 
     [Fact]
-    public async Task SubmitSubquiz_GradesAgainstServedSet_SkippedQuestionCountsAsWrong()
+    public async Task FinishSubquiz_GradesAgainstServedSet_UncheckedQuestionCountsAsWrong()
     {
-        // Two questions served; client answers only one. The skipped one stays in the denominator.
+        // Two questions served; only one was checked. The unchecked one stays in the denominator (ADR 0001).
         var submission = new Submission
         {
             Id = 5, QuizId = 1, SubquizId = 2, Finished = false, Email = "u@e.com",
-            ServedQuestionIds = [10, 11]
+            ServedQuestionIds = [10, 11], RecordedAnswers = [Recorded(10, 1)] // 11 never checked
         };
         _submissions.Setup(r => r.GetById(5)).ReturnsAsync(submission);
-        _subquizzes.Setup(r => r.GetSubquizById(2)).ReturnsAsync(new Subquiz { Id = 2, QuizId = 1, Domain = "D" });
         _questions.Setup(r => r.GetQuestionsByIds(It.Is<List<int>>(ids => ids.SequenceEqual(new[] { 10, 11 }))))
             .ReturnsAsync(new List<Question>
             {
@@ -163,11 +234,9 @@ public class SubquizServiceTests
                 Question(11, "D", correctIds: [3], wrongIds: [4])
             });
 
-        var answers = new List<QuizAnswer> { Answer(10, 1) }; // 11 omitted
+        var response = await CreateService().FinishSubquiz(1, 2, 5);
 
-        var response = await CreateService().SubmitSubquiz(1, 2, 5, answers);
-
-        Assert.Equal(2, response.TotalQuestions); // served count, not answered count
+        Assert.Equal(2, response.TotalQuestions); // served count, not checked count
         Assert.Equal(1, response.CorrectCount);
         Assert.Equal(50, response.ScaledScore);   // 1/2 -> 50%
         Assert.False(response.Passed);
